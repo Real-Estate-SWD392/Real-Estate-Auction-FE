@@ -1,0 +1,39 @@
+.navbar-container {
+    .header {
+        background-color: white;
+        color: black;
+
+        .logo-container {
+            .image-logo {
+                width: 60px;
+            }
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+
+            .logo-content {
+                line-height: 1;
+
+                .logo-content-a {
+                    font-size: 24px;
+
+                }
+                .logo-content-b {
+                    font-size: 16px;
+
+
+                }
+            }
+        }
+
+        .button-login-container {
+            padding: 6px 20px;
+            margin: 16px 10px;
+            border: 1px solid black;
+            border-radius: 10px;
+            cursor: pointer;
+
+        }
+
+    }
+}

@@ -1,0 +1,54 @@
+.input-field {
+    margin-bottom: 10px;
+}
+
+.css-1nrlq1o-MuiFormControl-root {
+    width: 100%;
+}
+
+.form-button-signin {
+    width: 100%;
+    background-color: #118BF4!important;
+    height: 48px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.form-button-google {
+    width: 100%;
+    height: 48px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+    border: 1px solid rgb(92, 90, 90);
+
+    }
+}
+
+.forgot-link {
+    text-decoration: none;
+}
+
+span {
+    display: flex;
+    font-size: 12px;
+    gap: 5px;
+}
+
+.sigin-description {
+    font-size: 14px;
+}
+
+.google-icon {
+    width: 6%;
+    margin-right: 2%;
+
+}
