@@ -24,12 +24,12 @@ const colorBall = {
 };
 
 const imgCard = {
-  width: "340px",
+  width: "320px",
   height: "180px",
 };
 
 const address = {
-  width: "320px",
+  width: "300px",
   height: "50px",
 };
 
@@ -173,7 +173,7 @@ const AuctionPropCard = ({
           variant="body1"
           color="initial"
           style={combinedStyles}
-          fontSize={18}
+          fontSize={17}
         >
           {propAddress}
         </Typography>
@@ -283,7 +283,7 @@ const AuctionPropCard = ({
             container
             justifyContent="center"
             alignItems="center"
-            spacing={8}
+            spacing={4}
           >
             <Grid item flexDirection="column">
               <Typography variant="body1" color="initial" fontSize={15}>

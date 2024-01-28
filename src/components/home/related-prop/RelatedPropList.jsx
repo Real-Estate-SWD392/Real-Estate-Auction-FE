@@ -1,21 +1,47 @@
 // RelatedPropList.js
 import React from "react";
 import { connect } from "react-redux";
-import { Grid, Typography } from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import AuctionPropCard from "./AuctionPropCard";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
+const buttonStyle = {
+  background: "#F4F7FA",
+  width: "40px",
+  height: "40px",
+  borderRadius: "10px",
+};
 const RelatedPropList = ({ properties }) => {
   return (
     <>
-      <Typography
-        variant="body1"
-        color="initial"
-        fontSize={32}
-        sx={{ marginLeft: "115px", mb: "15px" }}
+      <div
+        className="header-rcm-prop"
+        style={{ display: "flex", justifyContent: "space-between" }}
       >
-        Reccommended Properties:
-      </Typography>
-      <Grid container spacing={4} justifyContent="center">
+        <Typography
+          variant="body1"
+          color="initial"
+          fontSize={28}
+          fontWeight={500}
+          sx={{ marginLeft: "85px", mb: "15px" }}
+        >
+          Reccommended Properties
+        </Typography>
+        <div className="navigate-next" style={{ marginRight: "85px" }}>
+          <IconButton style={buttonStyle} sx={{ mr: "20px" }}>
+            <ChevronRightIcon
+              sx={{
+                transform: "rotate(180deg)",
+              }}
+            />
+          </IconButton>
+          <IconButton style={buttonStyle}>
+            <ChevronRightIcon />
+          </IconButton>
+        </div>
+      </div>
+      <Grid container spacing={3} justifyContent="center">
         {properties.map((prop, index) => (
           <Grid item key={index}>
             <AuctionPropCard
