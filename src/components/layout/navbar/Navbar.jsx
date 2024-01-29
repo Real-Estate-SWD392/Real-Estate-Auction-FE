@@ -11,11 +11,10 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-
-import Logo from "../../assets/img/logo_auction.png";
+import Logo from  "../../../assets/img/logo_auction.png"
 import "./Navbar.scss";
 import { Badge } from "@mui/material";
-import Auth from "../auth/Auth";
+import Auth from "../../auth/Auth";
 
 const pages = ["Buy", "Sell", "Blog", "Alert"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];

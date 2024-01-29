@@ -1,0 +1,32 @@
+.discover-container {
+    background-color: #E5F1F6;
+    height: 550px;
+    text-align: center;
+    padding-top: 100px;
+    // padding-bottom: 100px;
+
+    .discover-item-box {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 80px;
+
+        .discover-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            h3 {
+                font-size: 60px;
+                color: #F25D49;
+            }
+    
+            p {
+                font-size: 32px;
+                font-weight: 300;
+                width: 90%;
+            }
+        }
+
+        
+
+    }
+}

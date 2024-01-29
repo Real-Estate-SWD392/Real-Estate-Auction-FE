@@ -1,6 +1,8 @@
 import Banner from "./banner/Banner";
+import Discover from "./discover/Discover";
 import Offer from "./offer/Offer";
 import RelatedPropList from "./related-prop/RelatedPropList";
+import Type from "./type/Type";
 
 const Home = () => {
   return (
@@ -8,6 +10,8 @@ const Home = () => {
       <Banner />
       <Offer />
       <RelatedPropList />
+      <Type />
+      <Discover />
     </div>
   );
 };
