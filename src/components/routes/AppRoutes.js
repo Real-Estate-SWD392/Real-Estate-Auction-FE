@@ -1,3 +1,4 @@
+import AuctionDetail from "../auction detail/AuctionDetail";
 import Home from "../home/Home";
 import Layout from "../layout/Layout";
 import SearchComponent from "../search-auction-list/SearchComponent";
@@ -7,14 +8,24 @@ const AppRoutes = [
   {
     path: "/",
     element: <Layout />,
-  },
-  {
-    path: "/auctions",
-    element: <SearchComponent />,
-  },
-  {
-    path: "/sell",
-    element: <SellerComponent />,
+    children: [
+      {
+        path: "",
+        element: <Home />,
+      },
+      {
+        path: "/auctions",
+        element: <SearchComponent />,
+      },
+      {
+        path: "/detail",
+        element: <AuctionDetail />,
+      },
+      {
+        path: "/sell",
+        element: <SellerComponent />,
+      },
+    ],
   },
 ];
 

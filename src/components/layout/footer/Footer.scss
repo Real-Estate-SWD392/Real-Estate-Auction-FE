@@ -1,0 +1,40 @@
+.footer-container {
+    margin-top: 100px;
+
+    .footer-content {
+        display: flex;
+        justify-content: space-evenly;
+
+        .footer-content-item {
+            .footer-item-header {
+                color: #48525B;
+                font-size: 20px;
+                font-weight: 500;
+            }
+        }
+
+        ul {
+            color: #85929E;
+            list-style-type: none;
+            padding: 7px 0;
+            
+            li {
+                padding: 3px 0;
+            }
+        }
+    }
+
+    img {
+        margin-left: 120px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    .footer-description {
+        margin-left: 120px;
+        width: 80%;
+        color: #85929E;
+    }
+
+
+}
