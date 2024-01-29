@@ -1,10 +1,11 @@
 // RelatedPropList.js
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Grid, IconButton, Typography } from "@mui/material";
 import AuctionPropCard from "./AuctionPropCard";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useNavigate } from "react-router-dom";
 
 const buttonStyle = {
   background: "#F4F7FA",
@@ -12,7 +13,14 @@ const buttonStyle = {
   height: "40px",
   borderRadius: "10px",
 };
-const RelatedPropList = ({ properties }) => {
+const RelatedPropList = ({}) => {
+  const navigate = useNavigate();
+  const properties = useSelector((state) => state.auction.properties);
+
+  const handleNavigate = () => {
+    navigate("/auctions");
+  };
+
   return (
     <>
       <div
@@ -29,14 +37,18 @@ const RelatedPropList = ({ properties }) => {
           Reccommended Properties
         </Typography>
         <div className="navigate-next" style={{ marginRight: "85px" }}>
-          <IconButton style={buttonStyle} sx={{ mr: "20px" }}>
+          <IconButton
+            style={buttonStyle}
+            sx={{ mr: "20px" }}
+            onClick={handleNavigate}
+          >
             <ChevronRightIcon
               sx={{
                 transform: "rotate(180deg)",
               }}
             />
           </IconButton>
-          <IconButton style={buttonStyle}>
+          <IconButton style={buttonStyle} onClick={handleNavigate}>
             <ChevronRightIcon />
           </IconButton>
         </div>
@@ -68,11 +80,4 @@ const RelatedPropList = ({ properties }) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    properties: state.auction.properties,
-    // You can add more properties from the Redux store as needed
-  };
-};
-
-export default connect(mapStateToProps)(RelatedPropList);
+export default RelatedPropList;

@@ -11,7 +11,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import Logo from  "../../../assets/img/logo_auction.png"
+import Logo from "../../../assets/img/logo_auction.png";
 import "./Navbar.scss";
 import { Badge } from "@mui/material";
 import Auth from "../../auth/Auth";
@@ -125,7 +125,7 @@ function ResponsiveAppBar() {
                 textDecoration: "none",
               }}
             >
-              <div className="logo-container" >
+              <div className="logo-container">
                 <img className="image-logo" src={Logo} alt="" />
                 <div className="logo-content">
                   <div className="logo-content-a">Accommondation</div>
@@ -160,15 +160,15 @@ function ResponsiveAppBar() {
                   </Button>
                 </>
               ))}
-              <display className="button-login-container" onClick={() => setModalShow(true)}>
+              <display
+                className="button-login-container"
+                onClick={() => setModalShow(true)}
+              >
                 Register / Sign In
               </display>
             </Box>
 
-            <Auth
-            show={modalShow}
-            onHide = {() => setModalShow(false)}
-            />
+            <Auth show={modalShow} onHide={() => setModalShow(false)} />
 
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
               <Tooltip title="Open settings">

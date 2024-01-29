@@ -2,20 +2,29 @@ import React from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import PercentIcon from "@mui/icons-material/Percent";
 import "./Banner.scss";
+import { useNavigate } from "react-router-dom";
 
 const Banner = () => {
+  const navigate = useNavigate();
   return (
     <div className="banner-container">
       <h1>Invest in real estate starts here</h1>
       <div className="option-banner">
-        <div className="option-detail buy">BUY</div>
-        <div className="option-detail">SELL</div>
+        <div
+          className="option-detail buy"
+          onClick={() => navigate("/auctions")}
+        >
+          BUY
+        </div>
+        <div className="option-detail" onClick={() => navigate("/sell")}>
+          SELL
+        </div>
       </div>
 
       <div className="banner-searchbar">
-        <input type="text" placeholder="State, County, City, Zip Code..."/>
+        <input type="text" placeholder="State, County, City, Zip Code..." />
         <div className="search-icon-banner">
-        <SearchIcon />
+          <SearchIcon />
         </div>
       </div>
 
@@ -45,8 +54,6 @@ const Banner = () => {
               <p>Up to $7,500 credited at closing. Learn More.</p>
             </div>
           </div>
-
-          
         </div>
       </div>
     </div>

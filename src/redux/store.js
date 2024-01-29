@@ -4,11 +4,13 @@ import auctionReducer, {
   startTimerUpdates,
   setProperties,
 } from "./reducers/auctionSlice";
+import searchAuctionReducer from "./reducers/searchAuctionSlice";
 import { listProp } from "../components/home/related-prop/ListProp";
 
 const store = configureStore({
   reducer: {
     auction: auctionReducer,
+    search: searchAuctionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
