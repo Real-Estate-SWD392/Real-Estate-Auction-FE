@@ -1,6 +1,6 @@
 // SellerComponent.js
 import React, { useState } from "react";
-import ResponsiveAppBar from "../layout/Navbar";
+import ResponsiveAppBar from "../layout/navbar/Navbar";
 import SellerSideBar, { tabs } from "./SellerSideBar";
 import { Box } from "@mui/material";
 import { TabPanel } from "./TabPanel";
@@ -16,7 +16,6 @@ const SellerComponent = () => {
 
   return (
     <Box sx={{ bgcolor: "#FAFAFA" }}>
-      <ResponsiveAppBar route={SELLER_ROUTE} />
       <div
         className=""
         style={{

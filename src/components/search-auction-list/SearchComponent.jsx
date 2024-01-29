@@ -1,5 +1,5 @@
 import React from "react";
-import ResponsiveAppBar from "../layout/Navbar";
+import ResponsiveAppBar from "../layout/navbar/Navbar";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/material";
 import SearchBody from "./SearchBody";
