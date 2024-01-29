@@ -16,13 +16,18 @@ import Logo from "../../assets/img/logo_auction.png";
 import "./Navbar.scss";
 import { Badge } from "@mui/material";
 import Auth from "../auth/Auth";
+import SearchBar from "../search-auction-list/SearchBar";
+import { useNavigate } from "react-router-dom";
 
 const pages = ["Buy", "Sell", "Blog", "Alert"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const SEARCH = "Search";
+const SELL = "Sell";
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ route }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -53,7 +58,7 @@ function ResponsiveAppBar() {
               variant="h6"
               noWrap
               component="a"
-              href="#app-bar-with-responsive-menu"
+              href="/"
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -66,7 +71,7 @@ function ResponsiveAppBar() {
             >
               <div className="logo-container">
                 <img className="image-logo" src={Logo} alt="" />
-                <div className="logo-content">
+                <div className="logo-content" style={{ marginLeft: "-10px" }}>
                   <div className="logo-content-a">Accommondation</div>
                   <div className="logo-content-b">A Real Estate Auction</div>
                 </div>
@@ -114,7 +119,7 @@ function ResponsiveAppBar() {
               variant="h5"
               noWrap
               component="a"
-              href="#app-bar-with-responsive-menu"
+              href="/"
               sx={{
                 mr: 2,
                 display: { xs: "flex", md: "none" },
@@ -126,7 +131,7 @@ function ResponsiveAppBar() {
                 textDecoration: "none",
               }}
             >
-              <div className="logo-container" >
+              <div className="logo-container">
                 <img className="image-logo" src={Logo} alt="" />
                 <div className="logo-content">
                   <div className="logo-content-a">Accommondation</div>
@@ -134,6 +139,13 @@ function ResponsiveAppBar() {
                 </div>
               </div>
             </Typography>
+            {route === SEARCH ? (
+              <SearchBar />
+            ) : route === SELL ? (
+              <Typography variant="body1" color="initial">
+                Seller Dashboard
+              </Typography>
+            ) : null}
             <Box
               sx={{
                 flexGrow: 1,
@@ -161,15 +173,15 @@ function ResponsiveAppBar() {
                   </Button>
                 </>
               ))}
-              <display className="button-login-container" onClick={() => setModalShow(true)}>
+              <display
+                className="button-login-container"
+                onClick={() => setModalShow(true)}
+              >
                 Register / Sign In
               </display>
             </Box>
 
-            <Auth
-            show={modalShow}
-            onHide = {() => setModalShow(false)}
-            />
+            <Auth show={modalShow} onHide={() => setModalShow(false)} />
 
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
               <Tooltip title="Open settings">
