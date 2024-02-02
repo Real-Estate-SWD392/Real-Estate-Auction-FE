@@ -77,7 +77,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ width: 200, my: 1 }}>
+            <FormControl sx={{ width: 100, my: 1 }}>
               <InputLabel
                 id="demo-simple-select-standard-label"
                 sx={{ marginLeft: "20px" }}
@@ -97,7 +97,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ width: 200, my: 1 }}>
+            <FormControl sx={{ width: 100, my: 1 }}>
               <InputLabel
                 id="demo-simple-select-standard-label"
                 sx={{ marginLeft: "20px" }}

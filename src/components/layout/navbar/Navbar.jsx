@@ -15,13 +15,41 @@ import Logo from "../../../assets/img/logo_auction.png";
 import "./Navbar.scss";
 import { Badge } from "@mui/material";
 import Auth from "../../auth/Auth";
+import { useLocation, useNavigate } from "react-router-dom";
+import SearchBar from "../../search-auction-list/SearchBar";
+import SearchComponent from "../../search-auction-list/SearchComponent";
+import SellerComponent from "../../seller-dashboard/SellerComponent";
 
 const pages = ["Buy", "Sell", "Blog", "Alert"];
+const pageNames = [
+  {
+    name: "Buy",
+    url: "/auctions",
+  },
+  {
+    name: "Sell",
+    url: "/sell",
+  },
+  {
+    name: "Blog",
+    url: "",
+  },
+  {
+    name: "Alert",
+    url: "",
+  },
+];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
+
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const navigate = useNavigate();
+
+  const location = useLocation();
+  const currentLocation = location.pathname;
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -38,6 +66,11 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const handleNavigate = (url) => {
+    navigate(url);
+    handleCloseNavMenu();
+  };
+
   const [modalShow, setModalShow] = React.useState(false);
 
   return (
@@ -52,7 +85,7 @@ function ResponsiveAppBar() {
               variant="h6"
               noWrap
               component="a"
-              href="#app-bar-with-responsive-menu"
+              href="/"
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -71,7 +104,7 @@ function ResponsiveAppBar() {
                 </div>
               </div>
             </Typography>
-
+            {currentLocation === "/auctions" ? <SearchBar /> : null}
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
               <IconButton
                 size="large"
@@ -101,9 +134,9 @@ function ResponsiveAppBar() {
                   display: { xs: "block", md: "none" },
                 }}
               >
-                {pages.map((page) => (
+                {pageNames.map((page) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
+                    <Typography textAlign="center">{page.name}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -113,7 +146,7 @@ function ResponsiveAppBar() {
               variant="h5"
               noWrap
               component="a"
-              href="#app-bar-with-responsive-menu"
+              href="/"
               sx={{
                 mr: 2,
                 display: { xs: "flex", md: "none" },
@@ -141,21 +174,21 @@ function ResponsiveAppBar() {
                 alignItems: "center",
               }}
             >
-              {pages.map((page) => (
+              {pageNames.map((page, index) => (
                 <>
                   <Button
-                    key={page}
-                    onClick={handleCloseNavMenu}
+                    key={index}
+                    onClick={() => handleNavigate(page.url)}
                     sx={{ my: 2, color: "black", display: "block" }}
                   >
-                    {page === "Alert" ? (
+                    {page.name === "Alert" ? (
                       // Render a different type of content for 'Alert'
                       <Badge badgeContent={1} color="primary">
-                        {page}
+                        {page.name}
                       </Badge>
                     ) : (
                       // Render the regular content for other pages
-                      page
+                      page.name
                     )}
                   </Button>
                 </>

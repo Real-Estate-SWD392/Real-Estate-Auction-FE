@@ -23,7 +23,12 @@ const AppRoutes = [
       },
       {
         path: "/sell",
-        element: <SellerComponent />,
+        element: (
+          <SellerComponent
+            userName={"Anh Anhidaiowudoiauwdiouaw"}
+            userEmail={"phucanhdodang1211@gmail.com"}
+          />
+        ),
       },
     ],
   },
