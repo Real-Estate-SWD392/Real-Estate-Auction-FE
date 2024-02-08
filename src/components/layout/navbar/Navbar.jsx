@@ -41,7 +41,7 @@ const pageNames = [
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ userName }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
 
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -75,7 +75,11 @@ function ResponsiveAppBar() {
 
   return (
     <div className="navbar-container">
-      <AppBar className="header" position="static">
+      <AppBar
+        className="header"
+        position="static"
+        sx={{ borderBottom: "1px solid #E2EAF2", py: "5px" }}
+      >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             {/* <Logo sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
@@ -179,16 +183,33 @@ function ResponsiveAppBar() {
                   <Button
                     key={index}
                     onClick={() => handleNavigate(page.url)}
-                    sx={{ my: 2, color: "black", display: "block" }}
+                    sx={{
+                      my: 2,
+                      color: "black",
+                      display: "block",
+                      textTransform: "none",
+                    }}
                   >
                     {page.name === "Alert" ? (
                       // Render a different type of content for 'Alert'
                       <Badge badgeContent={1} color="primary">
-                        {page.name}
+                        <Typography
+                          variant="body1"
+                          color="initial"
+                          fontWeight={600}
+                        >
+                          {page.name}
+                        </Typography>
                       </Badge>
                     ) : (
                       // Render the regular content for other pages
-                      page.name
+                      <Typography
+                        variant="body1"
+                        color="initial"
+                        fontWeight={600}
+                      >
+                        {page.name}
+                      </Typography>
                     )}
                   </Button>
                 </>
