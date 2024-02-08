@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Card, Tab, Tabs, Typography } from "@mui/material";
 import { TabPanel, a11yProps } from "./TabPanel";
+import AddProperties from "./addproperties/AddProperties";
 
 export const tabs = [
   {
@@ -10,7 +11,7 @@ export const tabs = [
   },
   {
     tabName: "Add Properties",
-    component: <Typography>Add Properties Content</Typography>,
+    component: <AddProperties/>,
   },
   {
     tabName: "Update Property Details",

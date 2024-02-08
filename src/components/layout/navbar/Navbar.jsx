@@ -15,14 +15,18 @@ import Logo from "../../../assets/img/logo_auction.png";
 import "./Navbar.scss";
 import { Badge } from "@mui/material";
 import Auth from "../../auth/Auth";
+import SearchBar from "../../search-auction-list/SearchBar";
+import { useLocation } from "react-router-dom";
 
 const pages = ["Buy", "Sell", "Blog", "Alert"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
+
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+  const location = useLocation()
+  const currentPath = location.pathname
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -71,6 +75,8 @@ function ResponsiveAppBar() {
                 </div>
               </div>
             </Typography>
+
+            {currentPath === '/auctions' ? <SearchBar/> : null}
 
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
               <IconButton

@@ -10,7 +10,7 @@ const SEARCH_ROUTE = "Search";
 const SearchComponent = () => {
   return (
     <>
-      <ResponsiveAppBar route={SEARCH_ROUTE} />
+      {/* <ResponsiveAppBar route={SEARCH_ROUTE} /> */}
       <SearchBody
         searchTerm={"192/4 TTH12, Tan Thoi Hiep Ward, Dist 12, HCMC"}
         resultCount={"12.300"}
