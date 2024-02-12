@@ -2,7 +2,7 @@ import { Button, Card, Grid, Typography } from "@mui/material";
 import { style, styled } from "@mui/system";
 import React from "react";
 import MyListingCard from "./MyListingCard";
-import { listSellerProps } from "./listProps";
+import { listSellerProps } from "../listProps";
 
 const buttonStyles = {
   borderRadius: "5px",
@@ -100,7 +100,7 @@ const MyListings = () => {
       </div>
       <Divider />
       <div className="listing" style={{ marginTop: "30px" }}>
-        <Grid container spacing={3} justifyContent="center">
+        <Grid container spacing={3} justifyContent="flex-start">
           {listSellerProps.map((prop, index) => (
             <Grid item key={index}>
               <MyListingCard

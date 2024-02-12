@@ -15,7 +15,6 @@ import {
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { styled } from "@mui/system";
 import React, { useState } from "react";
-
 const CustomDivider = styled("div")({
   width: "100%",
   height: "1px",
@@ -43,16 +42,7 @@ const style = {
   bgcolor: "background.paper",
   boxShadow: 24,
 };
-
-const MyProfile = ({
-  firstName,
-  lastName,
-  phoneNumber,
-  email,
-  streetAddress,
-  idNumbe,
-  newPassword,
-}) => {
+const UserProfile = () => {
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
@@ -380,4 +370,4 @@ const MyProfile = ({
   );
 };
 
-export default MyProfile;
+export default UserProfile;

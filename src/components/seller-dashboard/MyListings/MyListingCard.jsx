@@ -110,10 +110,6 @@ const MyListingCard = ({
     buyPrice: 0,
   });
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   const handleOpen = () => setOpen(true);
 
   const handleClose = () => setOpen(false);
@@ -293,10 +289,11 @@ const MyListingCard = ({
         <div className="prop-price" style={{ marginTop: "15px" }}>
           <Box
             sx={{
-              p: "20px 15px",
+              p: "20px 5px",
               borderTop: "1px solid #E2EAF2",
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <Button
@@ -305,7 +302,7 @@ const MyListingCard = ({
                 textTransform: "none",
                 borderRadius: "8px",
                 background: "#118BF4",
-                padding: status === "PENDING" ? "12px 80px" : "12px 70px",
+                padding: "12px 100px",
                 fontWeight: "600",
                 "&:hover": {
                   background: "#118BF4",
@@ -322,21 +319,6 @@ const MyListingCard = ({
                 ? "View Auction"
                 : "Open Auction"}
             </Button>
-            <IconButton
-              sx={{
-                bgcolor: "#F2A23B",
-                "&:hover": {
-                  bgcolor: "#F2A23B",
-                },
-                width: "40px",
-                height: "40px",
-                ml: "10px",
-              }}
-            >
-              <EditIcon
-                sx={{ color: "white", width: "20px", height: "20px" }}
-              />
-            </IconButton>
           </Box>
         </div>
       </Card>

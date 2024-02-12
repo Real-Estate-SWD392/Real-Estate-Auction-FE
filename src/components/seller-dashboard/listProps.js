@@ -56,7 +56,7 @@ export const listSellerProps = [
     propImg:
       "https://i.pinimg.com/564x/29/06/66/2906662076e6deca9cfecee295099cff.jpg",
     imgList: 15,
-    propType: "townhouse",
+    propType: "Residential Land",
     desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
     propAddress: "456 CEDAR LANE UNIT 8BHouston, TX 77002",
     beds: 2,

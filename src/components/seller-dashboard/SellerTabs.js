@@ -1,7 +1,7 @@
 import AddProperties from "./AddProperties";
 import MyListings from "./MyListings/MyListings";
 import MyProfile from "./MyProfile";
-import UpdateProperty from "./UpdateProperty";
+import UpdatePropertyList from "./UpdateProperty/UpdatePropertyList";
 
 export const tabs = [
   {
@@ -14,7 +14,7 @@ export const tabs = [
   },
   {
     tabName: "Update Property Details",
-    component: <UpdateProperty />,
+    component: <UpdatePropertyList />,
   },
   {
     tabName: "My Listings",

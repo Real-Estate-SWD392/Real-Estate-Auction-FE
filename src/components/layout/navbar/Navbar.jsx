@@ -13,15 +13,20 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Logo from "../../../assets/img/logo_auction.png";
 import "./Navbar.scss";
-import { Badge } from "@mui/material";
+import { Badge, Divider } from "@mui/material";
 import Auth from "../../auth/Auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "../../search-auction-list/SearchBar";
 import SearchComponent from "../../search-auction-list/SearchComponent";
 import SellerComponent from "../../seller-dashboard/SellerComponent";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { styled } from "@mui/system";
 
-const pages = ["Buy", "Sell", "Blog", "Alert"];
 const pageNames = [
+  {
+    name: "Home",
+    url: "/",
+  },
   {
     name: "Buy",
     url: "/auctions",
@@ -31,44 +36,46 @@ const pageNames = [
     url: "/sell",
   },
   {
-    name: "Blog",
-    url: "",
-  },
-  {
     name: "Alert",
     url: "",
   },
 ];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+
+export const userSettings = [
+  {
+    name: "My Account",
+    url: "/my-account",
+  },
+  {
+    name: "Seller Dashboard",
+    url: "/sell",
+  },
+];
+
+const CustomDivider = styled("div")({
+  width: "100%",
+  height: "2px",
+  background: "#EDEDED",
+});
 
 function ResponsiveAppBar({ userName }) {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
   const navigate = useNavigate();
-
   const location = useLocation();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
   const currentLocation = location.pathname;
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   const handleNavigate = (url) => {
+    handleClose();
     navigate(url);
-    handleCloseNavMenu();
   };
 
   const [modalShow, setModalShow] = React.useState(false);
@@ -82,9 +89,6 @@ function ResponsiveAppBar({ userName }) {
       >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            {/* <Logo sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
-            {/* {Logo} */}
-
             <Typography
               variant="h6"
               noWrap
@@ -109,73 +113,13 @@ function ResponsiveAppBar({ userName }) {
               </div>
             </Typography>
             {currentLocation === "/auctions" ? <SearchBar /> : null}
-            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit"
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: "block", md: "none" },
-                }}
-              >
-                {pageNames.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-            {/* <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} /> */}
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                mr: 2,
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                // fontFamily: "monospace",
-                fontWeight: 700,
-                // letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              <div className="logo-container">
-                <img className="image-logo" src={Logo} alt="" />
-                <div className="logo-content">
-                  <div className="logo-content-a">Accommondation</div>
-                  <div className="logo-content-b">A Real Estate Auction</div>
-                </div>
-              </div>
-            </Typography>
             <Box
               sx={{
                 flexGrow: 1,
                 display: { xs: "none", md: "flex" },
                 justifyContent: "flex-end",
                 alignItems: "center",
+                marginRight: "30px",
               }}
             >
               {pageNames.map((page, index) => (
@@ -188,6 +132,7 @@ function ResponsiveAppBar({ userName }) {
                       color: "black",
                       display: "block",
                       textTransform: "none",
+                      marginLeft: "10px",
                     }}
                   >
                     {page.name === "Alert" ? (
@@ -214,45 +159,80 @@ function ResponsiveAppBar({ userName }) {
                   </Button>
                 </>
               ))}
-              <display
-                className="button-login-container"
-                onClick={() => setModalShow(true)}
-              >
-                Register / Sign In
-              </display>
             </Box>
-
+            <Box>
+              {userName ? (
+                <>
+                  <Button
+                    onClick={handleClick}
+                    endIcon={<KeyboardArrowDownIcon />}
+                    sx={{
+                      textTransform: "none",
+                      color: "black",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Welcome,
+                    <span
+                      style={{
+                        fontWeight: 600,
+                        fontSize: "18px",
+                        marginLeft: "10px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        width: "90px",
+                      }}
+                    >
+                      {userName}
+                    </span>
+                  </Button>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                    sx={{}}
+                  >
+                    {userSettings.map((setting, index) => (
+                      <div key={index}>
+                        <MenuItem
+                          sx={{
+                            py: "16px",
+                            fontSize: "17px",
+                            pl: "20px",
+                            pr: "80px",
+                            fontWeight: 600,
+                          }}
+                          onClick={() => handleNavigate(setting.url)}
+                        >
+                          {setting.name}
+                        </MenuItem>
+                        <CustomDivider />
+                      </div>
+                    ))}
+                    <MenuItem
+                      sx={{
+                        py: "16px",
+                        fontSize: "17px",
+                        pl: "20px",
+                        pr: "80px",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Log out
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <display
+                  className="button-login-container"
+                  onClick={() => setModalShow(true)}
+                >
+                  Register / Sign In
+                </display>
+              )}
+            </Box>
             <Auth show={modalShow} onHide={() => setModalShow(false)} />
-
-            <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
           </Toolbar>
         </Container>
       </AppBar>

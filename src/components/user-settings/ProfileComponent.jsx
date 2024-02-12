@@ -1,16 +1,16 @@
-// SellerComponent.js
 import React, { useEffect, useState } from "react";
-import ResponsiveAppBar from "../layout/navbar/Navbar";
 import {
   Box,
   Card,
   Grid,
   List,
+  ListItem,
   ListItemButton,
   Typography,
 } from "@mui/material";
-import { tabs } from "./SellerTabs";
+import { tabs } from "./UserTabs";
 import { styled } from "@mui/system";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Divider = styled("div")({
   width: "100%",
@@ -18,14 +18,10 @@ const Divider = styled("div")({
   backgroundColor: "rgb(0,0,0,0.12)",
 });
 
-const SellerComponent = ({ userName, userEmail }) => {
+const ProfileComponent = ({ index, userName, userEmail }) => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [selectedTabIndex]);
-
-  const handleTabChange = (newValue) => {
+  const handleTabChange = (newValue, url) => {
     setSelectedTabIndex(newValue);
   };
 
@@ -103,4 +99,4 @@ const SellerComponent = ({ userName, userEmail }) => {
   );
 };
 
-export default SellerComponent;
+export default ProfileComponent;
