@@ -5,7 +5,8 @@ import ResponsiveAppBar from "./navbar/Navbar";
 const Layout = () => {
   return (
     <div className="layout-container">
-      <ResponsiveAppBar userName={"Phuc Anh Do Dang"} />
+      {/* get authorization token here and get the userName from authorization token */}
+      <ResponsiveAppBar userName={""} />
       <Outlet />
       <Footer />
     </div>
