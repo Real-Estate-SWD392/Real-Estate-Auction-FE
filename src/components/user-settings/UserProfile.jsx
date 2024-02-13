@@ -14,7 +14,8 @@ import {
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { styled } from "@mui/system";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../../context/auth.context";
 const CustomDivider = styled("div")({
   width: "100%",
   height: "1px",
@@ -42,12 +43,15 @@ const style = {
   bgcolor: "background.paper",
   boxShadow: 24,
 };
+
 const UserProfile = () => {
+  const { user } = useContext(AuthContext);
+
   const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "phucanhdodang1211@gmail.com",
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
+    email: user.email,
     streetAddress: "",
     image: "",
     newPassword: "",
@@ -55,6 +59,8 @@ const UserProfile = () => {
   });
 
   const [open, setOpen] = useState(false);
+
+  console.log(user);
 
   const handleOpen = () => {
     setOpen(true);

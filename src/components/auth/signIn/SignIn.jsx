@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useState } from "react";
 import { Col, Modal } from "react-bootstrap";
 import { validationPassword } from "../validate";
@@ -17,14 +17,17 @@ import "./SignIn.scss";
 import Button from "@mui/material/Button";
 
 import google from "../../../assets/img/google_icon.webp";
+import { AuthContext } from "../../../context/auth.context";
 
 const SignIn = (props) => {
   const [isTruePassword, setIsTruePassword] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const [login, setLogin] = useState({
-    email: "",
-    password: "",
-  });
+  // const [login, setLogin] = useState({
+  //   email: "",
+  //   password: "",
+  // });
+
+  const { login } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
@@ -42,30 +45,18 @@ const SignIn = (props) => {
     }
   };
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formik.values.email,
-          password: formik.values.password,
-        }),
-      });
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-      if (response.ok) {
-        const data = await response.json();
-        // Handle successful login, e.g., save token to local storage, redirect, etc.
-        console.log("Logged in successfully", data);
-      } else {
-        const errorData = await response.json();
-        console.error("Login failed", errorData.message);
-        console.log("Response: ", response);
-      }
+    console.log("abc", formik.values);
+
+    try {
+      await login({
+        email: formik.values.email,
+        password: formik.values.password,
+      });
     } catch (error) {
-      console.error("Error during login", error);
+      console.log(error);
     }
   };
 
@@ -76,9 +67,9 @@ const SignIn = (props) => {
         messages and more.
       </p>
 
-      <form className="form-container" onSubmit={formik.handleSubmit}>
+      <form className="form-container">
         <FormControl variant="outlined">
-          <InputLabel htmlFor="current-password" color="primary">
+          <InputLabel htmlFor="email" color="primary">
             Email Address
           </InputLabel>
           <OutlinedInput
@@ -87,14 +78,16 @@ const SignIn = (props) => {
             className="input-field"
             margin="dense"
             type="email"
-            name="username"
+            name="email"
+            value={formik.values.email}
             onChange={formik.handleChange}
+
             // error={
             //   formik.touched.password && Boolean(formik.errors.password)
             // }
           />
           <FormHelperText error>
-            {formik.touched.username && formik.errors.username}
+            {formik.touched.email && formik.errors.email}
           </FormHelperText>
         </FormControl>
 
@@ -135,7 +128,7 @@ const SignIn = (props) => {
             type="submit"
             // disabled={formik.isSubmitting}
             style={{ color: "white" }}
-            onClick={() => handleLogin()}
+            onClick={(e) => handleLogin(e)}
           >
             Sign In
           </Button>
