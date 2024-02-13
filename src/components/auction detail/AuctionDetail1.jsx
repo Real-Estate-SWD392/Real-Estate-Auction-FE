@@ -5,15 +5,18 @@ import {
   CardMedia,
   Checkbox,
   Divider,
+  FormControl,
   Grid,
   IconButton,
   InputAdornment,
+  InputLabel,
+  MenuItem,
   Modal,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { detailProp } from "./detailProp";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -29,6 +32,8 @@ import AppsIcon from "@mui/icons-material/Apps";
 import { Close } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import vnpay from "../../assets/img/Logo_VNPAY.jpg";
+import momo from "../../assets/img/Vi-MoMo-new.jpg";
 
 const specStyle = {
   textAlign: "center",
@@ -79,13 +84,51 @@ const style = {
   borderRadius: "15px",
 };
 
+export const methodList = [
+  {
+    value: "VNPay Wallet",
+    img: vnpay,
+    balance: 60000,
+  },
+  {
+    value: "Momo Wallet",
+    img: momo,
+    balance: 40000,
+  },
+  {
+    value: "Choose another wallet",
+    img: "",
+    balance: 100000000000000,
+  },
+];
+
 const AuctionDetail1 = () => {
   const { currentBid } = detailProp;
   const [open, setOpen] = useState(false);
+  const [openBuy, setOpenBuy] = useState(false);
   const [bidPrice, setBidPrice] = useState(currentBid);
-  const navigate = useNavigate();
+  const [paymentMethod, setPaymentMethod] = useState({
+    value: "",
+    img: "",
+    balance: 0,
+  });
 
-  console.log(bidPrice);
+  const handleSelectedChange = (event) => {
+    const selectedMethodValue = event.target.value;
+    const selectedMethod = methodList.find(
+      (method) => method.value === selectedMethodValue
+    );
+
+    setPaymentMethod({
+      value: selectedMethod.value,
+      img: selectedMethod.img,
+      balance: selectedMethod.balance,
+    });
+
+    console.log(paymentMethod);
+  };
+
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -93,6 +136,14 @@ const AuctionDetail1 = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleOpenBuy = () => {
+    setOpenBuy(true);
+  };
+
+  const handleCloseBuy = () => {
+    setOpenBuy(false);
   };
 
   const handleDecrement = () => {
@@ -705,6 +756,7 @@ const AuctionDetail1 = () => {
                         color: "white",
                       },
                     }}
+                    onClick={() => handleOpenBuy()}
                   >
                     Buy this property with {formattedValue(detailProp.buyPrice)}
                   </Button>
@@ -852,232 +904,621 @@ const AuctionDetail1 = () => {
           </Grid>
         </Grid>
       </div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <div
-            className="close-btn"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: "-10px",
-            }}
-          >
-            <IconButton onClick={() => handleClose()}>
-              <Close />
-            </IconButton>
-          </div>
-          <div
-            className="modal-content"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              flexDirection: "column",
-              alignItems: "center",
-              marginTop: "-20px",
-            }}
-          >
-            <Typography
-              variant="body1"
-              color="initial"
-              fontSize={24}
-              fontWeight={600}
-            >
-              Bid this Property?
-            </Typography>
-            <Typography
-              variant="body1"
-              color="#85929E"
-              fontSize={14}
-              sx={{ mt: "8px" }}
-            >
-              Once you bid, you're committed to buy this property without
-              waiting
-            </Typography>
+      <div className="bid-modal">
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
             <div
-              className="duration-input"
+              className="close-btn"
               style={{
-                marginTop: "30px",
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "-10px",
               }}
             >
-              <Grid container flexDirection="row" spacing={4}>
-                <Grid item>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    style={durationStyle}
-                  >
-                    {detailProp.days < 10
-                      ? "0" + detailProp.days
-                      : detailProp.days}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    textAlign="center"
-                    fontSize={14}
-                    sx={{ mt: "10px" }}
-                  >
-                    DAYS
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="body1" color="initial" style={dotsStyle}>
-                    :
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    style={durationStyle}
-                  >
-                    {detailProp.hours < 10
-                      ? "0" + detailProp.hours
-                      : detailProp.hours}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    textAlign="center"
-                    fontSize={14}
-                    sx={{ mt: "10px" }}
-                  >
-                    HOURS
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="body1" color="initial" style={dotsStyle}>
-                    :
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    style={durationStyle}
-                  >
-                    {detailProp.mins < 10
-                      ? "0" + detailProp.mins
-                      : detailProp.mins}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    textAlign="center"
-                    fontSize={14}
-                    sx={{ mt: "10px" }}
-                  >
-                    MINS
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="body1" color="initial" style={dotsStyle}>
-                    :
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    style={durationStyle}
-                  >
-                    {detailProp.secs < 10
-                      ? "0" + detailProp.secs
-                      : detailProp.secs}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="initial"
-                    textAlign="center"
-                    fontSize={14}
-                    sx={{ mt: "10px" }}
-                  >
-                    SECS
-                  </Typography>
-                </Grid>
-              </Grid>
+              <IconButton onClick={() => handleClose()}>
+                <Close />
+              </IconButton>
             </div>
-            <div className="price-input" style={{ marginTop: "30px" }}>
-              <Grid container spacing={2}>
-                <Grid item>
-                  <TextField
-                    label="Place your bid"
-                    value={formattedValue(bidPrice)}
-                    sx={{ width: "318px" }}
-                    InputProps={{
-                      readOnly: true,
-                      startAdornment: (
-                        <InputAdornment>
-                          <IconButton
-                            onClick={() => handleDecrement()}
-                            disabled={bidPrice === currentBid}
+            <div
+              className="modal-content"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: "-20px",
+              }}
+            >
+              <Typography
+                variant="body1"
+                color="initial"
+                fontSize={24}
+                fontWeight={600}
+              >
+                Bid this Property?
+              </Typography>
+              <Typography
+                variant="body1"
+                color="#85929E"
+                fontSize={14}
+                sx={{ mt: "8px" }}
+              >
+                Once you bid, you're committed to buy this property without
+                waiting
+              </Typography>
+              <div
+                className="duration-input"
+                style={{
+                  marginTop: "30px",
+                }}
+              >
+                <Grid container flexDirection="row" spacing={4}>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.days < 10
+                        ? "0" + detailProp.days
+                        : detailProp.days}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      DAYS
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={dotsStyle}
+                    >
+                      :
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.hours < 10
+                        ? "0" + detailProp.hours
+                        : detailProp.hours}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      HOURS
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={dotsStyle}
+                    >
+                      :
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.mins < 10
+                        ? "0" + detailProp.mins
+                        : detailProp.mins}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      MINS
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={dotsStyle}
+                    >
+                      :
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.secs < 10
+                        ? "0" + detailProp.secs
+                        : detailProp.secs}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      SECS
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+              <div className="price-input" style={{ marginTop: "30px" }}>
+                <Grid container spacing={2}>
+                  <Grid item>
+                    <TextField
+                      label="Place your bid"
+                      value={formattedValue(bidPrice)}
+                      sx={{ width: "318px" }}
+                      InputProps={{
+                        readOnly: true,
+                        startAdornment: (
+                          <InputAdornment>
+                            <IconButton
+                              onClick={() => handleDecrement()}
+                              disabled={bidPrice === currentBid}
+                            >
+                              <RemoveIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment>
+                            <IconButton onClick={() => handleIncrement()}>
+                              <AddIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                        style: {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      inputProps={{
+                        style: {
+                          textAlign: "center",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <TextField
+                      label="Price step"
+                      value={formattedValue(detailProp.priceStep)}
+                      sx={{ width: "165px" }}
+                      InputProps={{
+                        readOnly: "true",
+                        style: {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      inputProps={{
+                        style: {
+                          textAlign: "center",
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <FormControl sx={{ width: "498px", mt: "20px" }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Select payment method
+                  </InputLabel>
+                  <Select
+                    value={paymentMethod.value}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Select payment method"
+                    sx={{ borderRadius: "8px" }}
+                    onChange={handleSelectedChange}
+                  >
+                    {methodList.map((method, index) => (
+                      <MenuItem
+                        key={index}
+                        disabled={method.balance < bidPrice}
+                        value={method.value}
+                      >
+                        <Box
+                          sx={{
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            p: "10px 10px",
+                          }}
+                        >
+                          <Grid container spacing={2} alignItems="center">
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <CardMedia
+                                  component="img"
+                                  src={method.img}
+                                  sx={{ width: "60px", height: "40px" }}
+                                />
+                              )}
+                            </Grid>
+                            <Grid item>
+                              <Typography
+                                variant="body1"
+                                color="initial"
+                                fontWeight={500}
+                              >
+                                {method.value}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                          <Grid
+                            container
+                            flexDirection="column"
+                            justifyContent="center"
+                            alignItems="center"
                           >
-                            <RemoveIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment>
-                          <IconButton onClick={() => handleIncrement()}>
-                            <AddIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      style: {
-                        borderRadius: "8px",
-                      },
-                    }}
-                    inputProps={{
-                      style: {
-                        textAlign: "center",
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    label="Price step"
-                    value={formattedValue(detailProp.priceStep)}
-                    sx={{ width: "165px" }}
-                    InputProps={{
-                      readOnly: "true",
-                    }}
-                    inputProps={{
-                      style: {
-                        textAlign: "center",
-                      },
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <Select></Select>
-            </div>
-            <Button
-              variant="contained"
-              sx={{
-                mt: "40px",
-                bgcolor: "#F25D49",
-                p: "17px 205px",
-                "&:hover": {
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography
+                                  variant="body1"
+                                  color="initial"
+                                  fontWeight={600}
+                                >
+                                  Available balance
+                                </Typography>
+                              )}
+                            </Grid>
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography variant="body1" color="initial">
+                                  {formattedValue(method.balance)}
+                                </Typography>
+                              )}
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <Button
+                variant="contained"
+                sx={{
+                  mt: "40px",
                   bgcolor: "#F25D49",
-                },
-                textTransform: "none",
-                fontSize: "16px",
-                fontWeight: 600,
-                borderRadius: "8px",
+                  p: "17px 205px",
+                  "&:hover": {
+                    bgcolor: "#F25D49",
+                  },
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+                onClick={() => handleClose()}
+              >
+                Place bid
+              </Button>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+      <div className="buy-modal">
+        <Modal
+          open={openBuy}
+          onClose={handleCloseBuy}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <div
+              className="close-btn"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "-10px",
               }}
-              onClick={() => handleClose()}
             >
-              Set Auction
-            </Button>
-          </div>
-        </Box>
-      </Modal>
+              <IconButton onClick={() => handleCloseBuy()}>
+                <Close />
+              </IconButton>
+            </div>
+            <div
+              className="modal-content"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: "-20px",
+              }}
+            >
+              <Typography
+                variant="body1"
+                color="initial"
+                fontSize={24}
+                fontWeight={600}
+              >
+                Bid this Property?
+              </Typography>
+              <Typography
+                variant="body1"
+                color="#85929E"
+                fontSize={14}
+                sx={{ mt: "8px" }}
+              >
+                Once you buy, you're committed to buy this property without
+                waiting
+              </Typography>
+              <div
+                className="duration-input"
+                style={{
+                  marginTop: "30px",
+                }}
+              >
+                <Grid container flexDirection="row" spacing={4}>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.days < 10
+                        ? "0" + detailProp.days
+                        : detailProp.days}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      DAYS
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={dotsStyle}
+                    >
+                      :
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.hours < 10
+                        ? "0" + detailProp.hours
+                        : detailProp.hours}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      HOURS
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={dotsStyle}
+                    >
+                      :
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.mins < 10
+                        ? "0" + detailProp.mins
+                        : detailProp.mins}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      MINS
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={dotsStyle}
+                    >
+                      :
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      style={durationStyle}
+                    >
+                      {detailProp.secs < 10
+                        ? "0" + detailProp.secs
+                        : detailProp.secs}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      textAlign="center"
+                      fontSize={14}
+                      sx={{ mt: "10px" }}
+                    >
+                      SECS
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+              <div className="price-input" style={{ marginTop: "30px" }}>
+                <Grid container>
+                  <Grid item>
+                    <TextField
+                      label="Buy price"
+                      value={formattedValue(detailProp.buyPrice)}
+                      sx={{ width: "495px" }}
+                      InputProps={{
+                        readOnly: "true",
+                        style: {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      inputProps={{
+                        style: {
+                          textAlign: "center",
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <FormControl sx={{ width: "498px", mt: "20px" }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Select payment method
+                  </InputLabel>
+                  <Select
+                    value={paymentMethod.value}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Select payment method"
+                    sx={{ borderRadius: "8px" }}
+                    onChange={handleSelectedChange}
+                  >
+                    {methodList.map((method, index) => (
+                      <MenuItem
+                        key={index}
+                        disabled={method.balance < detailProp.buyPrice}
+                        value={method.value}
+                      >
+                        <Box
+                          sx={{
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            p: "10px 10px",
+                          }}
+                        >
+                          <Grid container spacing={2} alignItems="center">
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <CardMedia
+                                  component="img"
+                                  src={method.img}
+                                  sx={{ width: "60px", height: "40px" }}
+                                />
+                              )}
+                            </Grid>
+                            <Grid item>
+                              <Typography
+                                variant="body1"
+                                color="initial"
+                                fontWeight={500}
+                              >
+                                {method.value}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                          <Grid
+                            container
+                            flexDirection="column"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography
+                                  variant="body1"
+                                  color="initial"
+                                  fontWeight={600}
+                                >
+                                  Available balance
+                                </Typography>
+                              )}
+                            </Grid>
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography variant="body1" color="initial">
+                                  {formattedValue(method.balance)}
+                                </Typography>
+                              )}
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <Button
+                variant="contained"
+                sx={{
+                  mt: "40px",
+                  bgcolor: "#F25D49",
+                  p: "17px 205px",
+                  "&:hover": {
+                    bgcolor: "#F25D49",
+                  },
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+                onClick={() => handleCloseBuy()}
+              >
+                Buy now
+              </Button>
+            </div>
+          </Box>
+        </Modal>
+      </div>
     </Box>
   );
 };

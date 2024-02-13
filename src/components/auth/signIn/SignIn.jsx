@@ -21,11 +21,15 @@ import google from "../../../assets/img/google_icon.webp";
 const SignIn = (props) => {
   const [isTruePassword, setIsTruePassword] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [login, setLogin] = useState({
+    email: "",
+    password: "",
+  });
 
   const formik = useFormik({
     initialValues: {
       password: "",
-      username: "",
+      email: "",
     },
     validationSchema: validationPassword,
   });
@@ -35,6 +39,33 @@ const SignIn = (props) => {
       case "current":
         setShowPassword(!showPassword);
         break;
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formik.values.email,
+          password: formik.values.password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Logged in successfully", data);
+      } else {
+        const errorData = await response.json();
+        console.error("Login failed", errorData.message);
+        console.log("Response: ", response);
+      }
+    } catch (error) {
+      console.error("Error during login", error);
     }
   };
 
@@ -102,8 +133,9 @@ const SignIn = (props) => {
             className="form-button-signin"
             variant="contained"
             type="submit"
-            disabled={formik.isSubmitting}
+            // disabled={formik.isSubmitting}
             style={{ color: "white" }}
+            onClick={() => handleLogin()}
           >
             Sign In
           </Button>
@@ -120,7 +152,15 @@ const SignIn = (props) => {
           Or, sign in with your Google Account:
         </p>
       </form>
-      <Button variant="outlined" sx={{ textTransform: "none", height: '48px', borderColor: '#ADC4DA', color:'black' }}>
+      <Button
+        variant="outlined"
+        sx={{
+          textTransform: "none",
+          height: "48px",
+          borderColor: "#ADC4DA",
+          color: "black",
+        }}
+      >
         <img className="google-icon" src={google} alt="" />
         Continue with Google
       </Button>
