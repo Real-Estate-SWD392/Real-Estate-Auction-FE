@@ -27,6 +27,8 @@ const SignIn = (props) => {
   //   password: "",
   // });
 
+  console.log(props);
+
   const { login } = useContext(AuthContext);
 
   const formik = useFormik({
@@ -48,13 +50,13 @@ const SignIn = (props) => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    console.log("abc", formik.values);
-
     try {
       await login({
         email: formik.values.email,
         password: formik.values.password,
       });
+
+      props.setModalShow(false);
     } catch (error) {
       console.log(error);
     }

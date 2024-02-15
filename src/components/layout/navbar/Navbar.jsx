@@ -178,7 +178,6 @@ function ResponsiveAppBar({ userName }) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
-                        width: "90px",
                       }}
                     >
                       {userName}
@@ -229,7 +228,11 @@ function ResponsiveAppBar({ userName }) {
                 </display>
               )}
             </Box>
-            <Auth show={modalShow} onHide={() => setModalShow(false)} />
+            <Auth
+              show={modalShow}
+              setModalShow={setModalShow}
+              onHide={() => setModalShow(false)}
+            />
           </Toolbar>
         </Container>
       </AppBar>

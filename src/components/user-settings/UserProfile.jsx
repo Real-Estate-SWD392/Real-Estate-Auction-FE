@@ -16,6 +16,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { styled } from "@mui/system";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/auth.context";
+import { UserContext } from "../../context/user.context";
 const CustomDivider = styled("div")({
   width: "100%",
   height: "1px",
@@ -47,6 +48,8 @@ const style = {
 const UserProfile = () => {
   const { user } = useContext(AuthContext);
 
+  const { updateProfile } = useContext(UserContext);
+
   const [profile, setProfile] = useState({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -59,8 +62,6 @@ const UserProfile = () => {
   });
 
   const [open, setOpen] = useState(false);
-
-  console.log(user);
 
   const handleOpen = () => {
     setOpen(true);
@@ -96,6 +97,16 @@ const UserProfile = () => {
       }));
     }
     console.log(profile.idNumber);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    try {
+      await updateProfile(user._id, profile);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -295,6 +306,7 @@ const UserProfile = () => {
               mt: "30px",
               fontSize: "16px",
             }}
+            onClick={handleUpdate}
           >
             Save
           </Button>

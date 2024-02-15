@@ -7,6 +7,10 @@ export const AuthContextProvider = ({ children }) => {
     JSON.parse(localStorage.getItem("user")) || null
   );
 
+  const [accessToken, setAccessToken] = useState(
+    JSON.parse(localStorage.getItem("accessToken")) || null
+  );
+
   const login = async (inputs) => {
     try {
       const response = await fetch("http://localhost:8080/auth/login", {
@@ -22,6 +26,7 @@ export const AuthContextProvider = ({ children }) => {
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Logged in successfully", data);
         setUser(data.response);
+        setAccessToken(data.accessToken);
       } else {
         const errorData = await response.json();
         console.error("Login failed", errorData);
@@ -35,6 +40,10 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem("accessToken", JSON.stringify(accessToken));
+  }, [accessToken]);
 
   //   const logout = async () => {
   //     const res = await axios.post(
@@ -52,6 +61,7 @@ export const AuthContextProvider = ({ children }) => {
         login,
         user,
         setUser,
+        accessToken,
       }}
     >
       {children}
