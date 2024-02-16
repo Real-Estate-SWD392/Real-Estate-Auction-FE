@@ -74,7 +74,7 @@ export default function Auth(props) {
           <SignIn setModalShow={props.setModalShow} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <Register />
+          <Register setModalShow={props.setModalShow} />
         </CustomTabPanel>
       </Modal.Body>
     </Modal>

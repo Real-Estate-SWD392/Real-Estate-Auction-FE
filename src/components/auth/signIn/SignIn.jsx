@@ -27,8 +27,6 @@ const SignIn = (props) => {
   //   password: "",
   // });
 
-  console.log(props);
-
   const { login } = useContext(AuthContext);
 
   const formik = useFormik({

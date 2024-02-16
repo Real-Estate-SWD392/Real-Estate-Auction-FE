@@ -37,6 +37,30 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const register = async (inputs) => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputs),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Register successfully", data);
+      } else {
+        const errorData = await response.json();
+        console.error("Register failed", errorData);
+        console.log("Response: ", response);
+      }
+    } catch (error) {
+      console.error("Error during login", error);
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
@@ -59,6 +83,7 @@ export const AuthContextProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         login,
+        register,
         user,
         setUser,
         accessToken,

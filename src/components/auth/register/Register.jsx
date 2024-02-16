@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./Register.scss";
 import { useState } from "react";
 import { Col, Modal, Row } from "react-bootstrap";
@@ -19,16 +19,21 @@ import "./Register.scss";
 import Button from "@mui/material/Button";
 
 import google from "../../../assets/img/google_icon.webp";
+import { AuthContext } from "../../../context/auth.context";
 
-const Register = () => {
-
+const Register = (props) => {
   const [isTruePassword, setIsTruePassword] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const { register } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
       password: "",
-      username: "",
+      re_password: "",
     },
     validationSchema: validationPassword,
   });
@@ -41,6 +46,23 @@ const Register = () => {
     }
   };
 
+  const handleRegister = async () => {
+    try {
+      await register({
+        firstName: formik.values.firstName,
+        lastName: formik.values.lastName,
+        email: formik.values.email,
+        phoneNumber: formik.values.phoneNumber,
+        password: formik.values.password,
+        re_password: formik.values.re_password,
+      });
+
+      props.setModalShow(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="register-container">
       <p className="register-description">
@@ -49,55 +71,54 @@ const Register = () => {
       </p>
 
       <form className="form-container" onSubmit={formik.handle}>
+        <Row>
+          <Col style={{ paddingRight: "5px" }}>
+            <FormControl variant="outlined">
+              <InputLabel htmlFor="current-password" color="primary">
+                First Name
+              </InputLabel>
+              <OutlinedInput
+                color="primary"
+                label="first name"
+                className="input-field"
+                margin="dense"
+                type="text"
+                name="firstName"
+                onChange={formik.handleChange}
+                // error={
+                //   formik.touched.password && Boolean(formik.errors.password)
+                // }
+              />
+              <FormHelperText error>
+                {formik.touched.firstName && formik.errors.firstName}
+              </FormHelperText>
+            </FormControl>
+          </Col>
+          <Col style={{ paddingLeft: "5px" }}>
+            <FormControl variant="outlined">
+              <InputLabel htmlFor="current-password" color="primary">
+                Last Name
+              </InputLabel>
+              <OutlinedInput
+                color="primary"
+                label="last name"
+                className="input-field"
+                margin="dense"
+                type="email"
+                name="lastName"
+                onChange={formik.handleChange}
+                // error={
+                //   formik.touched.password && Boolean(formik.errors.password)
+                // }
+              />
+              <FormHelperText error>
+                {formik.touched.lastName && formik.errors.lastName}
+              </FormHelperText>
+            </FormControl>
+          </Col>
+        </Row>
 
-      <Row>
-        <Col style={{paddingRight: "5px"}}>
         <FormControl variant="outlined">
-          <InputLabel htmlFor="current-password" color="primary">
-            First Name
-          </InputLabel>
-          <OutlinedInput
-            color="primary"
-            label="first name"
-            className="input-field"
-            margin="dense"
-            type="text"
-            name="first name"
-            onChange={formik.handleChange}
-            // error={
-            //   formik.touched.password && Boolean(formik.errors.password)
-            // }
-          />
-          <FormHelperText error>
-            {formik.touched.username && formik.errors.username}
-          </FormHelperText>
-        </FormControl>
-        </Col>
-        <Col style={{paddingLeft: "5px"}}>
-        <FormControl variant="outlined">
-          <InputLabel htmlFor="current-password" color="primary">
-            Last Name
-          </InputLabel>
-          <OutlinedInput
-            color="primary"
-            label="last name"
-            className="input-field"
-            margin="dense"
-            type="email"
-            name="last name"
-            onChange={formik.handleChange}
-            // error={
-            //   formik.touched.password && Boolean(formik.errors.password)
-            // }
-          />
-          <FormHelperText error>
-            {formik.touched.username && formik.errors.username}
-          </FormHelperText>
-        </FormControl>
-        </Col>
-      </Row>
-
-      <FormControl variant="outlined">
           <InputLabel htmlFor="current-password" color="primary">
             Email Address
           </InputLabel>
@@ -107,14 +128,14 @@ const Register = () => {
             className="input-field"
             margin="dense"
             type="email"
-            name="username"
+            name="email"
             onChange={formik.handleChange}
             // error={
             //   formik.touched.password && Boolean(formik.errors.password)
             // }
           />
           <FormHelperText error>
-            {formik.touched.username && formik.errors.username}
+            {formik.touched.email && formik.errors.email}
           </FormHelperText>
         </FormControl>
 
@@ -128,14 +149,14 @@ const Register = () => {
             className="input-field"
             margin="dense"
             type="text"
-            name="phone"
+            name="phoneNumber"
             onChange={formik.handleChange}
             // error={
             //   formik.touched.password && Boolean(formik.errors.password)
             // }
           />
           <FormHelperText error>
-            {formik.touched.phone && formik.errors.phone}
+            {formik.touched.phoneNumber && formik.errors.phoneNumber}
           </FormHelperText>
         </FormControl>
 
@@ -189,13 +210,15 @@ const Register = () => {
                 </IconButton>
               </InputAdornment>
             }
-            name="confirm password"
-            value={formik.values.password}
+            name="re_password"
+            value={formik.values.re_password}
             onChange={formik.handleChange}
-            error={formik.touched.password && Boolean(formik.errors.password)}
+            error={
+              formik.touched.re_password && Boolean(formik.errors.re_password)
+            }
           />
           <FormHelperText error>
-            {formik.touched.password && formik.errors.password}
+            {formik.touched.re_password && formik.errors.re_password}
           </FormHelperText>
         </FormControl>
 
@@ -206,14 +229,17 @@ const Register = () => {
             type="submit"
             disabled={formik.isSubmitting}
             style={{ color: "white" }}
+            onClick={handleRegister}
           >
             Register
           </Button>
         </div>
 
         <span>
-          <p>By clicking on Register, you accept the Hubzu <b>Terms & Conditions</b> and <b>Privacy
-Policy</b>. </p>
+          <p>
+            By clicking on Register, you accept the Hubzu{" "}
+            <b>Terms & Conditions</b> and <b>Privacy Policy</b>.{" "}
+          </p>
           {/* <Link to="/forgot-password" className="forgot-link">
             Forgot your password ?
           </Link> */}
@@ -222,10 +248,17 @@ Policy</b>. </p>
         <p style={{ paddingTop: "20px" }}>
           Or, sign in with your Google Account:
         </p>
-
       </form>
 
-      <Button variant="outlined" sx={{ textTransform: "none", height: '48px', borderColor: '#ADC4DA', color:'black' }}>
+      <Button
+        variant="outlined"
+        sx={{
+          textTransform: "none",
+          height: "48px",
+          borderColor: "#ADC4DA",
+          color: "black",
+        }}
+      >
         <img className="google-icon" src={google} alt="" />
         Continue with Google
       </Button>
