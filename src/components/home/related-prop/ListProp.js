@@ -17,6 +17,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 2,
@@ -36,6 +37,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 3,
@@ -55,6 +57,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 4,
@@ -74,6 +77,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 5,
@@ -93,6 +97,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 6,
@@ -112,6 +117,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 7,
@@ -131,6 +137,7 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
   {
     propID: 8,
@@ -150,5 +157,6 @@ export const listProp = [
     beds: 2,
     baths: 3,
     area: 5960,
+    desc: "REO Occupied - the seller does not represent or guarantee occupancy status. NO VIEWINGS of this property. Please DO NOT DISTURB the occupant. Buyer will be responsible of obtaining possession of the property upon closing",
   },
 ];

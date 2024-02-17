@@ -25,7 +25,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
   const properties = useSelector((state) => state.auction.properties);
   return (
     <>
-      <Box sx={{ mt: "30px" }}>
+      <Box sx={{ bgcolor: "white" }}>
         <div
           className="filter-box"
           style={{
@@ -35,7 +35,11 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         >
           <div
             className="filter-content"
-            style={{ marginLeft: "65px", paddingBottom: "10px" }}
+            style={{
+              marginLeft: "65px",
+              paddingBottom: "10px",
+              marginTop: "10px",
+            }}
           >
             <FormControl sx={{ width: 200, my: 1 }}>
               <InputLabel
@@ -77,7 +81,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ width: 200, my: 1 }}>
+            <FormControl sx={{ width: 100, my: 1 }}>
               <InputLabel
                 id="demo-simple-select-standard-label"
                 sx={{ marginLeft: "20px" }}
@@ -97,7 +101,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ width: 200, my: 1 }}>
+            <FormControl sx={{ width: 100, my: 1 }}>
               <InputLabel
                 id="demo-simple-select-standard-label"
                 sx={{ marginLeft: "20px" }}

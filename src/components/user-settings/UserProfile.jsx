@@ -14,8 +14,9 @@ import {
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { styled } from "@mui/system";
-import React, { useState } from "react";
-
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../../context/auth.context";
+import { UserContext } from "../../context/user.context";
 const CustomDivider = styled("div")({
   width: "100%",
   height: "1px",
@@ -44,20 +45,16 @@ const style = {
   boxShadow: 24,
 };
 
-const MyProfile = ({
-  firstName,
-  lastName,
-  phoneNumber,
-  email,
-  streetAddress,
-  idNumbe,
-  newPassword,
-}) => {
+const UserProfile = () => {
+  const { user } = useContext(AuthContext);
+
+  const { updateProfile } = useContext(UserContext);
+
   const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "phucanhdodang1211@gmail.com",
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
+    email: user.email,
     streetAddress: "",
     image: "",
     newPassword: "",
@@ -100,6 +97,16 @@ const MyProfile = ({
       }));
     }
     console.log(profile.idNumber);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    try {
+      await updateProfile(user._id, profile);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -299,6 +306,7 @@ const MyProfile = ({
               mt: "30px",
               fontSize: "16px",
             }}
+            onClick={handleUpdate}
           >
             Save
           </Button>
@@ -380,4 +388,4 @@ const MyProfile = ({
   );
 };
 
-export default MyProfile;
+export default UserProfile;
