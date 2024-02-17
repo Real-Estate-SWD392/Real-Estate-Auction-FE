@@ -8,15 +8,15 @@ export const UserContextProvider = ({ children }) => {
 
   const updateProfile = async (id, values) => {
     try {
-      console.log(values);
       const response = await fetch(
-        `http://localhost:8080/member/update-profile/65c779e38fd0bf66e97318b5`,
+        `http://localhost:8080/member/update-profile/${id}`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
+          credentials: "include", // Include cookies in the request
           body: JSON.stringify(values),
         }
       );

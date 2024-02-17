@@ -8,12 +8,15 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 import { AuthContextProvider } from "./context/auth.context";
 import { UserContextProvider } from "./context/user.context";
+import { AuctionContextProvider } from "./context/auction.context";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <AuthContextProvider>
       <UserContextProvider>
-        <App />
+        <AuctionContextProvider>
+          <App />
+        </AuctionContextProvider>
       </UserContextProvider>
     </AuthContextProvider>
   </Provider>

@@ -14,7 +14,10 @@ import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { AuctionContext } from "../../../context/auction.context";
+import { AuthContext } from "../../../context/auth.context";
+import { useNavigate } from "react-router-dom";
 
 const colorBall = {
   width: "12px",
@@ -63,6 +66,7 @@ const CurrencyFormatter = ({ amount }) => {
 };
 
 const AuctionPropCard = ({
+  id,
   propImg,
   imgList,
   propType,
@@ -79,6 +83,20 @@ const AuctionPropCard = ({
   baths,
   area,
 }) => {
+  const { addAuctionToFavList } = useContext(AuctionContext);
+
+  const { user } = useContext(AuthContext);
+
+  const handleAddToFavourite = async (auctionID) => {
+    try {
+      await addAuctionToFavList(user._id, auctionID);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const nav = useNavigate();
+
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>
       <Box
@@ -95,6 +113,9 @@ const AuctionPropCard = ({
           }}
         />
         <Checkbox
+          onClick={() => {
+            handleAddToFavourite(id);
+          }}
           icon={
             <FavoriteBorderIcon
               sx={{ color: "white", width: "30px", height: "30px" }}
@@ -156,7 +177,7 @@ const AuctionPropCard = ({
             textTransform="uppercase"
             sx={{}}
           >
-            1/{imgList}
+            1/{imgList?.length}
           </Typography>
         </Box>
       </Box>
@@ -307,6 +328,7 @@ const AuctionPropCard = ({
                   padding: "12px 25px",
                   fontWeight: "600",
                 }}
+                onClick={() => nav(`/auctions/${id}`)}
               >
                 View Details
               </Button>

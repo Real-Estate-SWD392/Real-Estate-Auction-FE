@@ -57,21 +57,22 @@ const RelatedPropList = ({}) => {
         {properties.map((prop, index) => (
           <Grid item key={index}>
             <AuctionPropCard
-              propImg={prop.propImg}
-              imgList={prop.imgList}
-              propType={prop.propType}
+              id={prop._id}
+              propImg={prop.realEstateID.image[0]}
+              imgList={prop.realEstateID.image}
+              propType={prop.realEstateID.type}
               name={prop.name}
-              propAddress={prop.propAddress}
-              days={prop.days}
-              hours={prop.hours}
-              mins={prop.mins}
-              secs={prop.secs}
-              startingBid={prop.startingBid}
-              currentBid={prop.currentBid}
+              propAddress={prop.realEstateID.address}
+              days={prop.day}
+              hours={prop.hour}
+              mins={prop.minute}
+              secs={prop.second}
+              startingBid={prop.startingPrice}
+              currentBid={prop.currentPrice}
               isFav={prop.isFav}
-              beds={prop.beds}
-              baths={prop.baths}
-              area={prop.area}
+              beds={prop.realEstateID.bedRoom}
+              baths={prop.realEstateID.bathRoom}
+              area={prop.realEstateID.size}
             />
           </Grid>
         ))}

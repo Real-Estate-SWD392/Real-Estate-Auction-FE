@@ -21,6 +21,8 @@ import SearchComponent from "../../search-auction-list/SearchComponent";
 import SellerComponent from "../../seller-dashboard/SellerComponent";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { styled } from "@mui/system";
+import { useContext } from "react";
+import { AuthContext } from "../../../context/auth.context";
 
 const pageNames = [
   {
@@ -62,6 +64,7 @@ function ResponsiveAppBar({ userName }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const { logout } = useContext(AuthContext);
 
   const currentLocation = location.pathname;
 
@@ -76,6 +79,14 @@ function ResponsiveAppBar({ userName }) {
   const handleNavigate = (url) => {
     handleClose();
     navigate(url);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const [modalShow, setModalShow] = React.useState(false);
@@ -214,6 +225,7 @@ function ResponsiveAppBar({ userName }) {
                         pr: "80px",
                         fontWeight: 600,
                       }}
+                      onClick={handleLogout}
                     >
                       Log out
                     </MenuItem>

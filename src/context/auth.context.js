@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 
+import Cookies from "js-cookie";
+
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
@@ -10,6 +12,19 @@ export const AuthContextProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(
     JSON.parse(localStorage.getItem("accessToken")) || null
   );
+
+  const [refreshToken, setRefreshToken] = useState(Cookies.get("refreshToken"));
+
+  useEffect(() => {
+    console.log(Cookies);
+    const token = Cookies.get("refreshToken");
+    if (token) {
+      // No need to set the cookie again, as it should already exist
+      console.log("Refresh token exists:", token);
+    } else {
+      console.log("Refresh token not exists:");
+    }
+  }, [refreshToken]);
 
   const login = async (inputs) => {
     try {
@@ -27,6 +42,11 @@ export const AuthContextProvider = ({ children }) => {
         console.log("Logged in successfully", data);
         setUser(data.response);
         setAccessToken(data.accessToken);
+        setRefreshToken(data.refreshToken);
+        Cookies.set("refreshToken", data.refreshToken, {
+          secure: true,
+          sameSite: "None",
+        });
       } else {
         const errorData = await response.json();
         console.error("Login failed", errorData);
@@ -69,21 +89,20 @@ export const AuthContextProvider = ({ children }) => {
     localStorage.setItem("accessToken", JSON.stringify(accessToken));
   }, [accessToken]);
 
-  //   const logout = async () => {
-  //     const res = await axios.post(
-  //       "http://localhost:8800/auth/logout",
-  //       {},
-  //       { withCredentials: true }
-  //     );
-  //     setUser(null);
-  //     localStorage.removeItem("user");
-  //   };
+  const logout = async () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    Cookies.remove("refreshToken");
+    setUser(null);
+    setAccessToken(null);
+  };
 
   return (
     <AuthContext.Provider
       value={{
         login,
         register,
+        logout,
         user,
         setUser,
         accessToken,
