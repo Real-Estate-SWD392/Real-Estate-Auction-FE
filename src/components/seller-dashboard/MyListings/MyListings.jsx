@@ -1,8 +1,10 @@
 import { Button, Card, Grid, Typography } from "@mui/material";
 import { style, styled } from "@mui/system";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import MyListingCard from "./MyListingCard";
 import { listSellerProps } from "../listProps";
+import { RealEstateContext } from "../../../context/real-estate.context";
+import { AuthContext } from "../../../context/auth.context";
 
 const buttonStyles = {
   borderRadius: "5px",
@@ -54,6 +56,23 @@ export const statusColor = [
 ];
 
 const MyListings = () => {
+  const { getRealEstateByOwner } = useContext(RealEstateContext);
+  const { user } = useContext(AuthContext);
+
+  const [realEstateList, setRealEstateList] = useState([]);
+
+  useEffect(() => {
+    const fetchAPI = async () => {
+      try {
+        const res = await getRealEstateByOwner(user._id);
+        console.log(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchAPI();
+  }, []);
+
   return (
     <Card
       sx={{

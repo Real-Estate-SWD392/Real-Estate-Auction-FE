@@ -9,13 +9,16 @@ import store from "./redux/store";
 import { AuthContextProvider } from "./context/auth.context";
 import { UserContextProvider } from "./context/user.context";
 import { AuctionContextProvider } from "./context/auction.context";
+import { RealEstateContextProvider } from "./context/real-estate.context";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <AuthContextProvider>
       <UserContextProvider>
         <AuctionContextProvider>
-          <App />
+          <RealEstateContextProvider>
+            <App />
+          </RealEstateContextProvider>
         </AuctionContextProvider>
       </UserContextProvider>
     </AuthContextProvider>
