@@ -21,6 +21,7 @@ import React, { useEffect, useState } from "react";
 import { propertyTypes } from "./propTypes";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { provinceURL } from "../../apiConfig";
 
 const REQUIRED_COUNT = 180;
 
@@ -40,6 +41,10 @@ const inputWidth = {
 
 const inputSmall = {
   width: "199px",
+};
+
+const selectStyle = {
+  borderRadius: "20px",
 };
 
 const style = {
@@ -69,7 +74,7 @@ const AddProperties = () => {
     sellerName: "",
     streetAddress: "",
     district: "",
-    city: "",
+    ward: "",
     province: "",
     propImage: [],
     propType: "",
@@ -84,9 +89,88 @@ const AddProperties = () => {
   const [openImage, setOpenImageList] = useState(false);
   const [openDocument, setOpenDocument] = useState(false);
 
+  const [location, setLocation] = useState({
+    provinces: [],
+    districts: [],
+    wards: [],
+  });
+
   useEffect(() => {
-    console.log(property.propImage);
-  }, [property.propImage]);
+    const getProvince = `${provinceURL}/api/province`;
+    fetch(getProvince)
+      .then((response) => response.json())
+      .then((data) => {
+        const provincesData = data.results.map((result) => ({
+          province_id: result.province_id,
+          province_name: result.province_name,
+        }));
+
+        setLocation((prevLocation) => ({
+          ...prevLocation,
+          provinces: provincesData,
+        }));
+      })
+      .catch((err) => console.error("Error fetching data: ", err));
+  }, []);
+
+  console.log(location.provinces);
+
+  const handleSelectLocation = async (fieldName, selectedValue) => {
+    setProperty((prevProp) => ({
+      ...prevProp,
+      [fieldName]: selectedValue,
+    }));
+
+    if (fieldName === "province") {
+      const selectedProvince = location.provinces.find(
+        (province) => province.province_name === selectedValue
+      );
+      // Fetch districts based on the selected province_id
+      const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
+      try {
+        const response = await fetch(getDistricts);
+        const data = await response.json();
+
+        if (data.results) {
+          const districtNames = data.results.map((result) => ({
+            district_id: result.district_id,
+            district_name: result.district_name,
+          }));
+
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            districts: districtNames,
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching districts: ", err);
+      }
+    } else if (fieldName === "district") {
+      const selectedDistrict = location.districts.find(
+        (district) => district.district_name === selectedValue
+      );
+      // Fetch wards based on the selected district_id
+      const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
+      try {
+        const response = await fetch(getWards);
+        const data = await response.json();
+
+        if (data.results) {
+          const wardNames = data.results.map((result) => ({
+            ward_id: result.ward_id,
+            ward_name: result.ward_name,
+          }));
+
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            wards: wardNames,
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching wards: ", err);
+      }
+    }
+  };
 
   const handleOpenImg = () => {
     setOpenImageList(true);
@@ -192,6 +276,10 @@ const AddProperties = () => {
     }));
   };
 
+  const handleCreateProperty = () => {
+    console.log(property);
+  };
+
   return (
     <>
       <Card
@@ -285,43 +373,77 @@ const AddProperties = () => {
             </Grid>
             <Grid container item spacing={2}>
               <Grid item>
-                <TextField
-                  id=""
-                  label="City"
-                  name="city"
-                  onChange={handleInputChange}
-                  value={property.city}
-                  sx={inputSmall}
-                  InputProps={{
-                    style: inputStyle,
-                  }}
-                />
+                <FormControl sx={inputSmall}>
+                  <InputLabel id="demo-simple-select-label">
+                    Province
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={property.province}
+                    label="Province"
+                    onChange={(event) =>
+                      handleSelectLocation("province", event.target.value)
+                    }
+                    sx={selectStyle}
+                  >
+                    {location.provinces.map((province) => (
+                      <MenuItem
+                        key={province.province_id}
+                        value={province.province_name}
+                      >
+                        {province.province_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item>
-                <TextField
-                  id=""
-                  label="District"
-                  name="district"
-                  onChange={handleInputChange}
-                  value={property.district}
-                  sx={inputSmall}
-                  InputProps={{
-                    style: inputStyle,
-                  }}
-                />
+                <FormControl sx={inputSmall}>
+                  <InputLabel id="demo-simple-select-label">
+                    District
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={property.district}
+                    label="Province"
+                    onChange={(event) =>
+                      handleSelectLocation("district", event.target.value)
+                    }
+                    sx={selectStyle}
+                  >
+                    {location.districts.map((district) => (
+                      <MenuItem
+                        key={district.district_id}
+                        value={district.district_name}
+                      >
+                        {district.district_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item>
-                <TextField
-                  id=""
-                  label="Province"
-                  name="province"
-                  onChange={handleInputChange}
-                  value={property.province}
-                  sx={inputSmall}
-                  InputProps={{
-                    style: inputStyle,
-                  }}
-                />
+                <FormControl sx={inputSmall}>
+                  <InputLabel id="demo-simple-select-label">Ward</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={property.ward}
+                    label="Province"
+                    onChange={(event) =>
+                      handleSelectLocation("ward", event.target.value)
+                    }
+                    sx={selectStyle}
+                  >
+                    {location.wards.map((ward) => (
+                      <MenuItem key={ward.ward_id} value={ward.ward_name}>
+                        {ward.ward_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             <Grid item>
@@ -587,6 +709,7 @@ const AddProperties = () => {
               mt: "50px",
               fontSize: "16px",
             }}
+            onClick={() => handleCreateProperty()}
           >
             Save
           </Button>

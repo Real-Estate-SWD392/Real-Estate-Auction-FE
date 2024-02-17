@@ -83,7 +83,6 @@ const MyProfile = ({
   });
 
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState(null);
   const [location, setLocation] = useState({
     provinces: [],
     districts: [],
@@ -108,13 +107,7 @@ const MyProfile = ({
       .catch((err) => console.error("Error fetching data: ", err));
   }, []);
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  console.log(location.provinces);
 
   const handleSelectChange = async (fieldName, selectedValue) => {
     setProfile((prevProfile) => ({
@@ -123,8 +116,11 @@ const MyProfile = ({
     }));
 
     if (fieldName === "province") {
+      const selectedProvince = location.provinces.find(
+        (province) => province.province_name === selectedValue
+      );
       // Fetch districts based on the selected province_id
-      const getDistricts = `${provinceURL}/api/province/district/${selectedValue}`;
+      const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
       try {
         const response = await fetch(getDistricts);
         const data = await response.json();
@@ -144,8 +140,11 @@ const MyProfile = ({
         console.error("Error fetching districts: ", err);
       }
     } else if (fieldName === "district") {
+      const selectedDistrict = location.districts.find(
+        (district) => district.district_name === selectedValue
+      );
       // Fetch wards based on the selected district_id
-      const getWards = `${provinceURL}/api/province/ward/${selectedValue}`;
+      const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
       try {
         const response = await fetch(getWards);
         const data = await response.json();
@@ -165,6 +164,14 @@ const MyProfile = ({
         console.error("Error fetching wards: ", err);
       }
     }
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   const handleInputChange = (event) => {
@@ -342,7 +349,7 @@ const MyProfile = ({
                     {location.provinces.map((province) => (
                       <MenuItem
                         key={province.province_id}
-                        value={province.province_id}
+                        value={province.province_name}
                       >
                         {province.province_name}
                       </MenuItem>
@@ -368,7 +375,7 @@ const MyProfile = ({
                     {location.districts.map((district) => (
                       <MenuItem
                         key={district.district_id}
-                        value={district.district_id}
+                        value={district.district_name}
                       >
                         {district.district_name}
                       </MenuItem>
@@ -390,7 +397,7 @@ const MyProfile = ({
                     sx={selectStyle}
                   >
                     {location.wards.map((ward) => (
-                      <MenuItem key={ward.ward_id} value={ward.ward_id}>
+                      <MenuItem key={ward.ward_id} value={ward.ward_name}>
                         {ward.ward_name}
                       </MenuItem>
                     ))}
