@@ -38,6 +38,10 @@ const inputWidth = {
   width: "300px",
 };
 
+const inputSmall = {
+  width: "199px",
+};
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -279,15 +283,15 @@ const AddProperties = () => {
                 }}
               />
             </Grid>
-            <Grid container item spacing={4}>
+            <Grid container item spacing={2}>
               <Grid item>
                 <TextField
                   id=""
-                  label="District"
-                  name="district"
+                  label="City"
+                  name="city"
                   onChange={handleInputChange}
-                  value={property.district}
-                  sx={inputWidth}
+                  value={property.city}
+                  sx={inputSmall}
                   InputProps={{
                     style: inputStyle,
                   }}
@@ -296,11 +300,11 @@ const AddProperties = () => {
               <Grid item>
                 <TextField
                   id=""
-                  label="City"
-                  name="city"
+                  label="District"
+                  name="district"
                   onChange={handleInputChange}
-                  value={property.city}
-                  sx={inputWidth}
+                  value={property.district}
+                  sx={inputSmall}
                   InputProps={{
                     style: inputStyle,
                   }}
@@ -313,7 +317,7 @@ const AddProperties = () => {
                   name="province"
                   onChange={handleInputChange}
                   value={property.province}
-                  sx={inputWidth}
+                  sx={inputSmall}
                   InputProps={{
                     style: inputStyle,
                   }}
