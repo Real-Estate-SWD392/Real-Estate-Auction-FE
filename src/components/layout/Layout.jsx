@@ -10,10 +10,14 @@ const Layout = () => {
   return (
     <div className="layout-container">
       {/* get authorization token here and get the userName from authorization token */}
+<<<<<<< HEAD
       <ResponsiveAppBar
         userName={user ? user.firstName + " " + user.lastName : ""}
       />
 
+=======
+      <ResponsiveAppBar userName={"anh anh"} />
+>>>>>>> phanh
       <Outlet />
       <Footer />
     </div>

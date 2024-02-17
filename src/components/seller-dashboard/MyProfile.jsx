@@ -14,7 +14,8 @@ import {
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { styled } from "@mui/system";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { provinceURL } from "../../apiConfig";
 
 const CustomDivider = styled("div")({
   width: "100%",
@@ -65,6 +66,17 @@ const MyProfile = ({
   });
 
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const getProvince = `${provinceURL}/api/province/district/2`;
+    fetch(getProvince)
+      .then((response) => response.json())
+      .then((data) => setData(data))
+      .catch((err) => console.error("Error fetching data: ", err));
+  });
+
+  console.log(data);
 
   const handleOpen = () => {
     setOpen(true);
