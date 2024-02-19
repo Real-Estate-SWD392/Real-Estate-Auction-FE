@@ -30,8 +30,8 @@ const SearchBar = () => {
       const res = await searchAuction(query);
       console.log(res);
 
-      // dispatch(getSearchQuery(query));
-      // dispatch(getSearchResutlts(res.response));
+      dispatch(getSearchQuery(query));
+      dispatch(getSearchResutlts(res.response));
       dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
     } catch (error) {}
   };
