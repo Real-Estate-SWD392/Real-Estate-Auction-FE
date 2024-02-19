@@ -31,6 +31,33 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const searchAuction = async (value) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/auction/name/${value}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Data: ", data);
+        return data;
+      } else {
+        const errorData = await response.json();
+        console.error("Searchfailed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const addAuctionToFavList = async (id, values) => {
     try {
       const response = await fetch(
@@ -71,7 +98,9 @@ export const AuctionContextProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuctionContext.Provider value={{ auctionList, addAuctionToFavList }}>
+    <AuctionContext.Provider
+      value={{ auctionList, addAuctionToFavList, searchAuction }}
+    >
       {children}
     </AuctionContext.Provider>
   );

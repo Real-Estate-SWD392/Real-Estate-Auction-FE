@@ -23,6 +23,8 @@ export const bedNum = [1, 2, 3, 4];
 
 const SearchBody = ({ searchTerm, resultCount }) => {
   const properties = useSelector((state) => state.auction.properties);
+
+  console.log(properties);
   return (
     <>
       <Box sx={{ bgcolor: "white" }}>
@@ -54,7 +56,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
-                {listPropType.map((type, index) => (
+                {listPropType?.map((type, index) => (
                   <MenuItem value={type} key={index}>
                     {type}
                   </MenuItem>
@@ -74,7 +76,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="City"
               >
-                {listCity.map((city, index) => (
+                {listCity?.map((city, index) => (
                   <MenuItem value={city} key={index}>
                     {city}
                   </MenuItem>
@@ -94,7 +96,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
-                {bedNum.map((bed, index) => (
+                {bedNum?.map((bed, index) => (
                   <MenuItem value={bed} key={index}>
                     {bed}
                   </MenuItem>
@@ -114,7 +116,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
-                {bathNum.map((bath, index) => (
+                {bathNum?.map((bath, index) => (
                   <MenuItem value={bath} key={index}>
                     {bath}
                   </MenuItem>
@@ -164,24 +166,25 @@ const SearchBody = ({ searchTerm, resultCount }) => {
           </Typography>
         </div>
         <Grid container spacing={3} justifyContent="center">
-          {properties.map((prop, index) => (
+          {properties?.map((prop, index) => (
             <Grid item key={index}>
               <AuctionPropCard
-                propImg={prop.propImg}
-                imgList={prop.imgList}
-                propType={prop.propType}
+                id={prop._id}
+                propImg={prop.realEstateID.image[0]}
+                imgList={prop.realEstateID.image}
+                propType={prop.realEstateID.type}
                 name={prop.name}
-                propAddress={prop.propAddress}
-                days={prop.days}
-                hours={prop.hours}
-                mins={prop.mins}
-                secs={prop.secs}
-                startingBid={prop.startingBid}
-                currentBid={prop.currentBid}
+                propAddress={prop.realEstateID.address}
+                days={prop.day}
+                hours={prop.hour}
+                mins={prop.minute}
+                secs={prop.second}
+                startingBid={prop.startingPrice}
+                currentBid={prop.currentPrice}
                 isFav={prop.isFav}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
+                beds={prop.realEstateID.bedRoom}
+                baths={prop.realEstateID.bathRoom}
+                area={prop.realEstateID.size}
               />
             </Grid>
           ))}
