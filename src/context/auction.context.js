@@ -58,6 +58,35 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const filterAuction = async (value) => {
+    try {
+      console.log("value", value);
+
+      const response = await fetch(
+        `http://localhost:8080/auction/filter?type=${value.type}&city=${value.city}&bedRoom=${value.bedRoom}&bathRoom=${value.bathRoom}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Data: ", data);
+        return data;
+      } else {
+        const errorData = await response.json();
+        console.error("Filter Fail", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const addAuctionToFavList = async (id, values) => {
     try {
       const response = await fetch(
@@ -99,7 +128,7 @@ export const AuctionContextProvider = ({ children }) => {
 
   return (
     <AuctionContext.Provider
-      value={{ auctionList, addAuctionToFavList, searchAuction }}
+      value={{ auctionList, addAuctionToFavList, searchAuction, filterAuction }}
     >
       {children}
     </AuctionContext.Provider>

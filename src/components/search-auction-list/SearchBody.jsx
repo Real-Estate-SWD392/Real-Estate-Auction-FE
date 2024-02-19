@@ -9,9 +9,13 @@ import {
   FormLabel,
   FormHelperText,
 } from "@mui/material";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AuctionPropCard from "../home/related-prop/AuctionPropCard";
+import { AuctionContext } from "../../context/auction.context";
+import { setProperties } from "../../redux/reducers/auctionSlice";
+import { getSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
+import { provinceURL } from "../../apiConfig";
 
 const MOST_POPULAR = "Most popular";
 const RECENT = "Recently";
@@ -24,7 +28,62 @@ export const bedNum = [1, 2, 3, 4];
 const SearchBody = ({ searchTerm, resultCount }) => {
   const properties = useSelector((state) => state.auction.properties);
 
+  const [provinceList, setProvinceList] = useState(null);
+
   console.log(properties);
+
+  const dispatch = useDispatch();
+
+  const { filterAuction } = useContext(AuctionContext);
+
+  const [filterValues, setFilterValues] = useState({
+    type: "",
+    city: "",
+    bedRoom: "",
+    bathRoom: "",
+  });
+
+  const handleChange = async (fieldName, values) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [fieldName]: values,
+    }));
+  };
+
+  useEffect(() => {
+    const fetchFilteredAuction = async () => {
+      try {
+        const res = await filterAuction(filterValues);
+        console.log(res.response);
+
+        if (res.response) {
+          dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+          dispatch(getSearchResutlts(res.response));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFilteredAuction();
+  }, [filterValues]); // Execute whenever filterValues changes
+
+  useEffect(() => {
+    const getProvince = `${provinceURL}/api/province`;
+    fetch(getProvince)
+      .then((response) => response.json())
+      .then((data) => {
+        const provincesData = data.results.map(
+          (result) => result.province_name
+        );
+
+        console.log(provincesData);
+
+        setProvinceList(provincesData);
+      })
+      .catch((err) => console.error("Error fetching data: ", err));
+  }, []);
+
   return (
     <>
       <Box sx={{ bgcolor: "white" }}>
@@ -52,7 +111,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </InputLabel>
               <Select
                 //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => handleChange("type", e.target.value)}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
@@ -72,11 +131,11 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </InputLabel>
               <Select
                 //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => handleChange("city", e.target.value)}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="City"
               >
-                {listCity?.map((city, index) => (
+                {provinceList?.map((city, index) => (
                   <MenuItem value={city} key={index}>
                     {city}
                   </MenuItem>
@@ -91,8 +150,9 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 Beds
               </InputLabel>
               <Select
-                //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => {
+                  handleChange("bedRoom", e.target.value);
+                }}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
@@ -112,7 +172,9 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </InputLabel>
               <Select
                 //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => {
+                  handleChange("bathRoom", e.target.value);
+                }}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
@@ -166,28 +228,30 @@ const SearchBody = ({ searchTerm, resultCount }) => {
           </Typography>
         </div>
         <Grid container spacing={3} justifyContent="center">
-          {properties?.map((prop, index) => (
-            <Grid item key={index}>
-              <AuctionPropCard
-                id={prop._id}
-                propImg={prop.realEstateID.image[0]}
-                imgList={prop.realEstateID.image}
-                propType={prop.realEstateID.type}
-                name={prop.name}
-                propAddress={prop.realEstateID.address}
-                days={prop.day}
-                hours={prop.hour}
-                mins={prop.minute}
-                secs={prop.second}
-                startingBid={prop.startingPrice}
-                currentBid={prop.currentPrice}
-                isFav={prop.isFav}
-                beds={prop.realEstateID.bedRoom}
-                baths={prop.realEstateID.bathRoom}
-                area={prop.realEstateID.size}
-              />
-            </Grid>
-          ))}
+          {properties?.length > 0
+            ? properties.map((prop, index) => (
+                <Grid item key={index}>
+                  <AuctionPropCard
+                    id={prop._id}
+                    propImg={prop.realEstateID?.image[0]}
+                    imgList={prop.realEstateID.image}
+                    propType={prop.realEstateID.type}
+                    name={prop.name}
+                    propAddress={prop.realEstateID.address}
+                    days={prop.day}
+                    hours={prop.hour}
+                    mins={prop.minute}
+                    secs={prop.second}
+                    startingBid={prop.startingPrice}
+                    currentBid={prop.currentPrice}
+                    isFav={prop.isFav}
+                    beds={prop.realEstateID.bedRoom}
+                    baths={prop.realEstateID.bathRoom}
+                    area={prop.realEstateID.size}
+                  />
+                </Grid>
+              ))
+            : "abc"}
         </Grid>
       </Box>
     </>
