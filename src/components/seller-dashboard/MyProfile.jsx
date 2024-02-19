@@ -18,7 +18,9 @@ import {
   MenuItem,
   Menu,
 } from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 import { styled } from "@mui/system";
 import React, { useContext, useEffect, useState } from "react";
 import { provinceURL } from "../../apiConfig";
@@ -89,9 +91,22 @@ const MyProfile = ({
     confirmPassword: "",
   });
 
-  console.log(profile);
+  const [showPassword, setShowPassword] = React.useState({
+    password: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const tooglePassword = (input) => {
+    switch (input) {
+      case "current":
+        setShowPassword(!showPassword);
+        break;
+    }
+  };
 
   const [open, setOpen] = useState(false);
+
   const [location, setLocation] = useState({
     provinces: [],
     districts: [],
@@ -517,7 +532,18 @@ const MyProfile = ({
               <TextField
                 id=""
                 label="Old Password"
+                type={showPassword.password ? "text" : "password"}
                 onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => tooglePassword("current")}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
                 name="oldPassword"
                 value={profile.oldPassword}
                 sx={inputWidth}
@@ -530,7 +556,18 @@ const MyProfile = ({
               <TextField
                 id=""
                 label="New Password"
+                type={showPassword.newPassword ? "text" : "password"}
                 onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => tooglePassword("current")}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
                 name="newPassword"
                 value={profile.newPassword}
                 sx={inputWidth}
@@ -544,6 +581,17 @@ const MyProfile = ({
                 id=""
                 label="Confirm Password"
                 onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => tooglePassword("current")}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                type={showPassword.confirmPassword ? "text" : "password"}
                 name="confirmPassword"
                 value={profile.confirmPassword}
                 sx={inputWidth}

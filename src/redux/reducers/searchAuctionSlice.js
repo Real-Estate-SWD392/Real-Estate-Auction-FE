@@ -26,4 +26,5 @@ const searchAuctionSlice = createSlice({
 });
 
 export const { getSearchQuery, getSearchResutlts } = searchAuctionSlice.actions;
+
 export default searchAuctionSlice.reducer;

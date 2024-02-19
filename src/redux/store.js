@@ -4,7 +4,9 @@ import auctionReducer, {
   startTimerUpdates,
   setProperties,
 } from "./reducers/auctionSlice";
-import searchAuctionReducer from "./reducers/searchAuctionSlice";
+import searchAuctionReducer, {
+  startSearchTimerUpdates,
+} from "./reducers/searchAuctionSlice";
 import { listProp } from "../components/home/related-prop/ListProp";
 import { useContext, useState } from "react";
 import { AuctionContext } from "../context/auction.context";
