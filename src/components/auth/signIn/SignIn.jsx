@@ -53,8 +53,8 @@ const SignIn = (props) => {
         email: formik.values.email,
         password: formik.values.password,
       });
-
       props.setModalShow(false);
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }
