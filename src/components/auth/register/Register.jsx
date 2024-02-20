@@ -38,11 +38,20 @@ const Register = (props) => {
     validationSchema: validationPassword,
   });
 
+  const handleLoginGoogle = () => {
+    window.open("http://localhost:8080/auth/google", "_self");
+  };
+
   const tooglePassword = (input) => {
     switch (input) {
-      case "current":
+      case "current": {
         setShowPassword(!showPassword);
         break;
+      }
+
+      default: {
+        break;
+      }
     }
   };
 
@@ -251,6 +260,7 @@ const Register = (props) => {
       </form>
 
       <Button
+        onClick={handleLoginGoogle}
         variant="outlined"
         sx={{
           textTransform: "none",

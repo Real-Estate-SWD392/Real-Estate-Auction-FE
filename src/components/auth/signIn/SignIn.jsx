@@ -27,7 +27,7 @@ const SignIn = (props) => {
   //   password: "",
   // });
 
-  const { login } = useContext(AuthContext);
+  const { login, loginGoogle } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
@@ -39,10 +39,19 @@ const SignIn = (props) => {
 
   const tooglePassword = (input) => {
     switch (input) {
-      case "current":
+      case "current": {
         setShowPassword(!showPassword);
         break;
+      }
+
+      default: {
+        break;
+      }
     }
+  };
+
+  const handleLoginGoogle = () => {
+    window.open("http://localhost:8080/auth/google", "_self");
   };
 
   const handleLogin = async (e) => {
@@ -145,7 +154,9 @@ const SignIn = (props) => {
           Or, sign in with your Google Account:
         </p>
       </form>
+      {/* <form action="http://localhost:8080/auth/google" method="GET"> */}
       <Button
+        // type="submit"
         variant="outlined"
         sx={{
           textTransform: "none",
@@ -153,10 +164,12 @@ const SignIn = (props) => {
           borderColor: "#ADC4DA",
           color: "black",
         }}
+        onClick={handleLoginGoogle}
       >
         <img className="google-icon" src={google} alt="" />
         Continue with Google
       </Button>
+      {/* </form> */}
     </div>
   );
 };
