@@ -17,9 +17,6 @@ import { setProperties } from "../../redux/reducers/auctionSlice";
 import { getSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
 
-const MOST_POPULAR = "Most popular";
-const RECENT = "Recently";
-
 export const listPropType = ["Condo", "Villa", "Aparment"];
 export const listCity = ["Thủ Đức", "Hồ Chí Minh"];
 export const bathNum = [1, 2, 3, 4];
@@ -34,7 +31,8 @@ const SearchBody = ({ searchTerm, resultCount }) => {
 
   const dispatch = useDispatch();
 
-  const { filterAuction } = useContext(AuctionContext);
+  const { filterAuction, sortByTime, sortByPopular } =
+    useContext(AuctionContext);
 
   const [filterValues, setFilterValues] = useState({
     type: "",
@@ -48,6 +46,27 @@ const SearchBody = ({ searchTerm, resultCount }) => {
       ...prev,
       [fieldName]: values,
     }));
+  };
+
+  const handleSort = async (sortField) => {
+    console.log(sortField);
+    switch (sortField) {
+      case "time": {
+        const res = await sortByTime();
+        dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+        break;
+      }
+
+      case "popular": {
+        const res = await sortByPopular();
+        dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
   };
 
   useEffect(() => {
@@ -217,12 +236,12 @@ const SearchBody = ({ searchTerm, resultCount }) => {
             {resultCount} Results, sorted by{" "}
             <FormControl variant="standard" sx={{ minWidth: 120, m: 1 }}>
               <Select
-                //   value={age}
-                //   onChange={handleChange}
+                // value={age}
+                onChange={(e) => handleSort(e.target.value)}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
               >
-                <MenuItem value={MOST_POPULAR}>Most popular</MenuItem>
-                <MenuItem value={RECENT}>Recently</MenuItem>
+                <MenuItem value="popular">Most popular</MenuItem>
+                <MenuItem value="time">Recently</MenuItem>
               </Select>
             </FormControl>
           </Typography>

@@ -114,6 +114,55 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const sortByTime = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/auction/sort/time`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Data: ", data);
+        return data;
+      } else {
+        const errorData = await response.json();
+        console.error("Sort failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sortByPopular = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/auction/sort/popular`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Data: ", data);
+        return data;
+      } else {
+        const errorData = await response.json();
+        console.error("Sort failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -128,7 +177,14 @@ export const AuctionContextProvider = ({ children }) => {
 
   return (
     <AuctionContext.Provider
-      value={{ auctionList, addAuctionToFavList, searchAuction, filterAuction }}
+      value={{
+        auctionList,
+        addAuctionToFavList,
+        searchAuction,
+        filterAuction,
+        sortByTime,
+        sortByPopular,
+      }}
     >
       {children}
     </AuctionContext.Provider>
