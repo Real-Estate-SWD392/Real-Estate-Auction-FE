@@ -17,11 +17,13 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { propertyTypes } from "./propTypes";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { provinceURL } from "../../apiConfig";
+import { RealEstateContext } from "../../context/real-estate.context";
+import { AuthContext } from "../../context/auth.context";
 
 const REQUIRED_COUNT = 180;
 
@@ -57,7 +59,7 @@ const style = {
   display: "flex",
 };
 
-const documentStyle = {
+const pdftyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
@@ -69,25 +71,32 @@ const documentStyle = {
 };
 
 const AddProperties = () => {
+  const { user } = useContext(AuthContext);
+
   const [property, setProperty] = useState({
     propID: "",
-    sellerName: "",
-    streetAddress: "",
+    ownerID: user._id,
+    street: "",
     district: "",
     ward: "",
-    province: "",
-    propImage: [],
-    propType: "",
-    propSize: "",
-    beds: 0,
-    baths: 0,
+    city: "",
+    image: [],
+    type: "",
+    size: "",
+    bedRoom: 0,
+    bathRoom: 0,
     description: "",
-    documents: [],
+    pdf: [],
   });
 
+  const [image, setImage] = useState([]);
+  const [pdf, setPdf] = useState([]);
   const [letterCount, setLetterCount] = useState(0);
   const [openImage, setOpenImageList] = useState(false);
   const [openDocument, setOpenDocument] = useState(false);
+
+  const { uploadImages, uploadPDFs, createNewRealEstate } =
+    useContext(RealEstateContext);
 
   const [location, setLocation] = useState({
     provinces: [],
@@ -113,15 +122,13 @@ const AddProperties = () => {
       .catch((err) => console.error("Error fetching data: ", err));
   }, []);
 
-  console.log(location.provinces);
-
   const handleSelectLocation = async (fieldName, selectedValue) => {
     setProperty((prevProp) => ({
       ...prevProp,
       [fieldName]: selectedValue,
     }));
 
-    if (fieldName === "province") {
+    if (fieldName === "city") {
       const selectedProvince = location.provinces.find(
         (province) => province.province_name === selectedValue
       );
@@ -149,6 +156,7 @@ const AddProperties = () => {
       const selectedDistrict = location.districts.find(
         (district) => district.district_name === selectedValue
       );
+
       // Fetch wards based on the selected district_id
       const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
       try {
@@ -190,7 +198,7 @@ const AddProperties = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    if (name === "propSize") {
+    if (name === "size") {
       if (/[^0-9]/.test(value)) {
         return;
       }
@@ -209,6 +217,12 @@ const AddProperties = () => {
 
   const handleImageChange = (event) => {
     const files = event.target.files;
+
+    setProperty((prevProp) => ({
+      ...prevProp,
+      image: files,
+    }));
+
     if (files && files.length > 0) {
       // Map the new files to their respective data URLs
       const newImages = Array.from(files).map((file) => ({
@@ -216,23 +230,26 @@ const AddProperties = () => {
         url: URL.createObjectURL(file),
       }));
 
-      setProperty((prevProp) => ({
-        ...prevProp,
-        propImage: [...prevProp.propImage, ...newImages],
-      }));
+      setImage((prev) => [...image, ...newImages]);
     }
   };
 
   const handleDeleteImg = (index) => {
-    setProperty((prevProp) => {
-      const updatedList = [...prevProp.propImage];
+    setImage((prev) => {
+      const updatedList = [...prev];
       updatedList.splice(index, 1);
-      return { ...prevProp, propImage: updatedList };
+      return updatedList;
     });
   };
 
   const handleDocumentChange = (event) => {
     const files = event.target.files;
+
+    setProperty((prevProp) => ({
+      ...prevProp,
+      pdf: files,
+    }));
+
     if (files && files.length > 0) {
       // Map the files to their respective data URLs
       const documentArray = Array.from(files).map((file) => ({
@@ -240,25 +257,22 @@ const AddProperties = () => {
         url: URL.createObjectURL(file),
       }));
 
-      setProperty((prevProp) => ({
-        ...prevProp,
-        documents: [...prevProp.documents, ...documentArray],
-      }));
+      setPdf((prev) => [...prev, ...documentArray]);
     }
   };
 
   const handleDeleteDocument = (index) => {
-    setProperty((prevProp) => {
-      const updatedDocs = [...prevProp.documents];
+    setPdf((prev) => {
+      const updatedDocs = [...prev];
       updatedDocs.splice(index, 1);
-      return { ...prevProp, documents: updatedDocs };
+      return updatedDocs;
     });
   };
 
   const handleSelectChange = (event) => {
     setProperty((prevProp) => ({
       ...prevProp,
-      propType: event.target.value,
+      type: event.target.value,
     }));
   };
 
@@ -276,8 +290,49 @@ const AddProperties = () => {
     }));
   };
 
-  const handleCreateProperty = () => {
-    console.log(property);
+  const uploadImagesFile = async () => {
+    try {
+      console.log("abcd");
+      const formData = new FormData();
+      for (const single_file of property.image) {
+        formData.append("image", single_file);
+      }
+
+      const res = await uploadImages(formData);
+      console.log("img", res);
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const uploadPDFsFile = async () => {
+    try {
+      const formData = new FormData();
+      for (const single_file of property.pdf) {
+        formData.append("pdf", single_file);
+      }
+
+      const res = await uploadPDFs(formData);
+      console.log("pdf", res);
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleCreateProperty = async () => {
+    try {
+      let imgUrl = "";
+      let pdfUrl = "";
+      if (property.image) imgUrl = await uploadImagesFile();
+
+      if (property.pdf) pdfUrl = await uploadPDFsFile();
+
+      await createNewRealEstate({ property, image: imgUrl, pdf: pdfUrl });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -333,10 +388,10 @@ const AddProperties = () => {
             <Grid item>
               <TextField
                 id=""
-                label="Street Address"
-                name="streetAddress"
+                name="street"
+                label="Street Address *"
                 onChange={handleInputChange}
-                value={property.streetAddress}
+                value={property.street}
                 sx={{ width: "630px" }}
                 InputProps={{
                   style: inputStyle,
@@ -352,10 +407,10 @@ const AddProperties = () => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={property.province}
+                    value={property.city}
                     label="Province"
                     onChange={(event) =>
-                      handleSelectLocation("province", event.target.value)
+                      handleSelectLocation("city", event.target.value)
                     }
                     sx={selectStyle}
                   >
@@ -422,18 +477,18 @@ const AddProperties = () => {
               <TextField
                 id=""
                 label="Property Image"
-                name="propImage"
+                name="image"
                 onChange={handleInputChange}
-                value={property.propImage.length > 0 ? "Image list" : ""}
+                value={image.length > 0 ? "Image list" : ""}
                 sx={{ width: "630px" }}
                 InputProps={{
                   readOnly: true,
                   style: inputStyle,
                   endAdornment: (
                     <InputAdornment>
-                      {property.propImage.length > 0 ? (
+                      {image.length > 0 ? (
                         <Chip
-                          label={`View files (${property.propImage.length})`}
+                          label={`View files (${image.length})`}
                           sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
                           onClick={() => handleOpenImg()}
                         />
@@ -457,7 +512,7 @@ const AddProperties = () => {
                             },
                             mr: "-13px",
                           }}
-                          disabled={property.propImage.length > 4}
+                          disabled={image.length > 4}
                         >
                           Add Image (.png, .jpg)
                         </Button>
@@ -468,6 +523,8 @@ const AddProperties = () => {
               />
               <input
                 type="file"
+                name="image"
+                multiple
                 accept=".png, .jpg"
                 style={{ display: "none" }}
                 id="fileInput"
@@ -496,7 +553,7 @@ const AddProperties = () => {
                     sx={inputStyle}
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={property.propType}
+                    value={property.type}
                     label="Property Type"
                     onChange={handleSelectChange}
                   >
@@ -510,8 +567,8 @@ const AddProperties = () => {
                 <TextField
                   id=""
                   label="Property Size (m2)"
-                  name="propSize"
-                  value={property.propSize}
+                  name="size"
+                  value={property.size}
                   sx={inputWidth}
                   InputProps={{
                     style: inputStyle,
@@ -525,7 +582,7 @@ const AddProperties = () => {
                 <TextField
                   id=""
                   label="Bedrooms"
-                  value={property.beds}
+                  value={property.bedRoom}
                   sx={inputWidth}
                   InputProps={{
                     style: {
@@ -533,14 +590,14 @@ const AddProperties = () => {
                     },
                     startAdornment: (
                       <InputAdornment>
-                        <IconButton onClick={() => handleDecrement("beds")}>
+                        <IconButton onClick={() => handleDecrement("bedRoom")}>
                           <RemoveIcon />
                         </IconButton>
                       </InputAdornment>
                     ),
                     endAdornment: (
                       <InputAdornment>
-                        <IconButton onClick={() => handleIncrement("beds")}>
+                        <IconButton onClick={() => handleIncrement("bedRoom")}>
                           <AddIcon />
                         </IconButton>
                       </InputAdornment>
@@ -557,7 +614,7 @@ const AddProperties = () => {
                 <TextField
                   id=""
                   label="Bathrooms"
-                  value={property.baths}
+                  value={property.bathRoom}
                   sx={inputWidth}
                   InputProps={{
                     style: {
@@ -565,14 +622,14 @@ const AddProperties = () => {
                     },
                     startAdornment: (
                       <InputAdornment>
-                        <IconButton onClick={() => handleDecrement("baths")}>
+                        <IconButton onClick={() => handleDecrement("bathRoom")}>
                           <RemoveIcon />
                         </IconButton>
                       </InputAdornment>
                     ),
                     endAdornment: (
                       <InputAdornment>
-                        <IconButton onClick={() => handleIncrement("baths")}>
+                        <IconButton onClick={() => handleIncrement("bathRoom")}>
                           <AddIcon />
                         </IconButton>
                       </InputAdornment>
@@ -615,25 +672,25 @@ const AddProperties = () => {
             <Grid item>
               <TextField
                 id=""
-                label="Documents"
+                label="pdf"
                 onChange={handleInputChange}
-                value={property.documents.length > 0 ? "Document list" : ""}
+                value={pdf.length > 0 ? "Document list" : ""}
                 sx={{ width: "630px" }}
                 InputProps={{
                   readOnly: true,
                   style: inputStyle,
                   endAdornment: (
                     <InputAdornment>
-                      {property.documents.length > 0 ? (
+                      {pdf.length > 0 ? (
                         <Chip
-                          label={`View files (${property.documents.length})`}
+                          label={`View files (${pdf.length})`}
                           sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
                           onClick={() => handleOpenDoc()}
                         />
                       ) : (
                         ""
                       )}
-                      <label htmlFor="fileInputDocuments">
+                      <label htmlFor="fileInputpdf">
                         <Button
                           variant="contained"
                           component="span"
@@ -651,7 +708,7 @@ const AddProperties = () => {
                             mr: "-13px",
                           }}
                         >
-                          Add Documents (.pdf)
+                          Add pdf (.pdf)
                         </Button>
                       </label>
                     </InputAdornment>
@@ -660,9 +717,11 @@ const AddProperties = () => {
               />
               <input
                 type="file"
+                name="pdf"
+                multiple
                 accept=".pdf"
                 style={{ display: "none" }}
-                id="fileInputDocuments"
+                id="fileInputpdf"
                 onChange={handleDocumentChange}
               />
             </Grid>
@@ -702,7 +761,7 @@ const AddProperties = () => {
                 overflowX: "auto",
               }}
             >
-              {property.propImage.map((image, index) => (
+              {image.map((image, index) => (
                 <div key={index} style={{ position: "relative" }}>
                   <img
                     src={image.url}
@@ -737,8 +796,8 @@ const AddProperties = () => {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={documentStyle}>
-            {property.documents.map((document, index) => (
+          <Box sx={pdftyle}>
+            {pdf.map((document, index) => (
               <div
                 key={index}
                 style={{

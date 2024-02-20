@@ -137,7 +137,6 @@ export const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(accessToken);
       try {
         const response = await fetch("http://localhost:8080/auth/logout", {
           method: "POST",

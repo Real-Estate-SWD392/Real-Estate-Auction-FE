@@ -7,6 +7,9 @@ export const UserContextProvider = ({ children }) => {
   const { setUser, accessToken } = useContext(AuthContext);
 
   const updateProfile = async (id, values) => {
+    values.profile.image = values.image;
+
+    console.log(values);
     try {
       const response = await fetch(
         `http://localhost:8080/member/update-profile/${id}`,

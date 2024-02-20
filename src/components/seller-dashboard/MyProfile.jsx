@@ -26,6 +26,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { provinceURL } from "../../apiConfig";
 import { AuthContext } from "../../context/auth.context";
 import { UserContext } from "../../context/user.context";
+import { RealEstateContext } from "../../context/real-estate.context";
 
 const CustomDivider = styled("div")({
   width: "100%",
@@ -76,6 +77,8 @@ const MyProfile = ({
 
   const { updateProfile, changePassword } = useContext(UserContext);
 
+  const { uploadImages } = useContext(RealEstateContext);
+
   const [profile, setProfile] = useState({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -85,11 +88,13 @@ const MyProfile = ({
     city: user.city ?? "",
     district: user.district ?? "",
     ward: user.ward ?? "",
-    image: "",
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
+    image: "",
   });
+
+  const [file, setFile] = useState(null);
 
   const [showPassword, setShowPassword] = React.useState({
     password: false,
@@ -99,9 +104,14 @@ const MyProfile = ({
 
   const tooglePassword = (input) => {
     switch (input) {
-      case "current":
+      case "current": {
         setShowPassword(!showPassword);
         break;
+      }
+
+      default: {
+        break;
+      }
     }
   };
 
@@ -215,19 +225,33 @@ const MyProfile = ({
   };
 
   const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        image: file,
-      }));
+    const file = event.target.files;
+    setFile(file);
+  };
+
+  const uploadFile = async () => {
+    try {
+      const formData = new FormData();
+      for (const single_file of file) {
+        formData.append("image", single_file);
+      }
+
+      const res = await uploadImages(formData);
+      console.log(res);
+      return res[0];
+    } catch (err) {
+      console.log(err);
     }
-    console.log(profile.idNumber);
   };
 
   const handleSaveProfile = async () => {
     try {
-      await updateProfile(user._id, profile);
+      let imgUrl = "";
+      if (file) imgUrl = await uploadFile();
+
+      console.log(imgUrl);
+
+      await updateProfile(user._id, { profile, image: imgUrl });
     } catch (error) {
       console.log(error);
     }
@@ -240,6 +264,8 @@ const MyProfile = ({
       console.log(error);
     }
   };
+
+  console.log(file);
 
   return (
     <>
@@ -445,7 +471,7 @@ const MyProfile = ({
                 id="idNumber"
                 label="ID Image *"
                 name="profileImg"
-                value={profile.image ? "An image of ID Number" : ""}
+                value={file ? "An image of ID Number" : ""}
                 onChange={handleInputChange}
                 sx={{ width: "630px" }}
                 InputProps={{
@@ -453,7 +479,7 @@ const MyProfile = ({
                   style: inputStyle,
                   endAdornment: (
                     <InputAdornment>
-                      {profile.image ? (
+                      {file ? (
                         <Chip
                           label="View Image"
                           onClick={() => handleOpen()}
@@ -496,6 +522,7 @@ const MyProfile = ({
                 style={{ display: "none" }}
                 id="fileInput"
                 onChange={handleImageChange}
+                name="image"
               />
             </Grid>
           </Grid>
@@ -628,10 +655,10 @@ const MyProfile = ({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          {profile.image && profile.image.type.startsWith("image/") && (
+          {file && (
             <div>
               <img
-                src={URL.createObjectURL(profile.image)}
+                src={URL.createObjectURL(file[0])}
                 alt=""
                 style={{
                   width: "100%",
