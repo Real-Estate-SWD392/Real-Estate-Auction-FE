@@ -1,5 +1,5 @@
 import { Card, IconButton } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { CardMedia, Grid, Typography, Button, Box } from "@mui/material";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
@@ -8,6 +8,7 @@ import { styled } from "@mui/system";
 import { statusColor } from "./UpdatePropertyList";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
+import { RealEstateContext } from "../../../context/real-estate.context";
 
 const imgCard = {
   width: "320px",
@@ -42,11 +43,14 @@ const StatusBall = styled("div")((props) => ({
 }));
 
 const getStatusColor = (status) => {
-  const statusObj = statusColor.find((item) => item.name === status);
+  const statusObj = statusColor.find(
+    (item) => item.name === status.toUpperCase()
+  );
   return statusObj ? statusObj.color : "white";
 };
 
 const UpdatePropertyCard = ({
+  propID,
   propImg,
   imgList,
   propType,
@@ -58,6 +62,18 @@ const UpdatePropertyCard = ({
   status,
   index,
 }) => {
+  const { removeRealEstate } = useContext(RealEstateContext);
+
+  const handleRemoveRealEstate = async () => {
+    console.log(propID);
+    try {
+      const res = await removeRealEstate(propID);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <Card elevation={2} sx={{ borderRadius: "12px" }}>
@@ -85,6 +101,7 @@ const UpdatePropertyCard = ({
                 backgroundColor: "#FF0854",
               },
             }}
+            onClick={handleRemoveRealEstate}
           >
             <DeleteForeverIcon
               sx={{ color: "white", width: "20px", height: "20px" }}

@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import UpdatePropertyCard from "./UpdatePropertyCard";
 import { Button, Card, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { listSellerProps } from "../listProps";
+import { RealEstateContext } from "../../../context/real-estate.context";
+import { AuthContext } from "../../../context/auth.context";
 
 const Divider = styled("div")({
   width: "100%",
@@ -39,6 +41,24 @@ export const statusColor = [
 ];
 
 const UpdatePropertyList = () => {
+  const { user } = useContext(AuthContext);
+  const { getRealEstateByOwner } = useContext(RealEstateContext);
+
+  const [propertyList, setPropertyList] = useState([]);
+
+  useEffect(() => {
+    const fetchAPI = async () => {
+      try {
+        const res = await getRealEstateByOwner(user._id);
+        setPropertyList(res);
+        console.log(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchAPI();
+  }, []);
+
   return (
     <Card
       sx={{
@@ -71,25 +91,23 @@ const UpdatePropertyList = () => {
       <Divider />
       <div className="listing" style={{ marginTop: "30px" }}>
         <Grid container spacing={3} justifyContent="flex-start">
-          {listSellerProps
-            .filter(
-              (prop) =>
-                prop.status === "AVAILABLE" || prop.status === "REJECTED"
-            )
-            .map((prop, index) => (
-              <Grid item key={index}>
-                <UpdatePropertyCard
-                  propImg={prop.propImg}
-                  propType={prop.propType}
-                  desc={prop.desc}
-                  propAddress={prop.propAddress}
-                  beds={prop.beds}
-                  baths={prop.baths}
-                  area={prop.area}
-                  status={prop.status}
-                />
-              </Grid>
-            ))}
+          {propertyList.length > 0
+            ? propertyList.map((prop, index) => (
+                <Grid item key={index}>
+                  <UpdatePropertyCard
+                    propID={prop._id}
+                    propImg={prop.image}
+                    propType={prop.type}
+                    desc={prop.description}
+                    propAddress={prop.propAddress}
+                    beds={prop.bedRoom}
+                    baths={prop.bathRoom}
+                    area={prop.size}
+                    status={prop.status}
+                  />
+                </Grid>
+              ))
+            : ""}
         </Grid>
       </div>
     </Card>

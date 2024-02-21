@@ -35,35 +35,6 @@ export const RealEstateContextProvider = ({ children }) => {
     }
   };
 
-  // const uploadImages = async (values) => {
-  //   console.log(values);
-
-  //   try {
-  //     const response = await fetch(
-  //       `http://localhost:8080/real-estate/uploadImages`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Authorization: `Bearer ${accessToken}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //         credentials: "include", // Include cookies in the request
-  //         body: JSON.stringify(values),
-  //       }
-  //     );
-
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       // Handle successful login, e.g., save token to local storage, redirect, etc.
-  //       console.log("Upload successfully", data);
-  //     } else {
-  //       const errorData = await response.json();
-  //       console.error("Upload failed", errorData);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during update", error);
-  //   }
-  // };
   const createNewRealEstate = async (values) => {
     values.property.image = values.image;
     values.property.pdf = values.pdf;
@@ -89,6 +60,35 @@ export const RealEstateContextProvider = ({ children }) => {
         return data;
       } else {
         console.error("Upload failed", response);
+        return response;
+      }
+    } catch (error) {
+      console.error("Error during upload", error);
+    }
+  };
+
+  const removeRealEstate = async (id) => {
+    try {
+      console.log(accessToken);
+
+      const response = await axios.put(
+        `http://localhost:8080/real-estate/remove/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Remove successfully", response);
+        return data;
+      } else {
+        console.error("Remove failed", response);
         return response;
       }
     } catch (error) {
@@ -158,6 +158,7 @@ export const RealEstateContextProvider = ({ children }) => {
         getRealEstateByOwner,
         createNewRealEstate,
         uploadImages,
+        removeRealEstate,
         uploadPDFs,
       }}
     >
