@@ -75,7 +75,7 @@ const AddProperties = () => {
     streetAddress: "",
     district: "",
     ward: "",
-    province: "",
+    province: "Thành phố Hồ Chí Minh",
     propImage: [],
     propType: "",
     propSize: "",
@@ -113,6 +113,12 @@ const AddProperties = () => {
       .catch((err) => console.error("Error fetching data: ", err));
   }, []);
 
+  useEffect(() => {
+    if (property.province) {
+      handleSelectLocation("province", property.province.trim());
+    }
+  }, []); // Thêm dependency property.province
+
   console.log(location.provinces);
 
   const handleSelectLocation = async (fieldName, selectedValue) => {
@@ -125,49 +131,55 @@ const AddProperties = () => {
       const selectedProvince = location.provinces.find(
         (province) => province.province_name === selectedValue
       );
-      // Fetch districts based on the selected province_id
-      const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
-      try {
-        const response = await fetch(getDistricts);
-        const data = await response.json();
 
-        if (data.results) {
-          const districtNames = data.results.map((result) => ({
-            district_id: result.district_id,
-            district_name: result.district_name,
-          }));
+      if (selectedProvince) {
+        // Fetch districts based on the selected province_id
+        const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
+        try {
+          const response = await fetch(getDistricts);
+          const data = await response.json();
 
-          setLocation((prevLocation) => ({
-            ...prevLocation,
-            districts: districtNames,
-          }));
+          if (data.results) {
+            const districtNames = data.results.map((result) => ({
+              district_id: result.district_id,
+              district_name: result.district_name,
+            }));
+
+            setLocation((prevLocation) => ({
+              ...prevLocation,
+              districts: districtNames,
+            }));
+          }
+        } catch (err) {
+          console.error("Error fetching districts: ", err);
         }
-      } catch (err) {
-        console.error("Error fetching districts: ", err);
       }
     } else if (fieldName === "district") {
       const selectedDistrict = location.districts.find(
         (district) => district.district_name === selectedValue
       );
-      // Fetch wards based on the selected district_id
-      const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
-      try {
-        const response = await fetch(getWards);
-        const data = await response.json();
 
-        if (data.results) {
-          const wardNames = data.results.map((result) => ({
-            ward_id: result.ward_id,
-            ward_name: result.ward_name,
-          }));
+      if (selectedDistrict) {
+        // Fetch wards based on the selected district_id
+        const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
+        try {
+          const response = await fetch(getWards);
+          const data = await response.json();
 
-          setLocation((prevLocation) => ({
-            ...prevLocation,
-            wards: wardNames,
-          }));
+          if (data.results) {
+            const wardNames = data.results.map((result) => ({
+              ward_id: result.ward_id,
+              ward_name: result.ward_name,
+            }));
+
+            setLocation((prevLocation) => ({
+              ...prevLocation,
+              wards: wardNames,
+            }));
+          }
+        } catch (err) {
+          console.error("Error fetching wards: ", err);
         }
-      } catch (err) {
-        console.error("Error fetching wards: ", err);
       }
     }
   };

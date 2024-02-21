@@ -19,9 +19,11 @@ import {
   Menu,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { styled } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { provinceURL } from "../../apiConfig";
+import { VisibilityOff } from "@mui/icons-material";
 
 const CustomDivider = styled("div")({
   width: "100%",
@@ -88,6 +90,9 @@ const MyProfile = ({
     districts: [],
     wards: [],
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const getProvince = `${provinceURL}/api/province`;
@@ -172,6 +177,14 @@ const MyProfile = ({
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleTogglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleToggleConfirm = () => {
+    setShowPassword(!showConfirm);
   };
 
   const handleInputChange = (event) => {
@@ -498,10 +511,24 @@ const MyProfile = ({
                 id=""
                 label="New Password"
                 value={profile.newPassword}
+                name="newPassword"
+                type={showPassword ? "text" : "password"}
                 sx={inputWidth}
                 InputProps={{
                   style: inputStyle,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleTogglePassword} edge="end">
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
+                onChange={handleInputChange}
               />
             </Grid>
             <Grid item>
