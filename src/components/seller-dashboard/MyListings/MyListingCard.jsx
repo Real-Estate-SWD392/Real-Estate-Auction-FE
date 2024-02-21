@@ -92,7 +92,9 @@ const MyListingCard = ({
   imgList,
   propType,
   desc,
-  propAddress,
+  propStreet, 
+  propDistrict, 
+  propCity,
   beds,
   baths,
   area,
@@ -243,7 +245,7 @@ const MyListingCard = ({
             style={combinedStyles}
             fontSize={17}
           >
-            {propAddress}
+            {propStreet} {propDistrict} {propCity}
           </Typography>
           <Grid
             container
@@ -309,11 +311,11 @@ const MyListingCard = ({
                 },
               }}
               onClick={() => {
-                if (status === "AVAILABLE" || status === "REJECTED")
+                if (status === "Available" || status === "Rejected")
                   handleOpen();
               }}
             >
-              {status === "PENDING" || status === "SOLD"
+              {status === "Pending" || status === "Sold"
                 ? "View Detail"
                 : status === "IN AUCTION"
                 ? "View Auction"

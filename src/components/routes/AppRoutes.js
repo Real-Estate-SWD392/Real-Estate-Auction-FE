@@ -20,7 +20,7 @@ const AppRoutes = [
         element: <SearchComponent />,
       },
       {
-        path: "/auctions/:id",
+        path: "/auction_detail",
         element: <AuctionDetail1 />,
       },
       {

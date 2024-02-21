@@ -16,12 +16,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { detailProp } from "./detailProp";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { styled } from "@mui/system";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -34,6 +34,12 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import vnpay from "../../assets/img/Logo_VNPAY.jpg";
 import momo from "../../assets/img/Vi-MoMo-new.jpg";
+import axios from "axios";
+
+import { AuthContext } from "../../context/auth.context";
+import { createBid } from "../../service/bidService";
+import { addAuctionToFavList } from "../../service/memberService";
+import { getAuctionById } from "../../service/auctionService";
 
 const specStyle = {
   textAlign: "center",
@@ -103,6 +109,8 @@ export const methodList = [
 ];
 
 const AuctionDetail1 = () => {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [info, setInfo] = useState({});
   const { currentBid } = detailProp;
   const [open, setOpen] = useState(false);
   const [openBuy, setOpenBuy] = useState(false);
@@ -170,6 +178,140 @@ const AuctionDetail1 = () => {
 
     return formattedAmount;
   };
+
+  let location = useLocation();
+
+  // let receiveData;
+
+  // if (location.state) {
+  //   if (location.state.prop) {
+  //     // Data received as receiveData.prop
+  //     receiveData = location.state.prop;
+  //     console.log("normal", receiveData);
+  //   } else if (location.state.prop.response) {
+  //     // Data received as receiveData.prop.response
+  //     receiveData = location.state.prop.response;
+  //     console.log("aonther", receiveData);
+  //   }
+  // }
+
+
+
+
+  const getAuctionInfoById = async () => {
+    try {
+      let res = null;
+      res = await getAuctionById(location.state.id);
+      console.log("hhuhu", res.data.response);
+      setInfo(res.data.response);
+
+
+    } catch (error) {
+      console.error("Error fetching auction detail:", error);
+    }
+  }
+
+
+  const { user, accessToken } = useContext(AuthContext);
+  const userID = user ? user._id : null;
+
+
+  console.log("IDDD", userID);
+  console.log("auction", location.state.id);
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json"
+  };
+
+  const bidData = {
+    price: bidPrice,
+    auctionID: location.state.id,
+    userID: userID,
+  };
+
+  const addToFavListData = {
+    _id : location.state.id,
+  }
+
+  // const addToFavListData = receiveData.prop._id;
+  
+
+
+  const checkFavorite = async () => {
+    try {
+      setIsFavorite(user.favoriteList.some(item => item._id === location.state.id));
+    } catch (error) {
+      console.error("Error checking favorite:", error);
+    } 
+  };
+
+  const auctionId = {
+    "_id" : location.state.id
+  }
+  console.log("hahaha", auctionId);
+  // console.log("listHAV", user.favoriteList);
+
+  const handleAddAuctionToFavList = async () => {
+    console.log("exist", user.favoriteList.includes(auctionId));
+    console.log(user.favoriteList.some(item => item._id === location.state.id));
+    
+    try {
+      if (user.favoriteList.some(item => item._id === location.state.id)) {
+        alert ("Existing")
+      } else {
+        const res = await addAuctionToFavList(userID, addToFavListData, headers);
+        setIsFavorite(!isFavorite);
+        if (res && res.data && res.data.success) {
+          console.log("Add to list completed");
+          alert("Add to list completed successfully !!!");
+  
+          // handleClose();
+          // navigate("/auctions");
+        } else {
+          console.log("Add to list failed");
+          alert("Add to list failed !!!");
+        }
+      }
+      
+    } catch (error) {
+      console.error("Error placing Add to list:", error);
+      alert("Error placing Add to list. Please try again later.");
+      console.log("Aaa", error);
+    }
+  }
+
+
+
+
+  const handlePlaceBid = async () => {
+
+    try {
+      const res = await createBid(bidData, headers);
+      if (res && res.data && res.data.success) {
+        console.log("Bid completed");
+        alert("Bid completed successfully !!!");
+        handleClose();
+        navigate("/auctions");
+      } else {
+        console.log("Bid failed");
+        alert("Bid failed !!!");
+      }
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      alert("Error placing bid. Please try again later.");
+      console.log("Aaa", error);
+    }
+
+  };
+
+
+
+  useEffect(() => {
+    getAuctionInfoById(location.state.id);
+    checkFavorite();
+  }, [location.state.id]);
+
   return (
     <Box sx={{ background: "white" }}>
       <div
@@ -222,7 +364,11 @@ const AuctionDetail1 = () => {
               >
                 <CardMedia
                   component="img"
-                  src={detailProp.propImg}
+                  src={
+                    info && info.realEstateID && info.realEstateID.image
+                      ? info.realEstateID.image[0]
+                      : ""
+                  }
                   sx={{
                     height: "100%",
                     width: "calc(100% - 70px)",
@@ -273,7 +419,7 @@ const AuctionDetail1 = () => {
                 <Grid container spacing={4}>
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
-                      {detailProp.beds}
+                      {info && info.realEstateID && info.realEstateID.bedRoom}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Beds
@@ -281,7 +427,7 @@ const AuctionDetail1 = () => {
                   </Grid>
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
-                      {detailProp.baths}
+                      {info && info.realEstateID && info.realEstateID.bathRoom}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Baths
@@ -289,7 +435,7 @@ const AuctionDetail1 = () => {
                   </Grid>
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
-                      {detailProp.area}
+                      {info && info.realEstateID && info.realEstateID.size}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Square meter
@@ -383,7 +529,8 @@ const AuctionDetail1 = () => {
                     Beds
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {detailProp.beds} Beds
+                    {info && info.realEstateID && info.realEstateID.bedRoom}{" "}
+                    Beds
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -391,7 +538,8 @@ const AuctionDetail1 = () => {
                     Baths
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {detailProp.baths} Baths
+                    {info && info.realEstateID && info.realEstateID.bathRoom}{" "}
+                    Baths
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -399,7 +547,8 @@ const AuctionDetail1 = () => {
                     Size
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {detailProp.area} Sq. Meter
+                    {info && info.realEstateID && info.realEstateID.size} Sq.
+                    Meter
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -483,9 +632,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {detailProp.days < 10
-                          ? "0" + detailProp.days
-                          : detailProp.days}
+                        {info.day < 10 ? "0" + info.day : info.day}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Days
@@ -509,9 +656,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {detailProp.hours < 10
-                          ? "0" + detailProp.hours
-                          : detailProp.hours}
+                        {info.hour < 10 ? "0" + info.hour : info.hour}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Hours
@@ -535,9 +680,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {detailProp.mins < 10
-                          ? "0" + detailProp.mins
-                          : detailProp.mins}
+                        {info.minute < 10 ? "0" + info.minute : info.minute}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Mins
@@ -561,9 +704,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {detailProp.secs < 10
-                          ? "0" + detailProp.secs
-                          : detailProp.secs}
+                        {info.second < 10 ? "0" + info.second : info.second}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Secs
@@ -585,12 +726,12 @@ const AuctionDetail1 = () => {
                         fontSize={45}
                         fontWeight={600}
                       >
-                        {detailProp.startingBid > detailProp.currentBid
-                          ? formattedValue(detailProp.startingBid)
-                          : formattedValue(detailProp.currentBid)}
+                        {info.startPrice > info.currentPrice
+                          ? formattedValue(info.startPrice)
+                          : formattedValue(info.currentPrice)}
                       </Typography>
                       <Typography variant="body1" color="initial" fontSize={20}>
-                        {detailProp.startingBid > detailProp.currentBid
+                        {info.startPrice > info.currentPrice
                           ? "Starting Bid"
                           : "Current Bid"}
                       </Typography>
@@ -605,7 +746,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         fontWeight={600}
                       >
-                        {detailProp.bidders}
+                        {info && info.numberOfBidder}
                       </Typography>
                       <Typography variant="body1" color="initial" fontSize={12}>
                         Bidders
@@ -727,6 +868,8 @@ const AuctionDetail1 = () => {
                             }}
                           />
                         }
+                        checked={isFavorite}
+                        onClick={() => handleAddAuctionToFavList()}
                       />
                     </Grid>
                   </Grid>
@@ -1221,7 +1364,7 @@ const AuctionDetail1 = () => {
                   fontWeight: 600,
                   borderRadius: "8px",
                 }}
-                onClick={() => handleClose()}
+                onClick={() => handlePlaceBid()}
               >
                 Place bid
               </Button>

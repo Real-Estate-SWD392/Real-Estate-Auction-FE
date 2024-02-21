@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export const AuthContext = createContext();
 
@@ -27,6 +28,7 @@ export const AuthContextProvider = ({ children }) => {
         console.log("Logged in successfully", data);
         setUser(data.response);
         setAccessToken(data.accessToken);
+        toast.success("Login successfully");
       } else {
         const errorData = await response.json();
         console.error("Login failed", errorData);

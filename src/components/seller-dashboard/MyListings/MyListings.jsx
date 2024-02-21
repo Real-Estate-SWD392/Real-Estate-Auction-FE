@@ -1,8 +1,10 @@
 import { Button, Card, Grid, Typography } from "@mui/material";
 import { style, styled } from "@mui/system";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import MyListingCard from "./MyListingCard";
 import { listSellerProps } from "../listProps";
+import { getRealEstateByOwnerId } from "../../../service/realEstateService";
+import { AuthContext } from "../../../context/auth.context";
 
 const buttonStyles = {
   borderRadius: "5px",
@@ -54,6 +56,31 @@ export const statusColor = [
 ];
 
 const MyListings = () => {
+  const { user, accessToken } = useContext(AuthContext);
+
+  const [auctionList, setAuctionList] = useState({});
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  };
+
+  console.log("Lisqios", user._id);
+  const getRealEstateByOwner = async () => {
+    try {
+      let res = null;
+      res = await getRealEstateByOwnerId(user._id, headers);
+      console.log("Hung", res.data.response);
+      setAuctionList(res.data.response);
+    } catch (error) {
+      console.error("Error fetching my list:", error);
+    }
+  };
+
+  useEffect(() => {
+    getRealEstateByOwner();
+  }, []);
+
   return (
     <Card
       sx={{
@@ -101,20 +128,25 @@ const MyListings = () => {
       <Divider />
       <div className="listing" style={{ marginTop: "30px" }}>
         <Grid container spacing={3} justifyContent="flex-start">
-          {listSellerProps.map((prop, index) => (
-            <Grid item key={index}>
-              <MyListingCard
-                propImg={prop.propImg}
-                propType={prop.propType}
-                desc={prop.desc}
-                propAddress={prop.propAddress}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
-                status={prop.status}
-              />
-            </Grid>
-          ))}
+          {auctionList &&
+            Array.isArray(auctionList) &&
+            auctionList.map((prop, index) => (
+              <Grid item key={index}>
+                <MyListingCard
+                  propImg={prop.image}
+                  propType={prop.type}
+                  desc={prop.desc}
+                  propAddress={prop.propAddress}
+                  beds={prop.bedRoom}
+                  baths={prop.bathRoom}
+                  area={prop.size}
+                  status={prop.status}
+                  propStreet={prop.street} 
+                  propDistrict={prop.district}
+                  propCity={prop.city}
+                />
+              </Grid>
+            ))}
         </Grid>
       </div>
     </Card>
