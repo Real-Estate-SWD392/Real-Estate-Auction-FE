@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useState } from "react";
 import { Col, Modal } from "react-bootstrap";
 import { validationPassword } from "../validate";
@@ -17,15 +17,24 @@ import "./SignIn.scss";
 import Button from "@mui/material/Button";
 
 import google from "../../../assets/img/google_icon.webp";
+import { AuthContext } from "../../../context/auth.context";
 
 const SignIn = (props) => {
   const [isTruePassword, setIsTruePassword] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  // const [login, setLogin] = useState({
+  //   email: "",
+  //   password: "",
+  // });
+
+  console.log(props);
+
+  const { login } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
       password: "",
-      username: "",
+      email: "",
     },
     validationSchema: validationPassword,
   });
@@ -38,6 +47,21 @@ const SignIn = (props) => {
     }
   };
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      await login({
+        email: formik.values.email,
+        password: formik.values.password,
+      });
+
+      props.setModalShow(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="signIn-container">
       <p className="signin-description">
@@ -45,9 +69,9 @@ const SignIn = (props) => {
         messages and more.
       </p>
 
-      <form className="form-container" onSubmit={formik.handleSubmit}>
+      <form className="form-container">
         <FormControl variant="outlined">
-          <InputLabel htmlFor="current-password" color="primary">
+          <InputLabel htmlFor="email" color="primary">
             Email Address
           </InputLabel>
           <OutlinedInput
@@ -56,14 +80,16 @@ const SignIn = (props) => {
             className="input-field"
             margin="dense"
             type="email"
-            name="username"
+            name="email"
+            value={formik.values.email}
             onChange={formik.handleChange}
+
             // error={
             //   formik.touched.password && Boolean(formik.errors.password)
             // }
           />
           <FormHelperText error>
-            {formik.touched.username && formik.errors.username}
+            {formik.touched.email && formik.errors.email}
           </FormHelperText>
         </FormControl>
 
@@ -102,8 +128,9 @@ const SignIn = (props) => {
             className="form-button-signin"
             variant="contained"
             type="submit"
-            disabled={formik.isSubmitting}
+            // disabled={formik.isSubmitting}
             style={{ color: "white" }}
+            onClick={(e) => handleLogin(e)}
           >
             Sign In
           </Button>
@@ -120,7 +147,15 @@ const SignIn = (props) => {
           Or, sign in with your Google Account:
         </p>
       </form>
-      <Button variant="outlined" sx={{ textTransform: "none", height: '48px', borderColor: '#ADC4DA', color:'black' }}>
+      <Button
+        variant="outlined"
+        sx={{
+          textTransform: "none",
+          height: "48px",
+          borderColor: "#ADC4DA",
+          color: "black",
+        }}
+      >
         <img className="google-icon" src={google} alt="" />
         Continue with Google
       </Button>

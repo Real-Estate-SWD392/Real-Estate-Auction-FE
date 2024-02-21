@@ -9,9 +9,11 @@ import {
   FormLabel,
   FormHelperText,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import AuctionPropCard from "../home/related-prop/AuctionPropCard";
+import { listAuctions } from "../../service/auctionService";
+import { useNavigate } from "react-router-dom";
 
 const MOST_POPULAR = "Most popular";
 const RECENT = "Recently";
@@ -22,10 +24,35 @@ export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];
 
 const SearchBody = ({ searchTerm, resultCount }) => {
+  const [itemAuction, setItemAuction] = React.useState([]);
+
+  const [auctions, setAuctions] = useState({});
+
   const properties = useSelector((state) => state.auction.properties);
+
+
+  const fetchAuctionList = async () => {
+    try {
+      let res = null;
+      res = await listAuctions();
+      console.log(res.data.response);
+      setAuctions(res.data.response);
+    } catch (error) {
+      console.error("Error fetching auction list:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchAuctionList();
+  }, []);
+
+
+  const navigate = useNavigate();
+
   return (
     <>
-      <Box sx={{ mt: "30px" }}>
+      <Box sx={{ bgcolor: "white" }}>
         <div
           className="filter-box"
           style={{
@@ -35,7 +62,11 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         >
           <div
             className="filter-content"
-            style={{ marginLeft: "65px", paddingBottom: "10px" }}
+            style={{
+              marginLeft: "65px",
+              paddingBottom: "10px",
+              marginTop: "10px",
+            }}
           >
             <FormControl sx={{ width: 200, my: 1 }}>
               <InputLabel
@@ -77,7 +108,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ width: 200, my: 1 }}>
+            <FormControl sx={{ width: 100, my: 1 }}>
               <InputLabel
                 id="demo-simple-select-standard-label"
                 sx={{ marginLeft: "20px" }}
@@ -97,7 +128,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ width: 200, my: 1 }}>
+            <FormControl sx={{ width: 100, my: 1 }}>
               <InputLabel
                 id="demo-simple-select-standard-label"
                 sx={{ marginLeft: "20px" }}
@@ -160,27 +191,36 @@ const SearchBody = ({ searchTerm, resultCount }) => {
           </Typography>
         </div>
         <Grid container spacing={3} justifyContent="center">
-          {properties.map((prop, index) => (
-            <Grid item key={index}>
-              <AuctionPropCard
-                propImg={prop.propImg}
-                imgList={prop.imgList}
-                propType={prop.propType}
-                name={prop.name}
-                propAddress={prop.propAddress}
-                days={prop.days}
-                hours={prop.hours}
-                mins={prop.mins}
-                secs={prop.secs}
-                startingBid={prop.startingBid}
-                currentBid={prop.currentBid}
-                isFav={prop.isFav}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
-              />
-            </Grid>
-          ))}
+          {auctions &&
+            Array.isArray(auctions) &&
+            auctions.map((prop, index) => (
+              <Grid item key={index}>
+                <div onClick={() => navigate("/auction_detail", {state: {id : prop._id}})}>
+                <AuctionPropCard
+                  propAuctionId={prop._id}
+                  propImg={prop.realEstateID.image}
+                  imgList={prop.imgList}
+                  propType={prop.description}
+                  name={prop.name}
+
+                  propStreet={prop.realEstateID.street}
+                  propDistrict={prop.realEstateID.district}
+                  propCity={prop.realEstateID.city}
+
+                  days={prop.day}
+                  hours={prop.hour}
+                  mins={prop.minute}
+                  secs={prop.second}
+                  startingBid={prop.startingBid}
+                  currentBid={prop.currentPrice}
+                  isFav={prop.isFav}
+                  beds={prop.realEstateID.bedRoom}
+                  baths={prop.realEstateID.bathRoom}
+                  area={prop.realEstateID.size}
+                />
+                </div>
+              </Grid>
+            ))}
         </Grid>
       </Box>
     </>

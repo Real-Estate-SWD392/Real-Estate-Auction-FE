@@ -14,8 +14,7 @@ import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../../context/auth.context";
+import React, { useEffect, useState } from "react";
 
 const colorBall = {
   width: "12px",
@@ -63,14 +62,12 @@ const CurrencyFormatter = ({ amount }) => {
   );
 };
 
-const AuctionPropCard = ({
+const WinningBidCard = ({
   propImg,
   imgList,
   propType,
   name,
-  propStreet,
-  propDistrict,
-  propCity,
+  propAddress,
   days,
   hours,
   mins,
@@ -81,25 +78,7 @@ const AuctionPropCard = ({
   beds,
   baths,
   area,
-  propAuctionId
 }) => {
-
-  const [isFavorite, setIsFavorite] = useState(false);
-  const { user } = useContext(AuthContext);
-
-
-  const checkFavorite = async () => {
-    try {
-
-      setIsFavorite(user.favoriteList.some(item => item._id === propAuctionId));
-    } catch (error) {
-      console.error("Error checking favorite:", error);
-    } 
-  };
-
-  useEffect(() => {
-    checkFavorite();
-  }, []);
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>
       <Box
@@ -117,18 +96,16 @@ const AuctionPropCard = ({
         />
         <Checkbox
           icon={
-            <FavoriteBorderIcon
-              sx={{ color: "white", width: "30px", height: "30px" }}
-            />
-          }
-          checkedIcon={
             <FavoriteIcon
               sx={{ color: "#EF272C", width: "30px", height: "30px" }}
             />
           }
+          checkedIcon={
+            <FavoriteBorderIcon
+              sx={{ color: "white", width: "30px", height: "30px" }}
+            />
+          }
           sx={{ position: "absolute", zIndex: 3, top: 0, right: 0 }}
-
-          checked={isFavorite}
         />
         <Box
           sx={{
@@ -198,7 +175,7 @@ const AuctionPropCard = ({
           style={combinedStyles}
           fontSize={17}
         >
-          {propStreet} {propDistrict} {propCity}
+          {propAddress}
         </Typography>
         <Grid container className="specs" spacing={2} sx={{ marginTop: "1px" }}>
           <Grid item className="bedNum" style={{ display: "flex" }}>
@@ -341,4 +318,4 @@ const AuctionPropCard = ({
   );
 };
 
-export default AuctionPropCard;
+export default WinningBidCard;

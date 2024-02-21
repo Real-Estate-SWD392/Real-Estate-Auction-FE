@@ -7,15 +7,14 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, styled } from "@mui/system";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../../context/auth.context";
+import React, { useEffect, useState } from "react";
 
 const colorBall = {
   width: "12px",
@@ -49,6 +48,22 @@ const iconSize = {
   color: "#2A69A3",
 };
 
+const warningBall = {
+  width: "8px",
+  height: "8px",
+  backgroundColor: "#FF0000",
+  borderRadius: "20px",
+  marginLeft: "5px",
+};
+
+const safeBall = {
+  width: "8px",
+  height: "8px",
+  backgroundColor: "#51C6AD",
+  borderRadius: "20px",
+  marginLeft: "5px",
+};
+
 const CurrencyFormatter = ({ amount }) => {
   // Ensure amount is a number
   const formattedAmount = Number(amount).toLocaleString("en-US", {
@@ -63,14 +78,18 @@ const CurrencyFormatter = ({ amount }) => {
   );
 };
 
-const AuctionPropCard = ({
+const CustomDivider = styled("div")({
+  width: "1px",
+  height: "40px",
+  background: "rgb(0,0,0,0.12)",
+});
+
+const MyBidCard = ({
   propImg,
   imgList,
   propType,
   name,
-  propStreet,
-  propDistrict,
-  propCity,
+  propAddress,
   days,
   hours,
   mins,
@@ -81,27 +100,10 @@ const AuctionPropCard = ({
   beds,
   baths,
   area,
-  propAuctionId
+  yourBid,
 }) => {
-
-  const [isFavorite, setIsFavorite] = useState(false);
-  const { user } = useContext(AuthContext);
-
-
-  const checkFavorite = async () => {
-    try {
-
-      setIsFavorite(user.favoriteList.some(item => item._id === propAuctionId));
-    } catch (error) {
-      console.error("Error checking favorite:", error);
-    } 
-  };
-
-  useEffect(() => {
-    checkFavorite();
-  }, []);
   return (
-    <Card elevation={2} sx={{ borderRadius: "12px" }}>
+    <Card elevation={2} sx={{ borderRadius: "12px", pb: "10px" }}>
       <Box
         sx={{
           position: "relative",
@@ -127,8 +129,6 @@ const AuctionPropCard = ({
             />
           }
           sx={{ position: "absolute", zIndex: 3, top: 0, right: 0 }}
-
-          checked={isFavorite}
         />
         <Box
           sx={{
@@ -198,7 +198,7 @@ const AuctionPropCard = ({
           style={combinedStyles}
           fontSize={17}
         >
-          {propStreet} {propDistrict} {propCity}
+          {propAddress}
         </Typography>
         <Grid container className="specs" spacing={2} sx={{ marginTop: "1px" }}>
           <Grid item className="bedNum" style={{ display: "flex" }}>
@@ -301,7 +301,15 @@ const AuctionPropCard = ({
         </div>
       </div>
       <div className="prop-price" style={{ marginTop: "25px" }}>
-        <Box sx={{ p: "10px 15px", borderTop: "1px solid #E2EAF2" }}>
+        <Box
+          sx={{
+            p: "10px 15px",
+            borderTop: "1px solid #E2EAF2",
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
           <Grid
             container
             justifyContent="center"
@@ -310,35 +318,54 @@ const AuctionPropCard = ({
           >
             <Grid item flexDirection="column">
               <Typography variant="body1" color="initial" fontSize={15}>
-                {startingBid > currentBid ? "Starting Bid" : "Current Bid"}
+                Your Bid
               </Typography>
               <Typography variant="body1" color="initial">
-                {startingBid > currentBid ? (
-                  <CurrencyFormatter amount={startingBid} />
-                ) : (
-                  <CurrencyFormatter amount={currentBid} />
-                )}
+                <CurrencyFormatter amount={yourBid} />
               </Typography>
             </Grid>
             <Grid item>
-              <Button
-                variant="contained"
-                sx={{
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  background: "#118BF4",
-                  padding: "12px 25px",
-                  fontWeight: "600",
-                }}
+              <CustomDivider />
+            </Grid>
+            <Grid item flexDirection="column">
+              <Typography
+                variant="body1"
+                color="initial"
+                fontSize={15}
+                sx={{ display: "flex", alignItems: "center" }}
               >
-                View Details
-              </Button>
+                Current Bid{" "}
+                {yourBid < currentBid ? (
+                  <div style={warningBall}></div>
+                ) : (
+                  <div style={safeBall}></div>
+                )}
+              </Typography>
+              <Typography variant="body1" color="initial">
+                <CurrencyFormatter amount={currentBid} />
+              </Typography>
             </Grid>
           </Grid>
+          <Button
+            sx={{
+              borderRadius: "8px",
+              background: "#118BF4",
+              textTransform: "none",
+              color: "white",
+              fontWeight: 600,
+              "&:hover": {
+                background: "#118BF4",
+              },
+              marginTop: "17px",
+              py: "12px",
+            }}
+          >
+            View Detail
+          </Button>
         </Box>
       </div>
     </Card>
   );
 };
 
-export default AuctionPropCard;
+export default MyBidCard;
