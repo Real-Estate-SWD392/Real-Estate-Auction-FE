@@ -8,9 +8,14 @@ import AuctionDetail1 from "../auction detail/AuctionDetail1";
 import Home from "../home/Home";
 import AdminLayout from "../layout/AdminLayout";
 import Layout from "../layout/Layout";
+import MyAccountLayout from "../layout/MyAccountLayout";
 import SearchComponent from "../search-auction-list/SearchComponent";
+import MyProfile from "../seller-dashboard/MyProfile";
 import SellerComponent from "../seller-dashboard/SellerComponent";
+import MyBids from "../user-settings/MyBids/MyBids";
 import ProfileComponent from "../user-settings/ProfileComponent";
+import SavedAuctions from "../user-settings/SavedAuctions/SavedAuctions";
+import WinningBids from "../user-settings/WinningBids/WinningBids";
 
 const AppRoutes = [
   {
@@ -38,14 +43,28 @@ const AppRoutes = [
           />
         ),
       },
+    ],
+  },
+
+  {
+    path: "/my-account",
+    element: <MyAccountLayout />,
+    children: [
       {
         path: "/my-account",
-        element: (
-          <ProfileComponent
-            userName={"Anh Anhidaiowudoiauwdiouaw"}
-            userEmail={"phucanhdodang1211@gmail.com"}
-          />
-        ),
+        element: <MyProfile />,
+      },
+      {
+        path: "/my-account/my-bids",
+        element: <MyBids />,
+      },
+      {
+        path: "/my-account/saved",
+        element: <SavedAuctions />,
+      },
+      {
+        path: "/my-account/winning-bids",
+        element: <WinningBids />,
       },
     ],
   },

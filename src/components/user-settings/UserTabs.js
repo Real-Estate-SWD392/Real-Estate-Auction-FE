@@ -1,23 +1,18 @@
-import MyBids from "./MyBids/MyBids";
-import SavedAuctions from "./SavedAuctions/SavedAuctions";
-import UserProfile from "./UserProfile";
-import WinningBids from "./WinningBids/WinningBids";
-
 export const tabs = [
   {
     tabName: "My Profile",
-    component: <UserProfile />,
+    url: "/my-account",
   },
   {
     tabName: "My Bids",
-    component: <MyBids />,
+    url: "/my-account/my-bids",
   },
   {
     tabName: "Saved Auction",
-    component: <SavedAuctions />,
+    url: "/my-account/saved",
   },
   {
     tabName: "My Winning Bids",
-    component: <WinningBids />,
+    url: "/my-account/winning-bids",
   },
 ];

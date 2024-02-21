@@ -19,16 +19,30 @@ const Divider = styled("div")({
 });
 
 const ProfileComponent = ({ index, userName, userEmail }) => {
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentLocation = location.pathname;
+  console.log(currentLocation);
+
+  const currentName = tabs.find((tab) => tab.url === currentLocation);
+  console.log(currentName.tabName);
+
+  useEffect(() => {
+    if (currentLocation === "/my-account") {
+      setSelectedTabIndex("My Profile");
+    } else setSelectedTabIndex(currentName.tabName);
+  }, []);
 
   const handleTabChange = (newValue, url) => {
     setSelectedTabIndex(newValue);
+    navigate(url);
   };
 
   return (
-    <Box sx={{ bgcolor: "#FAFAFA" }}>
+    <>
       <Grid container>
-        <Grid item sx={{ mt: "30px", ml: "30px" }}>
+        <Grid item sx={{}}>
           <Card
             elevation={1}
             sx={{
@@ -62,13 +76,16 @@ const ProfileComponent = ({ index, userName, userEmail }) => {
               {tabs.map((tab, index) => (
                 <>
                   <ListItemButton
+                    selected={selectedTabIndex === tab.tabName}
                     key={index}
-                    onClick={() => handleTabChange(index)}
+                    onClick={() => handleTabChange(tab.tabName, tab.url)}
                     sx={{ py: "20px" }}
                   >
                     <Typography
                       variant="body1"
-                      color={selectedTabIndex === index ? "#31A2FC" : "initial"}
+                      color={
+                        selectedTabIndex === tab.tabName ? "#31A2FC" : "initial"
+                      }
                       fontSize={17}
                       fontWeight={600}
                     >
@@ -91,11 +108,8 @@ const ProfileComponent = ({ index, userName, userEmail }) => {
             </List>
           </Card>
         </Grid>
-        <Grid item sx={{ mt: "30px", ml: "50px" }}>
-          <div className="tab-panel">{tabs[selectedTabIndex].component}</div>
-        </Grid>
       </Grid>
-    </Box>
+    </>
   );
 };
 
