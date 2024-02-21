@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from "react";
 import MyListingCard from "./MyListingCard";
 import { listSellerProps } from "../listProps";
 import { RealEstateContext } from "../../../context/real-estate.context";
+import { getRealEstateByOwnerId } from "../../../service/realEstateService";
 import { AuthContext } from "../../../context/auth.context";
 
 const buttonStyles = {
@@ -56,21 +57,30 @@ export const statusColor = [
 ];
 
 const MyListings = () => {
-  const { getRealEstateByOwner } = useContext(RealEstateContext);
-  const { user } = useContext(AuthContext);
+  const { user, accessToken } = useContext(AuthContext);
 
-  const [realEstateList, setRealEstateList] = useState([]);
+  const [auctionList, setAuctionList] = useState({});
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  };
+
+  console.log("Lisqios", user._id);
 
   useEffect(() => {
-    const fetchAPI = async () => {
+    const getRealEstateByOwner = async () => {
       try {
-        const res = await getRealEstateByOwner(user._id);
-        console.log(res);
+        let res = null;
+        res = await getRealEstateByOwnerId(user._id, headers);
+        console.log("Hung", res.data.response);
+        setAuctionList(res.data.response);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching my list:", error);
       }
     };
-    fetchAPI();
+
+    getRealEstateByOwner();
   }, []);
 
   return (
@@ -120,20 +130,29 @@ const MyListings = () => {
       <Divider />
       <div className="listing" style={{ marginTop: "30px" }}>
         <Grid container spacing={3} justifyContent="flex-start">
-          {listSellerProps.map((prop, index) => (
-            <Grid item key={index}>
-              <MyListingCard
-                propImg={prop.propImg}
-                propType={prop.propType}
-                desc={prop.desc}
-                propAddress={prop.propAddress}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
-                status={prop.status}
-              />
-            </Grid>
-          ))}
+          {auctionList &&
+            Array.isArray(auctionList) &&
+            auctionList.map((prop, index) => (
+              <Grid item key={index}>
+                <MyListingCard
+                  property={prop}
+                  propID={prop._id}
+                  propImg={prop.image}
+                  propType={prop.type}
+                  desc={prop.desc}
+                  propAddress={prop.propAddress}
+                  beds={prop.bedRoom}
+                  baths={prop.bathRoom}
+                  area={prop.size}
+                  status={prop.status}
+                  propStreet={prop.street}
+                  propDistrict={prop.district}
+                  propCity={prop.city}
+                  auctionList={auctionList}
+                  setAuctionList={setAuctionList}
+                />
+              </Grid>
+            ))}
         </Grid>
       </div>
     </Card>

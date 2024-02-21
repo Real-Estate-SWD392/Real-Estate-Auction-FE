@@ -104,7 +104,7 @@ function ResponsiveAppBar({ userName }) {
               variant="h6"
               noWrap
               component="a"
-              href="/"
+              onClick={() => navigate("/")}
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -225,7 +225,10 @@ function ResponsiveAppBar({ userName }) {
                         pr: "80px",
                         fontWeight: 600,
                       }}
-                      onClick={handleLogout}
+                      onClick={() => {
+                        navigate("/");
+                        handleLogout();
+                      }}
                     >
                       Log out
                     </MenuItem>

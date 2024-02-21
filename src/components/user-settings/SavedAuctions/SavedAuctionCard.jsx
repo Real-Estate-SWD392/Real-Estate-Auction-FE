@@ -15,6 +15,7 @@ import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 const colorBall = {
   width: "12px",
@@ -67,7 +68,9 @@ const SavedAuctionCard = ({
   imgList,
   propType,
   name,
-  propAddress,
+  propStreet,
+  propDistrict,
+  propCity,
   days,
   hours,
   mins,
@@ -78,7 +81,10 @@ const SavedAuctionCard = ({
   beds,
   baths,
   area,
+  propID,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>
       <Box
@@ -175,7 +181,7 @@ const SavedAuctionCard = ({
           style={combinedStyles}
           fontSize={17}
         >
-          {propAddress}
+          {propStreet} {propDistrict} {propCity}
         </Typography>
         <Grid container className="specs" spacing={2} sx={{ marginTop: "1px" }}>
           <Grid item className="bedNum" style={{ display: "flex" }}>
@@ -307,6 +313,7 @@ const SavedAuctionCard = ({
                   padding: "12px 25px",
                   fontWeight: "600",
                 }}
+                onClick={() => navigate(`/auction_detail/${propID}`)}
               >
                 View Details
               </Button>

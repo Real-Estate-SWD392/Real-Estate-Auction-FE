@@ -9,6 +9,7 @@ import { statusColor } from "./UpdatePropertyList";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
 import { RealEstateContext } from "../../../context/real-estate.context";
+import { useNavigate } from "react-router-dom";
 
 const imgCard = {
   width: "320px",
@@ -61,18 +62,15 @@ const UpdatePropertyCard = ({
   area,
   status,
   index,
+  onRemove,
+  setIsOpenUpdate,
+  setSelectedTabIndex,
 }) => {
-  const { removeRealEstate } = useContext(RealEstateContext);
-
   const handleRemoveRealEstate = async () => {
-    console.log(propID);
-    try {
-      const res = await removeRealEstate(propID);
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
+    await onRemove(propID);
   };
+
+  const nav = useNavigate();
 
   return (
     <>
@@ -207,7 +205,7 @@ const UpdatePropertyCard = ({
               WebkitLineClamp: 4, // Adjust the number of lines to your preference
             }}
           >
-            {desc}
+            Description: {desc}
           </Typography>
         </div>
         <div className="prop-price" style={{ marginTop: "15px" }}>
@@ -231,6 +229,11 @@ const UpdatePropertyCard = ({
                 "&:hover": {
                   background: "#118BF4",
                 },
+              }}
+              onClick={() => {
+                nav(`update/${propID}`);
+                setIsOpenUpdate(true);
+                setSelectedTabIndex(null);
               }}
             >
               Update Property

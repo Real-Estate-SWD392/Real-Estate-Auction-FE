@@ -71,7 +71,9 @@ const AuctionPropCard = ({
   imgList,
   propType,
   name,
-  propAddress,
+  propStreet,
+  propDistrict,
+  propCity,
   days,
   hours,
   mins,
@@ -82,21 +84,25 @@ const AuctionPropCard = ({
   beds,
   baths,
   area,
+  propAuctionId,
 }) => {
-  const { addAuctionToFavList } = useContext(AuctionContext);
-
+  const [isFavorite, setIsFavorite] = useState(false);
   const { user } = useContext(AuthContext);
+  const nav = useNavigate();
 
-  const handleAddToFavourite = async (auctionID) => {
+  const checkFavorite = async () => {
     try {
-      await addAuctionToFavList(user._id, auctionID);
+      setIsFavorite(
+        user.favoriteList.some((item) => item._id === propAuctionId)
+      );
     } catch (error) {
-      console.log(error);
+      console.error("Error checking favorite:", error);
     }
   };
 
-  const nav = useNavigate();
-
+  useEffect(() => {
+    checkFavorite();
+  }, []);
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>
       <Box
@@ -113,9 +119,9 @@ const AuctionPropCard = ({
           }}
         />
         <Checkbox
-          onClick={() => {
-            handleAddToFavourite(id);
-          }}
+          // onClick={() => {
+          //   handleAddToFavourite(id);
+          // }}
           icon={
             <FavoriteBorderIcon
               sx={{ color: "white", width: "30px", height: "30px" }}
@@ -127,6 +133,7 @@ const AuctionPropCard = ({
             />
           }
           sx={{ position: "absolute", zIndex: 3, top: 0, right: 0 }}
+          checked={isFavorite}
         />
         <Box
           sx={{
@@ -196,7 +203,7 @@ const AuctionPropCard = ({
           style={combinedStyles}
           fontSize={17}
         >
-          {propAddress}
+          {propStreet} {propDistrict} {propCity}
         </Typography>
         <Grid container className="specs" spacing={2} sx={{ marginTop: "1px" }}>
           <Grid item className="bedNum" style={{ display: "flex" }}>
@@ -328,7 +335,7 @@ const AuctionPropCard = ({
                   padding: "12px 25px",
                   fontWeight: "600",
                 }}
-                onClick={() => nav(`/auctions/${id}`)}
+                onClick={() => nav(`/auction_detail/${id}`)}
               >
                 View Details
               </Button>

@@ -1,6 +1,8 @@
 import { createContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import Cookies from "js-cookie";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -48,6 +50,7 @@ export const AuthContextProvider = ({ children }) => {
           secure: true,
           sameSite: "None",
         });
+        toast.success("Login successfully");
       } else {
         const errorData = await response.json();
         console.error("Login failed", errorData);
@@ -127,42 +130,31 @@ export const AuthContextProvider = ({ children }) => {
   }, [accessToken]);
 
   const logout = async () => {
-    setUser(null);
-    setAccessToken(null);
+    try {
+      const response = await axios.get("http://localhost:8080/auth/logout", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
 
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    Cookies.remove("refreshToken");
-  };
+      console.log(response);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Logout successfully", data);
-        } else {
-          const errorData = await response.json();
-          console.error("Logout failed", errorData);
-        }
-      } catch (error) {
-        console.error("Error during logout", error);
+      if (response.status === 200) {
+        setUser(null);
+        setAccessToken(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+        Cookies.remove("refreshToken");
+        console.log("Logout successfully", response.data);
+      } else {
+        console.error("Logout failed", response.data);
       }
-    };
-
-    if (!accessToken) {
-      fetchData();
+    } catch (error) {
+      console.error("Error during logout", error);
     }
-  }, [accessToken]);
+  };
 
   return (
     <AuthContext.Provider

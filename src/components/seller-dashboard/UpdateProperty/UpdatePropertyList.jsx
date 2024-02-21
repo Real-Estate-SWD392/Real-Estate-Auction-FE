@@ -40,11 +40,30 @@ export const statusColor = [
   },
 ];
 
-const UpdatePropertyList = () => {
+const UpdatePropertyList = ({ setIsOpenUpdate, setSelectedTabIndex }) => {
   const { user } = useContext(AuthContext);
-  const { getRealEstateByOwner } = useContext(RealEstateContext);
+  const { getRealEstateByOwner, removeRealEstate } =
+    useContext(RealEstateContext);
 
   const [propertyList, setPropertyList] = useState([]);
+
+  const handleRemoveProperty = async (propID) => {
+    const isConfirm = window.confirm("Are you sure remove this real estate?");
+
+    if (isConfirm) {
+      try {
+        // Remove the property from the backend
+        await removeRealEstate(propID);
+
+        // Update the UI state to remove the property from the list
+        setPropertyList(
+          propertyList.filter((property) => property._id !== propID)
+        );
+      } catch (error) {
+        console.error("Error removing property:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchAPI = async () => {
@@ -99,11 +118,14 @@ const UpdatePropertyList = () => {
                     propImg={prop.image}
                     propType={prop.type}
                     desc={prop.description}
-                    propAddress={prop.propAddress}
+                    propAddress={`${prop.street}, ${prop.ward}, ${prop.district}, ${prop.city}`}
                     beds={prop.bedRoom}
                     baths={prop.bathRoom}
                     area={prop.size}
                     status={prop.status}
+                    setIsOpenUpdate={setIsOpenUpdate}
+                    setSelectedTabIndex={setSelectedTabIndex}
+                    onRemove={() => handleRemoveProperty(prop._id)}
                   />
                 </Grid>
               ))

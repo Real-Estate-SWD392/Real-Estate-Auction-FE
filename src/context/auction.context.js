@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./auth.context";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export const AuctionContext = createContext();
 
@@ -40,6 +42,7 @@ export const AuctionContextProvider = ({ children }) => {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         }
       );
 
@@ -69,6 +72,7 @@ export const AuctionContextProvider = ({ children }) => {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         }
       );
 
@@ -97,6 +101,7 @@ export const AuctionContextProvider = ({ children }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
+          credentials: "include",
           body: { auctionID: JSON.stringify(values) },
         }
       );
@@ -120,6 +125,7 @@ export const AuctionContextProvider = ({ children }) => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -145,6 +151,8 @@ export const AuctionContextProvider = ({ children }) => {
           headers: {
             "Content-Type": "application/json",
           },
+
+          credentials: "include",
         }
       );
 
@@ -159,6 +167,38 @@ export const AuctionContextProvider = ({ children }) => {
         return errorData;
       }
     } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const createAuction = async (values) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/auction/`,
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Create Sucess: ", data);
+        toast.success("Create Auction Success! Your Auction is on pending");
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Create failed", errorData);
+
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Create Auction Fail!!");
       console.log(error);
     }
   };
@@ -184,6 +224,7 @@ export const AuctionContextProvider = ({ children }) => {
         filterAuction,
         sortByTime,
         sortByPopular,
+        createAuction,
       }}
     >
       {children}

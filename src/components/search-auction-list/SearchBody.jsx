@@ -23,6 +23,10 @@ export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];
 
 const SearchBody = ({ searchTerm, resultCount }) => {
+  const [itemAuction, setItemAuction] = React.useState([]);
+
+  const [auctions, setAuctions] = useState({});
+
   const properties = useSelector((state) => state.auction.properties);
 
   const [provinceList, setProvinceList] = useState(null);
