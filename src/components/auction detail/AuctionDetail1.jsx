@@ -40,6 +40,8 @@ import { AuthContext } from "../../context/auth.context";
 import { createBid } from "../../service/bidService";
 import { addAuctionToFavList } from "../../service/memberService";
 import { getAuctionById } from "../../service/auctionService";
+import { toast } from "react-toastify";
+import { UserContext } from "../../context/user.context";
 
 const specStyle = {
   textAlign: "center",
@@ -121,6 +123,8 @@ const AuctionDetail1 = () => {
     balance: 0,
   });
 
+  const { removeFromFavList } = useContext(UserContext);
+
   const handleSelectedChange = (event) => {
     const selectedMethodValue = event.target.value;
     const selectedMethod = methodList.find(
@@ -181,8 +185,6 @@ const AuctionDetail1 = () => {
 
   let { id } = useParams();
 
-  console.log(id);
-
   // let receiveData;
 
   // if (id.state) {
@@ -208,11 +210,8 @@ const AuctionDetail1 = () => {
     }
   };
 
-  const { user, accessToken } = useContext(AuthContext);
+  const { user, accessToken, setUser } = useContext(AuthContext);
   const userID = user ? user._id : null;
-
-  console.log("IDDD", userID);
-  console.log("auction", id);
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -242,38 +241,36 @@ const AuctionDetail1 = () => {
   const auctionId = {
     _id: id,
   };
-  console.log("hahaha", auctionId);
+  console.log("hahaha", info);
   // console.log("listHAV", user.favoriteList);
 
   const handleAddAuctionToFavList = async () => {
-    console.log("exist", user.favoriteList.includes(auctionId));
-    console.log(user.favoriteList.some((item) => item._id === id));
-
     try {
-      if (user.favoriteList.some((item) => item._id === id)) {
-        alert("Existing");
+      const res = await addAuctionToFavList(userID, addToFavListData, headers);
+      setIsFavorite(!isFavorite);
+      if (res && res.data && res.data.success) {
+        console.log("Add to list completed");
+        toast.success("Add to list completed successfully !!!");
+        setUser(res.data.response);
+        // handleClose();
+        // navigate("/auctions");
       } else {
-        const res = await addAuctionToFavList(
-          userID,
-          addToFavListData,
-          headers
-        );
-        setIsFavorite(!isFavorite);
-        if (res && res.data && res.data.success) {
-          console.log("Add to list completed");
-          alert("Add to list completed successfully !!!");
-
-          // handleClose();
-          // navigate("/auctions");
-        } else {
-          console.log("Add to list failed");
-          alert("Add to list failed !!!");
-        }
+        toast.error("Add to list failed !!!");
       }
     } catch (error) {
       console.error("Error placing Add to list:", error);
-      alert("Error placing Add to list. Please try again later.");
-      console.log("Aaa", error);
+      toast.error("Add to list failed !!!");
+    }
+  };
+
+  const handleRemoveFromFavList = async () => {
+    try {
+      const res = await removeFromFavList(id);
+      if (res && res.data && res.data.success) {
+        setUser(res.data.response);
+      }
+    } catch (error) {
+      console.error("Error Remove from list:", error);
     }
   };
 
@@ -857,8 +854,19 @@ const AuctionDetail1 = () => {
                             }}
                           />
                         }
-                        checked={isFavorite}
-                        onClick={() => handleAddAuctionToFavList()}
+                        checked={user.favoriteList.find((item) => {
+                          if (item === id) {
+                            return true;
+                          }
+                          return false;
+                        })}
+                        onClick={() => {
+                          if (user.favoriteList.find((item) => item === id)) {
+                            handleRemoveFromFavList();
+                          } else {
+                            handleAddAuctionToFavList();
+                          }
+                        }}
                       />
                     </Grid>
                   </Grid>

@@ -16,6 +16,7 @@ import { AuctionContext } from "../../context/auction.context";
 import { setProperties } from "../../redux/reducers/auctionSlice";
 import { getSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
+import { textAlign } from "@mui/system";
 
 export const listPropType = ["Condo", "Villa", "Aparment"];
 export const listCity = ["Thủ Đức", "Hồ Chí Minh"];
@@ -30,8 +31,6 @@ const SearchBody = ({ searchTerm, resultCount }) => {
   const properties = useSelector((state) => state.auction.properties);
 
   const [provinceList, setProvinceList] = useState(null);
-
-  console.log(properties);
 
   const dispatch = useDispatch();
 
@@ -57,6 +56,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
     switch (sortField) {
       case "time": {
         const res = await sortByTime();
+        console.log(res);
         dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
         break;
       }
@@ -77,7 +77,6 @@ const SearchBody = ({ searchTerm, resultCount }) => {
     const fetchFilteredAuction = async () => {
       try {
         const res = await filterAuction(filterValues);
-        console.log(res.response);
 
         if (res.response) {
           dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
@@ -88,7 +87,14 @@ const SearchBody = ({ searchTerm, resultCount }) => {
       }
     };
 
-    fetchFilteredAuction();
+    if (
+      filterValues.bathRoom !== "" ||
+      filterValues.bedRoom !== "" ||
+      filterValues.city !== "" ||
+      filterValues.type !== ""
+    ) {
+      fetchFilteredAuction();
+    }
   }, [filterValues]); // Execute whenever filterValues changes
 
   useEffect(() => {
@@ -99,8 +105,6 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         const provincesData = data.results.map(
           (result) => result.province_name
         );
-
-        console.log(provincesData);
 
         setProvinceList(provincesData);
       })
@@ -251,30 +255,35 @@ const SearchBody = ({ searchTerm, resultCount }) => {
           </Typography>
         </div>
         <Grid container spacing={3} justifyContent="center">
-          {properties?.length > 0
-            ? properties.map((prop, index) => (
-                <Grid item key={index}>
-                  <AuctionPropCard
-                    id={prop._id}
-                    propImg={prop.realEstateID?.image[0]}
-                    imgList={prop.realEstateID.image}
-                    propType={prop.realEstateID.type}
-                    name={prop.name}
-                    propAddress={prop.realEstateID.address}
-                    days={prop.day}
-                    hours={prop.hour}
-                    mins={prop.minute}
-                    secs={prop.second}
-                    startingBid={prop.startingPrice}
-                    currentBid={prop.currentPrice}
-                    isFav={prop.isFav}
-                    beds={prop.realEstateID.bedRoom}
-                    baths={prop.realEstateID.bathRoom}
-                    area={prop.realEstateID.size}
-                  />
-                </Grid>
-              ))
-            : "abc"}
+          {properties?.length > 0 ? (
+            properties.map((prop, index) => (
+              <Grid item key={index}>
+                <AuctionPropCard
+                  id={prop._id}
+                  propImg={prop?.realEstateID.image[0]}
+                  imgList={prop.realEstateID.image}
+                  propType={prop.realEstateID.type}
+                  name={prop.name}
+                  propStreet={prop.realEstateID.street}
+                  propWard={prop.realEstateID.ward}
+                  propDistrict={prop.realEstateID.district}
+                  propCity={prop.realEstateID.city}
+                  days={prop.day}
+                  hours={prop.hour}
+                  mins={prop.minute}
+                  secs={prop.second}
+                  startingBid={prop.startingPrice}
+                  currentBid={prop.currentPrice}
+                  isFav={prop.isFav}
+                  beds={prop.realEstateID.bedRoom}
+                  baths={prop.realEstateID.bathRoom}
+                  area={prop.realEstateID.size}
+                />
+              </Grid>
+            ))
+          ) : (
+            <h2 style={{ textAlign: "center" }}>No Result Found</h2>
+          )}
         </Grid>
       </Box>
     </>

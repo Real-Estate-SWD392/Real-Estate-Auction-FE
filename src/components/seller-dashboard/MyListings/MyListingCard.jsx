@@ -28,6 +28,7 @@ import { Close } from "@mui/icons-material";
 import { useEffect } from "react";
 import { AuctionContext } from "../../../context/auction.context";
 import { AuthContext } from "../../../context/auth.context";
+import { useNavigate } from "react-router";
 
 const imgCard = {
   width: "320px",
@@ -104,15 +105,18 @@ const MyListingCard = ({
   area,
   status,
   index,
-  auctionList,
-  setAuctionList,
+  auctionLists,
+  setAuctionLists,
   propID,
   property,
 }) => {
   const { user } = useContext(AuthContext);
 
+  const { getAuctionByRealEstateID } = useContext(AuctionContext);
+
   const [open, setOpen] = React.useState(false);
   const [auction, setAuction] = useState({
+    id: "",
     name: `${user.firstName} ${user.lastName}`,
     day: 0,
     hour: 0,
@@ -124,7 +128,10 @@ const MyListingCard = ({
     realEstateID: propID,
   });
 
-  const { createAuction } = useContext(AuctionContext);
+  const { createAuction, auctionList, setAuctionList } =
+    useContext(AuctionContext);
+
+  const nav = useNavigate();
 
   const handleOpen = () => setOpen(true);
 
@@ -170,21 +177,34 @@ const MyListingCard = ({
 
     if (res.result) {
       // Find the index of the item with the same _id in the auctionList array
-      const indexToUpdate = auctionList.findIndex(
+      const indexToUpdate = auctionLists.findIndex(
         (item) => item._id === res.result.realEstateID
       );
 
       // If the index is found, update the auctionList
       if (indexToUpdate !== -1) {
-        const updatedAuctionList = [...auctionList]; // Create a copy of the auctionList array
+        const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
         updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
-        setAuctionList(updatedAuctionList); // Update the state with the updated auctionList
+        setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
       }
     }
     handleClose();
   };
 
-  console.log(auctionList);
+  const handleNavigate = async () => {
+    try {
+      const res = await getAuctionByRealEstateID(propID);
+
+      let auctionID = "";
+
+      if (res.response) {
+        auctionID = res.response._id;
+        nav(`/auction_detail/${auctionID}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -344,13 +364,26 @@ const MyListingCard = ({
                 },
               }}
               onClick={() => {
-                if (status === "Available" || status === "Rejected")
-                  handleOpen();
+                switch (status) {
+                  case "Available" || "Rejected": {
+                    handleOpen();
+                    break;
+                  }
+
+                  case "In Auction": {
+                    handleNavigate();
+                    break;
+                  }
+
+                  default: {
+                    break;
+                  }
+                }
               }}
             >
               {status === "Pending" || status === "Sold"
                 ? "View Detail"
-                : status === "IN AUCTION"
+                : status === "In Auction"
                 ? "View Auction"
                 : "Open Auction"}
             </Button>

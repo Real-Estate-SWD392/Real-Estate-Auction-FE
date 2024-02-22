@@ -110,26 +110,30 @@ const UpdatePropertyList = ({ setIsOpenUpdate, setSelectedTabIndex }) => {
       <Divider />
       <div className="listing" style={{ marginTop: "30px" }}>
         <Grid container spacing={3} justifyContent="flex-start">
-          {propertyList.length > 0
-            ? propertyList.map((prop, index) => (
-                <Grid item key={index}>
-                  <UpdatePropertyCard
-                    propID={prop._id}
-                    propImg={prop.image}
-                    propType={prop.type}
-                    desc={prop.description}
-                    propAddress={`${prop.street}, ${prop.ward}, ${prop.district}, ${prop.city}`}
-                    beds={prop.bedRoom}
-                    baths={prop.bathRoom}
-                    area={prop.size}
-                    status={prop.status}
-                    setIsOpenUpdate={setIsOpenUpdate}
-                    setSelectedTabIndex={setSelectedTabIndex}
-                    onRemove={() => handleRemoveProperty(prop._id)}
-                  />
-                </Grid>
-              ))
-            : ""}
+          {propertyList?.length > 0 ? (
+            propertyList.map((prop, index) => (
+              <Grid item key={index}>
+                <UpdatePropertyCard
+                  propID={prop._id}
+                  propImg={prop.image}
+                  propType={prop.type}
+                  desc={prop.description}
+                  propAddress={`${prop.street}, ${prop.ward}, ${prop.district}, ${prop.city}`}
+                  beds={prop.bedRoom}
+                  baths={prop.bathRoom}
+                  area={prop.size}
+                  status={prop.status}
+                  setIsOpenUpdate={setIsOpenUpdate}
+                  setSelectedTabIndex={setSelectedTabIndex}
+                  onRemove={() => handleRemoveProperty(prop._id)}
+                />
+              </Grid>
+            ))
+          ) : (
+            <h2 style={{ width: "100%", textAlign: "center" }}>
+              You Don't Have Any Real Estates Yet!
+            </h2>
+          )}
         </Grid>
       </div>
     </Card>

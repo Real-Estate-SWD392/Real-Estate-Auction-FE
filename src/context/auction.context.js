@@ -33,6 +33,34 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const getAuctionByRealEstateID = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/auction/realEstate/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Auction List: ", data);
+        return response.data;
+      } else {
+        const errorData = await response.data;
+        console.error("Load auction failed", errorData);
+        return errorData.data;
+      }
+    } catch (error) {
+      console.error("Error during update", error);
+    }
+  };
+
   const searchAuction = async (value) => {
     try {
       const response = await fetch(
@@ -219,12 +247,14 @@ export const AuctionContextProvider = ({ children }) => {
     <AuctionContext.Provider
       value={{
         auctionList,
+        setAuctionList,
         addAuctionToFavList,
         searchAuction,
         filterAuction,
         sortByTime,
         sortByPopular,
         createAuction,
+        getAuctionByRealEstateID,
       }}
     >
       {children}

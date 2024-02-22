@@ -59,7 +59,7 @@ export const statusColor = [
 const MyListings = () => {
   const { user, accessToken } = useContext(AuthContext);
 
-  const [auctionList, setAuctionList] = useState([]);
+  const [auctionLists, setAuctionLists] = useState([]);
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -74,7 +74,7 @@ const MyListings = () => {
         let res = null;
         res = await getRealEstateByOwnerId(user._id, headers);
         console.log("Hung", res.data.response);
-        setAuctionList(res.data.response);
+        setAuctionLists(res.data.response);
       } catch (error) {
         console.error("Error fetching my list:", error);
       }
@@ -123,7 +123,7 @@ const MyListings = () => {
               >
                 {status.name} (
                 {
-                  auctionList.filter(
+                  auctionLists.filter(
                     (auction) => auction.status.toUpperCase() === status.name
                   ).length
                 }
@@ -136,9 +136,9 @@ const MyListings = () => {
       <Divider />
       <div className="listing" style={{ marginTop: "30px" }}>
         <Grid container spacing={3} justifyContent="flex-start">
-          {auctionList &&
-            Array.isArray(auctionList) &&
-            auctionList.map((prop, index) => (
+          {auctionLists &&
+            Array.isArray(auctionLists) &&
+            auctionLists.map((prop, index) => (
               <Grid item key={index}>
                 <MyListingCard
                   property={prop}
@@ -154,8 +154,8 @@ const MyListings = () => {
                   propStreet={prop.street}
                   propDistrict={prop.district}
                   propCity={prop.city}
-                  auctionList={auctionList}
-                  setAuctionList={setAuctionList}
+                  auctionLists={auctionLists}
+                  setAuctionLists={setAuctionLists}
                 />
               </Grid>
             ))}

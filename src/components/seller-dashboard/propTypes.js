@@ -1,6 +1,6 @@
 export const propertyTypes = [
   "Villa",
-  "Single-Family",
+  "Condominium",
   "Apartment",
   "Townhouse",
   "Duplex",

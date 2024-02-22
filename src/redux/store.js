@@ -24,12 +24,15 @@ const store = configureStore({
 
 export const fetchInitialProperties = () => async (dispatch) => {
   try {
-    const response = await fetch(`http://localhost:8080/auction`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `http://localhost:8080/auction/status/In Auction`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (response.ok) {
       const data = await response.json();

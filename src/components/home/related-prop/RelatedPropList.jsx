@@ -6,6 +6,8 @@ import AuctionPropCard from "./AuctionPropCard";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuctionContext } from "../../../context/auction.context";
 
 const buttonStyle = {
   background: "#F4F7FA",
@@ -14,8 +16,12 @@ const buttonStyle = {
   borderRadius: "10px",
 };
 const RelatedPropList = ({}) => {
+  const { auctionList, setAuctionList } = useContext(AuctionContext);
+
   const navigate = useNavigate();
   const properties = useSelector((state) => state.auction.properties);
+
+  setAuctionList(properties);
 
   const handleNavigate = () => {
     navigate("/auctions");
@@ -34,7 +40,7 @@ const RelatedPropList = ({}) => {
           fontWeight={500}
           sx={{ marginLeft: "85px", mb: "15px" }}
         >
-          Reccommended Properties
+          Recommended Properties
         </Typography>
         <div className="navigate-next" style={{ marginRight: "85px" }}>
           <IconButton
@@ -54,7 +60,7 @@ const RelatedPropList = ({}) => {
         </div>
       </div>
       <Grid container spacing={3} justifyContent="center">
-        {properties.map((prop, index) => (
+        {auctionList.map((prop, index) => (
           <Grid item key={index}>
             <AuctionPropCard
               id={prop._id}
@@ -62,7 +68,10 @@ const RelatedPropList = ({}) => {
               imgList={prop.realEstateID.image}
               propType={prop.realEstateID.type}
               name={prop.name}
-              propAddress={prop.realEstateID.address}
+              propStreet={prop.realEstateID.street}
+              propWard={prop.realEstateID.ward}
+              propDistrict={prop.realEstateID.district}
+              propCity={prop.realEstateID.city}
               days={prop.day}
               hours={prop.hour}
               mins={prop.minute}

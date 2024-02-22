@@ -6,7 +6,7 @@ import axios from "axios";
 export const UserContext = createContext();
 
 export const UserContextProvider = ({ children }) => {
-  const { setUser, accessToken } = useContext(AuthContext);
+  const { user, setUser, accessToken } = useContext(AuthContext);
 
   const updateProfile = async (id, values) => {
     values.profile.image = values.image;
@@ -97,9 +97,43 @@ export const UserContextProvider = ({ children }) => {
       console.error("Error during update", error);
     }
   };
+
+  const removeFromFavList = async (_id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/member/remove-favorite-auction/${user._id}`,
+        { _id }, // Include _id in the request body
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Remove successfully", data);
+        toast.success(response.data.message);
+      } else {
+        console.error("Update failed", response.data);
+        toast.error("Remove From Favorite List fail");
+      }
+    } catch (error) {
+      console.error("Error during update", error);
+      toast.error("Remove From Favorite List fail");
+    }
+  };
   return (
     <UserContext.Provider
-      value={{ updateProfile, changePassword, getMemberInfoById }}
+      value={{
+        updateProfile,
+        changePassword,
+        getMemberInfoById,
+        removeFromFavList,
+      }}
     >
       {children}
     </UserContext.Provider>
