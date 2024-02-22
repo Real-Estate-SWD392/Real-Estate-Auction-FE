@@ -14,7 +14,10 @@ import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { AuctionContext } from "../../../context/auction.context";
+import { AuthContext } from "../../../context/auth.context";
+import { useNavigate } from "react-router-dom";
 
 const colorBall = {
   width: "12px",
@@ -63,11 +66,14 @@ const CurrencyFormatter = ({ amount }) => {
 };
 
 const AuctionPropCard = ({
+  id,
   propImg,
   imgList,
   propType,
   name,
-  propAddress,
+  propStreet,
+  propDistrict,
+  propCity,
   days,
   hours,
   mins,
@@ -78,7 +84,25 @@ const AuctionPropCard = ({
   beds,
   baths,
   area,
+  propAuctionId,
 }) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const { user } = useContext(AuthContext);
+  const nav = useNavigate();
+
+  const checkFavorite = async () => {
+    try {
+      setIsFavorite(
+        user.favoriteList.some((item) => item._id === propAuctionId)
+      );
+    } catch (error) {
+      console.error("Error checking favorite:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkFavorite();
+  }, []);
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>
       <Box
@@ -95,6 +119,9 @@ const AuctionPropCard = ({
           }}
         />
         <Checkbox
+          // onClick={() => {
+          //   handleAddToFavourite(id);
+          // }}
           icon={
             <FavoriteBorderIcon
               sx={{ color: "white", width: "30px", height: "30px" }}
@@ -106,6 +133,7 @@ const AuctionPropCard = ({
             />
           }
           sx={{ position: "absolute", zIndex: 3, top: 0, right: 0 }}
+          checked={isFavorite}
         />
         <Box
           sx={{
@@ -156,7 +184,7 @@ const AuctionPropCard = ({
             textTransform="uppercase"
             sx={{}}
           >
-            1/{imgList}
+            1/{imgList?.length}
           </Typography>
         </Box>
       </Box>
@@ -175,7 +203,7 @@ const AuctionPropCard = ({
           style={combinedStyles}
           fontSize={17}
         >
-          {propAddress}
+          {propStreet} {propDistrict} {propCity}
         </Typography>
         <Grid container className="specs" spacing={2} sx={{ marginTop: "1px" }}>
           <Grid item className="bedNum" style={{ display: "flex" }}>
@@ -307,6 +335,7 @@ const AuctionPropCard = ({
                   padding: "12px 25px",
                   fontWeight: "600",
                 }}
+                onClick={() => nav(`/auction_detail/${id}`)}
               >
                 View Details
               </Button>

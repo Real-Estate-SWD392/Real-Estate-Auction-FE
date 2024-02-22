@@ -1,20 +1,41 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import TextField from "@mui/material/TextField";
 import { Button, IconButton, InputAdornment } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { AuctionContext } from "../../context/auction.context";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getSearchQuery,
+  getSearchResutlts,
+} from "../../redux/reducers/searchAuctionSlice";
+import { setProperties } from "../../redux/reducers/auctionSlice";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
+
+  const { searchAuction } = useContext(AuctionContext);
+
+  const dispatch = useDispatch();
+  const searchTerm = useSelector((state) => state.search.searchTerm);
+  const searchResults = useSelector((state) => state.search.searchResults);
 
   const handleOnChange = (event) => {
     setQuery(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     //redux update search querry
     event.preventDefault();
-    console.log(query);
+    try {
+      const res = await searchAuction(query);
+      console.log(res);
+
+      dispatch(getSearchQuery(query));
+      dispatch(getSearchResutlts(res.response));
+      dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+    } catch (error) {}
   };
+
   return (
     <div>
       <form action="" method="GET" onClick={handleSubmit}>

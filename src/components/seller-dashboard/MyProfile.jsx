@@ -20,10 +20,16 @@ import {
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 import { styled } from "@mui/system";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { provinceURL } from "../../apiConfig";
 import { VisibilityOff } from "@mui/icons-material";
+import { AuthContext } from "../../context/auth.context";
+import { UserContext } from "../../context/user.context";
+import { RealEstateContext } from "../../context/real-estate.context";
 
 const CustomDivider = styled("div")({
   width: "100%",
@@ -70,35 +76,86 @@ const MyProfile = ({
   idNumbe,
   newPassword,
 }) => {
+  const { user } = useContext(AuthContext);
+
+  const { updateProfile, changePassword } = useContext(UserContext);
+
+  const { uploadImages } = useContext(RealEstateContext);
+
   const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "phucanhdodang1211@gmail.com",
-    streetAddress: "",
-    province: "",
-    district: "",
-    ward: "",
-    image: "",
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
+    email: user.email,
+    street: user.street ?? "",
+    city: user.city ?? "",
+    district: user.district ?? "",
+    ward: user.ward ?? "",
+    oldPassword: "",
     newPassword: "",
     confirmPassword: "",
+    image: "",
   });
 
+  const [file, setFile] = useState(null);
+
+  const [showPassword, setShowPassword] = React.useState({
+    password: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const tooglePassword = (input) => {
+    switch (input) {
+      case "current": {
+        setShowPassword(!showPassword);
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+  };
+
   const [open, setOpen] = useState(false);
+
   const [location, setLocation] = useState({
     provinces: [],
     districts: [],
     wards: [],
   });
 
+<<<<<<< HEAD
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+=======
+  // useEffect(() => {
+  //   const getProvince = `${provinceURL}/api/province`;
+  //   fetch(getProvince)
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       const provincesData = data.results.map((result) => ({
+  //         province_id: result.province_id,
+  //         province_name: result.province_name,
+  //       }));
+
+  //       setLocation((prevLocation) => ({
+  //         ...prevLocation,
+  //         provinces: provincesData,
+  //       }));
+  //     })
+  //     .catch((err) => console.error("Error fetching data: ", err));
+  // }, []);
+>>>>>>> Son
 
   useEffect(() => {
-    const getProvince = `${provinceURL}/api/province`;
-    fetch(getProvince)
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchData = async () => {
+      try {
+        const getProvince = `${provinceURL}/api/province`;
+        const response = await fetch(getProvince);
+
+        const data = await response.json();
         const provincesData = data.results.map((result) => ({
           province_id: result.province_id,
           province_name: result.province_name,
@@ -108,11 +165,61 @@ const MyProfile = ({
           ...prevLocation,
           provinces: provincesData,
         }));
-      })
-      .catch((err) => console.error("Error fetching data: ", err));
-  }, []);
 
-  console.log(location.provinces);
+        const selectedProvince = provincesData.find(
+          (province) => province.province_name === user.city
+        );
+
+        // Fetch districts based on the selected province_id
+        const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
+        let districtName = [];
+
+        const responseDistrict = await fetch(getDistricts);
+        const dataDistrict = await responseDistrict.json();
+
+        if (dataDistrict.results) {
+          districtName = dataDistrict.results.map((result) => ({
+            district_id: result.district_id,
+            district_name: result.district_name,
+          }));
+
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            districts: districtName,
+          }));
+        }
+
+        console.log(districtName);
+
+        if (districtName.length > 0) {
+          const selectedDistrict = districtName.find(
+            (district) => district.district_name === user.district
+          );
+
+          // Fetch wards based on the selected district_id
+          const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
+          const response = await fetch(getWards);
+          const data = await response.json();
+
+          if (data.results) {
+            const wardNames = data.results.map((result) => ({
+              ward_id: result.ward_id,
+              ward_name: result.ward_name,
+            }));
+
+            setLocation((prevLocation) => ({
+              ...prevLocation,
+              wards: wardNames,
+            }));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching wards: ", err);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSelectChange = async (fieldName, selectedValue) => {
     setProfile((prevProfile) => ({
@@ -120,7 +227,7 @@ const MyProfile = ({
       [fieldName]: selectedValue,
     }));
 
-    if (fieldName === "province") {
+    if (fieldName === "city") {
       const selectedProvince = location.provinces.find(
         (province) => province.province_name === selectedValue
       );
@@ -148,6 +255,7 @@ const MyProfile = ({
       const selectedDistrict = location.districts.find(
         (district) => district.district_name === selectedValue
       );
+
       // Fetch wards based on the selected district_id
       const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
       try {
@@ -205,19 +313,47 @@ const MyProfile = ({
   };
 
   const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        image: file,
-      }));
-    }
-    console.log(profile.idNumber);
+    const file = event.target.files;
+    setFile(file);
   };
 
-  const handleSaveProfile = () => {
-    console.log(profile);
+  const uploadFile = async () => {
+    try {
+      const formData = new FormData();
+      for (const single_file of file) {
+        formData.append("image", single_file);
+      }
+
+      const res = await uploadImages(formData);
+      console.log(res);
+      return res[0];
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+  const handleSaveProfile = async () => {
+    try {
+      let imgUrl = "";
+      if (file) imgUrl = await uploadFile();
+
+      console.log(imgUrl);
+
+      await updateProfile(user._id, { profile, image: imgUrl });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      await changePassword(user._id, profile);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log(file);
 
   return (
     <>
@@ -333,10 +469,10 @@ const MyProfile = ({
             <Grid item>
               <TextField
                 id=""
-                name="streetAddress"
+                name="street"
                 label="Street Address *"
                 onChange={handleInputChange}
-                value={profile.streetAddress}
+                value={profile.street}
                 sx={{ width: "630px" }}
                 InputProps={{
                   style: inputStyle,
@@ -352,10 +488,10 @@ const MyProfile = ({
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={profile.province}
+                    value={profile.city}
                     label="Province"
                     onChange={(event) =>
-                      handleSelectChange("province", event.target.value)
+                      handleSelectChange("city", event.target.value)
                     }
                     sx={selectStyle}
                   >
@@ -423,7 +559,7 @@ const MyProfile = ({
                 id="idNumber"
                 label="ID Image *"
                 name="profileImg"
-                value={profile.image ? "An image of ID Number" : ""}
+                value={file ? "An image of ID Number" : ""}
                 onChange={handleInputChange}
                 sx={{ width: "630px" }}
                 InputProps={{
@@ -431,7 +567,7 @@ const MyProfile = ({
                   style: inputStyle,
                   endAdornment: (
                     <InputAdornment>
-                      {profile.image ? (
+                      {file ? (
                         <Chip
                           label="View Image"
                           onClick={() => handleOpen()}
@@ -474,6 +610,7 @@ const MyProfile = ({
                 style={{ display: "none" }}
                 id="fileInput"
                 onChange={handleImageChange}
+                name="image"
               />
             </Grid>
           </Grid>
@@ -505,11 +642,48 @@ const MyProfile = ({
             Set Password
           </Typography>
           <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid container sx={{ mt: "15px" }} spacing={4}>
+          <Grid container sx={{ mt: "15px" }} spacing={3}>
+            <Grid item>
+              <TextField
+                id=""
+                label="Old Password"
+                type={showPassword.password ? "text" : "password"}
+                onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => tooglePassword("current")}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                name="oldPassword"
+                value={profile.oldPassword}
+                sx={inputWidth}
+                InputProps={{
+                  style: inputStyle,
+                }}
+              />
+            </Grid>
             <Grid item>
               <TextField
                 id=""
                 label="New Password"
+                type={showPassword.newPassword ? "text" : "password"}
+                onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => tooglePassword("current")}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                name="newPassword"
                 value={profile.newPassword}
                 name="newPassword"
                 type={showPassword ? "text" : "password"}
@@ -535,6 +709,19 @@ const MyProfile = ({
               <TextField
                 id=""
                 label="Confirm Password"
+                onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => tooglePassword("current")}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                type={showPassword.confirmPassword ? "text" : "password"}
+                name="confirmPassword"
                 value={profile.confirmPassword}
                 sx={inputWidth}
                 InputProps={{
@@ -557,6 +744,7 @@ const MyProfile = ({
               mt: "30px",
               fontSize: "16px",
             }}
+            onClick={handleChangePassword}
           >
             Save
           </Button>
@@ -569,10 +757,10 @@ const MyProfile = ({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          {profile.image && profile.image.type.startsWith("image/") && (
+          {file && (
             <div>
               <img
-                src={URL.createObjectURL(profile.image)}
+                src={URL.createObjectURL(file[0])}
                 alt=""
                 style={{
                   width: "100%",

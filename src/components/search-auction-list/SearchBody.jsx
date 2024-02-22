@@ -9,12 +9,13 @@ import {
   FormLabel,
   FormHelperText,
 } from "@mui/material";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AuctionPropCard from "../home/related-prop/AuctionPropCard";
-
-const MOST_POPULAR = "Most popular";
-const RECENT = "Recently";
+import { AuctionContext } from "../../context/auction.context";
+import { setProperties } from "../../redux/reducers/auctionSlice";
+import { getSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
+import { provinceURL } from "../../apiConfig";
 
 export const listPropType = ["Condo", "Villa", "Aparment"];
 export const listCity = ["Thủ Đức", "Hồ Chí Minh"];
@@ -22,7 +23,90 @@ export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];
 
 const SearchBody = ({ searchTerm, resultCount }) => {
+  const [itemAuction, setItemAuction] = React.useState([]);
+
+  const [auctions, setAuctions] = useState({});
+
   const properties = useSelector((state) => state.auction.properties);
+
+  const [provinceList, setProvinceList] = useState(null);
+
+  console.log(properties);
+
+  const dispatch = useDispatch();
+
+  const { filterAuction, sortByTime, sortByPopular } =
+    useContext(AuctionContext);
+
+  const [filterValues, setFilterValues] = useState({
+    type: "",
+    city: "",
+    bedRoom: "",
+    bathRoom: "",
+  });
+
+  const handleChange = async (fieldName, values) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [fieldName]: values,
+    }));
+  };
+
+  const handleSort = async (sortField) => {
+    console.log(sortField);
+    switch (sortField) {
+      case "time": {
+        const res = await sortByTime();
+        dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+        break;
+      }
+
+      case "popular": {
+        const res = await sortByPopular();
+        dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchFilteredAuction = async () => {
+      try {
+        const res = await filterAuction(filterValues);
+        console.log(res.response);
+
+        if (res.response) {
+          dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+          dispatch(getSearchResutlts(res.response));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFilteredAuction();
+  }, [filterValues]); // Execute whenever filterValues changes
+
+  useEffect(() => {
+    const getProvince = `${provinceURL}/api/province`;
+    fetch(getProvince)
+      .then((response) => response.json())
+      .then((data) => {
+        const provincesData = data.results.map(
+          (result) => result.province_name
+        );
+
+        console.log(provincesData);
+
+        setProvinceList(provincesData);
+      })
+      .catch((err) => console.error("Error fetching data: ", err));
+  }, []);
+
   return (
     <>
       <Box sx={{ bgcolor: "white" }}>
@@ -50,11 +134,11 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </InputLabel>
               <Select
                 //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => handleChange("type", e.target.value)}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
-                {listPropType.map((type, index) => (
+                {listPropType?.map((type, index) => (
                   <MenuItem value={type} key={index}>
                     {type}
                   </MenuItem>
@@ -70,11 +154,11 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </InputLabel>
               <Select
                 //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => handleChange("city", e.target.value)}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="City"
               >
-                {listCity.map((city, index) => (
+                {provinceList?.map((city, index) => (
                   <MenuItem value={city} key={index}>
                     {city}
                   </MenuItem>
@@ -89,12 +173,13 @@ const SearchBody = ({ searchTerm, resultCount }) => {
                 Beds
               </InputLabel>
               <Select
-                //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => {
+                  handleChange("bedRoom", e.target.value);
+                }}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
-                {bedNum.map((bed, index) => (
+                {bedNum?.map((bed, index) => (
                   <MenuItem value={bed} key={index}>
                     {bed}
                   </MenuItem>
@@ -110,11 +195,13 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </InputLabel>
               <Select
                 //   value={age}
-                //   onChange={handleChange}
+                onChange={(e) => {
+                  handleChange("bathRoom", e.target.value);
+                }}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
                 label="Property type"
               >
-                {bathNum.map((bath, index) => (
+                {bathNum?.map((bath, index) => (
                   <MenuItem value={bath} key={index}>
                     {bath}
                   </MenuItem>
@@ -153,38 +240,41 @@ const SearchBody = ({ searchTerm, resultCount }) => {
             {resultCount} Results, sorted by{" "}
             <FormControl variant="standard" sx={{ minWidth: 120, m: 1 }}>
               <Select
-                //   value={age}
-                //   onChange={handleChange}
+                // value={age}
+                onChange={(e) => handleSort(e.target.value)}
                 sx={{ marginLeft: "20px", color: "#118BF4" }}
               >
-                <MenuItem value={MOST_POPULAR}>Most popular</MenuItem>
-                <MenuItem value={RECENT}>Recently</MenuItem>
+                <MenuItem value="popular">Most popular</MenuItem>
+                <MenuItem value="time">Recently</MenuItem>
               </Select>
             </FormControl>
           </Typography>
         </div>
         <Grid container spacing={3} justifyContent="center">
-          {properties.map((prop, index) => (
-            <Grid item key={index}>
-              <AuctionPropCard
-                propImg={prop.propImg}
-                imgList={prop.imgList}
-                propType={prop.propType}
-                name={prop.name}
-                propAddress={prop.propAddress}
-                days={prop.days}
-                hours={prop.hours}
-                mins={prop.mins}
-                secs={prop.secs}
-                startingBid={prop.startingBid}
-                currentBid={prop.currentBid}
-                isFav={prop.isFav}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
-              />
-            </Grid>
-          ))}
+          {properties?.length > 0
+            ? properties.map((prop, index) => (
+                <Grid item key={index}>
+                  <AuctionPropCard
+                    id={prop._id}
+                    propImg={prop.realEstateID?.image[0]}
+                    imgList={prop.realEstateID.image}
+                    propType={prop.realEstateID.type}
+                    name={prop.name}
+                    propAddress={prop.realEstateID.address}
+                    days={prop.day}
+                    hours={prop.hour}
+                    mins={prop.minute}
+                    secs={prop.second}
+                    startingBid={prop.startingPrice}
+                    currentBid={prop.currentPrice}
+                    isFav={prop.isFav}
+                    beds={prop.realEstateID.bedRoom}
+                    baths={prop.realEstateID.bathRoom}
+                    area={prop.realEstateID.size}
+                  />
+                </Grid>
+              ))
+            : "abc"}
         </Grid>
       </Box>
     </>

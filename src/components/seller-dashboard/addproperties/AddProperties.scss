@@ -1,0 +1,32 @@
+.add-properties-container {
+    width: 55vw;
+    // width: 100%;
+    padding: 5%;
+    background-color: white;
+}
+
+.required-field {
+    display: flex!important;
+}
+
+.title-property {
+    padding-top: 5%;
+}
+
+.btn-submit-save {
+    width: 100%;
+    background-color: #118BF4!important;
+    color: white!important;
+    height: 60px;
+    margin-top: 50px!important;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+
+.btn-upload-btn {
+    background-color: black!important;
+}
+
+.divider-line {
+    margin-bottom: 30px;
+}

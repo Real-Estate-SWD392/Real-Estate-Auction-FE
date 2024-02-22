@@ -16,7 +16,7 @@ const searchAuctionSlice = createSlice({
   initialState,
   reducers: {
     getSearchQuery: (state, action) => {
-      state.searchQuerry = action.payload;
+      state.searchTerm = action.payload;
     },
 
     getSearchResutlts: (state, action) => {
@@ -26,4 +26,5 @@ const searchAuctionSlice = createSlice({
 });
 
 export const { getSearchQuery, getSearchResutlts } = searchAuctionSlice.actions;
+
 export default searchAuctionSlice.reducer;

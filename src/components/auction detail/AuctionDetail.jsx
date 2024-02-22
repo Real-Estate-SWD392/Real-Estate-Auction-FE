@@ -12,8 +12,24 @@ import nomoney_icon from "../../assets/img/detail_nomoney_icon.png";
 import warning_icon from "../../assets/img/detail_warning_icon.png";
 
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import { Typography } from "@mui/material";
 
-const AuctionDetail = () => {
+const mapStateToProps = (state) => {
+  return {
+    properties: state.auction.properties,
+    // You can add more properties from the Redux store as needed
+  };
+};
+
+const AuctionDetail = ({ props }) => {
+  const days = 50;
+  const hours = 10;
+  const mins = 0;
+  const secs = 0;
+
+  
+
+
   return (
     <div className="auction-detail-container">
       <Grid container spacing={5}>
@@ -150,7 +166,86 @@ const AuctionDetail = () => {
 
         <Grid xs={5}>
           <div className="detail-bidding-space">
-            <div className="clock-container">CLock</div>
+            <div className="clock-container">
+
+
+              <Grid container spacing={1} sx={{ marginLeft: "1px", justifyContent:"center" }}>
+                <Grid item flexDirection="column">
+                  <Typography
+                    variant="body1"
+                    color="initial"
+                    fontWeight={600}
+                    fontSize={50}
+                    textAlign="center"
+                  >
+                    {days < 10 ? "0" + days : days}
+                  </Typography>
+                  <Typography variant="body1" color="#48525B">
+                    Days
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="body1" color="initial" fontSize={50}>
+                    :
+                  </Typography>
+                </Grid>
+                <Grid item flexDirection="column">
+                  <Typography
+                    variant="body1"
+                    color="initial"
+                    fontWeight={600}
+                    fontSize={50}
+                    textAlign="center"
+                  >
+                    {hours < 10 ? "0" + hours : hours}
+                  </Typography>
+                  <Typography variant="body1" color="#48525B">
+                    Hours
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="body1" color="initial" fontSize={50}>
+                    :
+                  </Typography>
+                </Grid>
+                <Grid item flexDirection="column">
+                  <Typography
+                    variant="body1"
+                    color="initial"
+                    fontWeight={600}
+                    fontSize={50}
+                    textAlign="center"
+                  >
+                    {mins < 10 ? "0" + mins : mins}
+                  </Typography>
+                  <Typography variant="body1" color="#48525B">
+                    Mins
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="body1" color="initial" fontSize={50}>
+                    :
+                  </Typography>
+                </Grid>
+                <Grid item flexDirection="column">
+                  <Typography
+                    variant="body1"
+                    color="initial"
+                    fontWeight={600}
+                    fontSize={50}
+                    textAlign="center"
+                  >
+                    {secs < 10 ? "0" + secs : secs}
+                  </Typography>
+                  <Typography variant="body1" color="#48525B">
+                    Secs
+                  </Typography>
+                </Grid>
+              </Grid>
+
+
+
+            </div>
 
             <div className="detail-bid-price-container">
               <p className="current-bid-price">

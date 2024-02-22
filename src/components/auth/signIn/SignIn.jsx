@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useState } from "react";
 import { Col, Modal } from "react-bootstrap";
 import { validationPassword } from "../validate";
@@ -17,14 +17,17 @@ import "./SignIn.scss";
 import Button from "@mui/material/Button";
 
 import google from "../../../assets/img/google_icon.webp";
+import { AuthContext } from "../../../context/auth.context";
 
 const SignIn = (props) => {
   const [isTruePassword, setIsTruePassword] = useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const [login, setLogin] = useState({
-    email: "",
-    password: "",
-  });
+  // const [login, setLogin] = useState({
+  //   email: "",
+  //   password: "",
+  // });
+
+  const { login, loginGoogle } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
@@ -36,36 +39,33 @@ const SignIn = (props) => {
 
   const tooglePassword = (input) => {
     switch (input) {
-      case "current":
+      case "current": {
         setShowPassword(!showPassword);
         break;
+      }
+
+      default: {
+        break;
+      }
     }
   };
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formik.values.email,
-          password: formik.values.password,
-        }),
-      });
+  const handleLoginGoogle = () => {
+    window.open("http://localhost:8080/auth/google", "_self");
+  };
 
-      if (response.ok) {
-        const data = await response.json();
-        // Handle successful login, e.g., save token to local storage, redirect, etc.
-        console.log("Logged in successfully", data);
-      } else {
-        const errorData = await response.json();
-        console.error("Login failed", errorData.message);
-        console.log("Response: ", response);
-      }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      await login({
+        email: formik.values.email,
+        password: formik.values.password,
+      });
+      props.setModalShow(false);
+      window.location.reload();
     } catch (error) {
-      console.error("Error during login", error);
+      console.log(error);
     }
   };
 
@@ -76,9 +76,9 @@ const SignIn = (props) => {
         messages and more.
       </p>
 
-      <form className="form-container" onSubmit={formik.handleSubmit}>
+      <form className="form-container">
         <FormControl variant="outlined">
-          <InputLabel htmlFor="current-password" color="primary">
+          <InputLabel htmlFor="email" color="primary">
             Email Address
           </InputLabel>
           <OutlinedInput
@@ -87,14 +87,16 @@ const SignIn = (props) => {
             className="input-field"
             margin="dense"
             type="email"
-            name="username"
+            name="email"
+            value={formik.values.email}
             onChange={formik.handleChange}
+
             // error={
             //   formik.touched.password && Boolean(formik.errors.password)
             // }
           />
           <FormHelperText error>
-            {formik.touched.username && formik.errors.username}
+            {formik.touched.email && formik.errors.email}
           </FormHelperText>
         </FormControl>
 
@@ -135,7 +137,7 @@ const SignIn = (props) => {
             type="submit"
             // disabled={formik.isSubmitting}
             style={{ color: "white" }}
-            onClick={() => handleLogin()}
+            onClick={(e) => handleLogin(e)}
           >
             Sign In
           </Button>
@@ -152,7 +154,9 @@ const SignIn = (props) => {
           Or, sign in with your Google Account:
         </p>
       </form>
+      {/* <form action="http://localhost:8080/auth/google" method="GET"> */}
       <Button
+        // type="submit"
         variant="outlined"
         sx={{
           textTransform: "none",
@@ -160,10 +164,12 @@ const SignIn = (props) => {
           borderColor: "#ADC4DA",
           color: "black",
         }}
+        onClick={handleLoginGoogle}
       >
         <img className="google-icon" src={google} alt="" />
         Continue with Google
       </Button>
+      {/* </form> */}
     </div>
   );
 };

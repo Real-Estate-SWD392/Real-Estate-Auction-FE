@@ -48,6 +48,8 @@ export default function Auth(props) {
     setValue(newValue);
   };
 
+  console.log(props);
+
   return (
     <Modal
       {...props}
@@ -69,10 +71,10 @@ export default function Auth(props) {
       </Modal.Header>
       <Modal.Body>
         <CustomTabPanel value={value} index={0}>
-          <SignIn />
+          <SignIn setModalShow={props.setModalShow} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <Register/>
+          <Register setModalShow={props.setModalShow} />
         </CustomTabPanel>
       </Modal.Body>
     </Modal>

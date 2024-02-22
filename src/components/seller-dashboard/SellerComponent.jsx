@@ -1,5 +1,5 @@
 // SellerComponent.js
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ResponsiveAppBar from "../layout/navbar/Navbar";
 import {
   Box,
@@ -11,6 +11,9 @@ import {
 } from "@mui/material";
 import { tabs } from "./SellerTabs";
 import { styled } from "@mui/system";
+import { AuthContext } from "../../context/auth.context";
+import { useLocation, useNavigate } from "react-router-dom";
+import UpdateProperty from "./UpdateProperty/UpdateProperty";
 
 const Divider = styled("div")({
   width: "100%",
@@ -18,8 +21,27 @@ const Divider = styled("div")({
   backgroundColor: "rgb(0,0,0,0.12)",
 });
 
-const SellerComponent = ({ userName, userEmail }) => {
+const SellerComponent = () => {
+  const { user } = useContext(AuthContext);
+
+  const nav = useNavigate();
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+
+  const url = useLocation().pathname.split("sell/")[1];
+
+  console.log(url);
+
+  useEffect(() => {
+    for (let i = 0; i < tabs.length; i++) {
+      console.log(tabs[i].link === url);
+      if (tabs[i].link === url) {
+        setSelectedTabIndex(i);
+      }
+    }
+  }, [url]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,7 +74,7 @@ const SellerComponent = ({ userName, userEmail }) => {
                 whiteSpace: "nowrap",
               }}
             >
-              {userName}
+              {`${user.firstName} ${user.lastName}`}
             </Typography>
             <Typography
               variant="body1"
@@ -60,28 +82,36 @@ const SellerComponent = ({ userName, userEmail }) => {
               fontSize={15}
               sx={{ mt: "10px", textDecoration: "underline" }}
             >
-              {userEmail}
+              {user.email}
             </Typography>
             <List sx={{ mt: "40px" }}>
-              {tabs.map((tab, index) => (
-                <>
-                  <ListItemButton
-                    key={index}
-                    onClick={() => handleTabChange(index)}
-                    sx={{ py: "20px" }}
-                  >
-                    <Typography
-                      variant="body1"
-                      color={selectedTabIndex === index ? "#31A2FC" : "initial"}
-                      fontSize={17}
-                      fontWeight={600}
+              {tabs
+                .filter((tab) => tab.link !== "update")
+                .map((tab, index) => (
+                  <>
+                    <ListItemButton
+                      key={index}
+                      // onClick={() => handleTabChange(index)}
+                      onClick={() => {
+                        setIsOpenUpdate(false);
+                        nav(tab.link);
+                      }}
+                      sx={{ py: "20px" }}
                     >
-                      {tab.tabName}
-                    </Typography>
-                  </ListItemButton>
-                  <Divider />
-                </>
-              ))}
+                      <Typography
+                        variant="body1"
+                        color={
+                          selectedTabIndex === index ? "#31A2FC" : "initial"
+                        }
+                        fontSize={17}
+                        fontWeight={600}
+                      >
+                        {tab.tabName}
+                      </Typography>
+                    </ListItemButton>
+                    <Divider />
+                  </>
+                ))}
               <ListItemButton sx={{ py: "15px" }}>
                 <Typography
                   variant="body1"
@@ -96,7 +126,18 @@ const SellerComponent = ({ userName, userEmail }) => {
           </Card>
         </Grid>
         <Grid item sx={{ mt: "30px", ml: "50px" }}>
-          <div className="tab-panel">{tabs[selectedTabIndex].component}</div>
+          <div className="tab-panel">
+            {isOpenUpdate ? (
+              <UpdateProperty />
+            ) : tabs[selectedTabIndex]?.link === "property-list" ? (
+              React.cloneElement(tabs[selectedTabIndex]?.component, {
+                setIsOpenUpdate: setIsOpenUpdate,
+                setSelectedTabIndex: setSelectedTabIndex,
+              })
+            ) : (
+              tabs[selectedTabIndex]?.component
+            )}
+          </div>
         </Grid>
       </Grid>
     </Box>

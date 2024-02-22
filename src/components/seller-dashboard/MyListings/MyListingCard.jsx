@@ -7,7 +7,7 @@ import {
   TextField,
   duration,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import {
   CardMedia,
@@ -26,6 +26,8 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
 import { Close } from "@mui/icons-material";
 import { useEffect } from "react";
+import { AuctionContext } from "../../../context/auction.context";
+import { AuthContext } from "../../../context/auth.context";
 
 const imgCard = {
   width: "320px",
@@ -92,23 +94,35 @@ const MyListingCard = ({
   imgList,
   propType,
   desc,
-  propAddress,
+  propStreet,
+  propDistrict,
+  propCity,
   beds,
   baths,
   area,
   status,
   index,
+  auctionList,
+  setAuctionList,
+  propID,
+  property,
 }) => {
+  const { user } = useContext(AuthContext);
+
   const [open, setOpen] = React.useState(false);
   const [auction, setAuction] = useState({
-    days: 0,
-    hours: 0,
-    mins: 0,
-    sec: 0,
-    startingPrice: 0,
+    name: `${user.firstName} ${user.lastName}`,
+    day: 0,
+    hour: 0,
+    minute: 0,
+    second: 0,
+    startPrice: 0,
     priceStep: 0,
-    buyPrice: 0,
+    buyNowPrice: 0,
+    realEstateID: propID,
   });
+
+  const { createAuction } = useContext(AuctionContext);
 
   const handleOpen = () => setOpen(true);
 
@@ -146,10 +160,29 @@ const MyListingCard = ({
     }));
   };
 
-  const handleSubmit = () => {
-    console.log(auction);
+  console.log(property);
+
+  const handleSubmit = async () => {
+    const res = await createAuction(auction);
+    console.log(res);
+
+    if (res.result) {
+      // Find the index of the item with the same _id in the auctionList array
+      const indexToUpdate = auctionList.findIndex(
+        (item) => item._id === res.result.realEstateID
+      );
+
+      // If the index is found, update the auctionList
+      if (indexToUpdate !== -1) {
+        const updatedAuctionList = [...auctionList]; // Create a copy of the auctionList array
+        updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
+        setAuctionList(updatedAuctionList); // Update the state with the updated auctionList
+      }
+    }
     handleClose();
   };
+
+  console.log(auctionList);
 
   return (
     <>
@@ -243,7 +276,7 @@ const MyListingCard = ({
             style={combinedStyles}
             fontSize={17}
           >
-            {propAddress}
+            {propStreet} {propDistrict} {propCity}
           </Typography>
           <Grid
             container
@@ -309,11 +342,11 @@ const MyListingCard = ({
                 },
               }}
               onClick={() => {
-                if (status === "AVAILABLE" || status === "REJECTED")
+                if (status === "Available" || status === "Rejected")
                   handleOpen();
               }}
             >
-              {status === "PENDING" || status === "SOLD"
+              {status === "Pending" || status === "Sold"
                 ? "View Detail"
                 : status === "IN AUCTION"
                 ? "View Auction"
@@ -378,9 +411,9 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.days}
+                    value={auction.day}
                     onChange={(e) =>
-                      handleDurationChange("days", e.target.value, 999)
+                      handleDurationChange("day", e.target.value, 999)
                     }
                     inputProps={{
                       inputMode: "numeric",
@@ -406,9 +439,9 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.hours}
+                    value={auction.hour}
                     onChange={(e) =>
-                      handleDurationChange("hours", e.target.value, 24)
+                      handleDurationChange("hour", e.target.value, 24)
                     }
                     inputProps={{
                       inputMode: "numeric",
@@ -434,9 +467,9 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.mins}
+                    value={auction.minute}
                     onChange={(e) =>
-                      handleDurationChange("mins", e.target.value, 59)
+                      handleDurationChange("minute", e.target.value, 59)
                     }
                     inputProps={{
                       inputMode: "numeric",
@@ -462,9 +495,9 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.sec}
+                    value={auction.second}
                     onChange={(e) =>
-                      handleDurationChange("sec", e.target.value, 59)
+                      handleDurationChange("second", e.target.value, 59)
                     }
                     inputProps={{
                       style: durationText,
@@ -494,10 +527,10 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     label="Starting price"
-                    value={auction.startingPrice}
+                    value={auction.startPrice}
                     sx={{ width: "318px" }}
                     onChange={(e) => {
-                      handlePriceChange("startingPrice", e.target.value);
+                      handlePriceChange("startPrice", e.target.value);
                     }}
                     InputProps={{
                       startAdornment: (
@@ -524,10 +557,10 @@ const MyListingCard = ({
               </Grid>
               <TextField
                 label="Buy-now price"
-                value={auction.buyPrice}
+                value={auction.buyNowPrice}
                 sx={{ width: "500px", mt: "30px" }}
                 onChange={(e) => {
-                  handlePriceChange("buyPrice", e.target.value);
+                  handlePriceChange("buyNowPrice", e.target.value);
                 }}
                 InputProps={{
                   startAdornment: (

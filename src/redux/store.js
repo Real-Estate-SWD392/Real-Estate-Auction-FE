@@ -4,8 +4,12 @@ import auctionReducer, {
   startTimerUpdates,
   setProperties,
 } from "./reducers/auctionSlice";
-import searchAuctionReducer from "./reducers/searchAuctionSlice";
+import searchAuctionReducer, {
+  startSearchTimerUpdates,
+} from "./reducers/searchAuctionSlice";
 import { listProp } from "../components/home/related-prop/ListProp";
+import { useContext, useState } from "react";
+import { AuctionContext } from "../context/auction.context";
 
 const store = configureStore({
   reducer: {
@@ -18,8 +22,31 @@ const store = configureStore({
     }),
 });
 
+export const fetchInitialProperties = () => async (dispatch) => {
+  try {
+    const response = await fetch(`http://localhost:8080/auction`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // Handle successful login, e.g., save token to local storage, redirect, etc.
+      console.log("Auction List: ", data);
+      dispatch(setProperties(data.response)); // Dispatch action to set properties in the store
+    } else {
+      const errorData = await response.json();
+      console.error("Load auction failed", errorData);
+    }
+  } catch (error) {
+    console.error("Error during update", error);
+  }
+};
+
 // Initialize the store with the initial list of properties
-store.dispatch(setProperties(listProp));
+store.dispatch(fetchInitialProperties());
 
 // Start the timer updates
 store.dispatch(startTimerUpdates());

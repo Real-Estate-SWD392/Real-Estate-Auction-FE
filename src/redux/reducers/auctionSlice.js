@@ -14,21 +14,22 @@ const auctionSlice = createSlice({
     updateTimers: (state) => {
       state.properties.forEach((property) => {
         // Update the timer for each property
-        const { days, hours, mins, secs } = property;
+        const { day, hour, minute, second } = property;
+
         let remainingTime =
-          days * 24 * 60 * 60 + hours * 60 * 60 + mins * 60 + secs;
+          day * 24 * 60 * 60 + hour * 60 * 60 + minute * 60 + second;
 
         if (remainingTime > 0) {
           remainingTime -= 1;
 
-          property.days = Math.floor(remainingTime / (24 * 60 * 60));
-          property.hours = Math.floor(
+          property.day = Math.floor(remainingTime / (24 * 60 * 60));
+          property.hour = Math.floor(
             (remainingTime % (24 * 60 * 60)) / (60 * 60)
           );
-          property.mins = Math.floor(
+          property.minute = Math.floor(
             ((remainingTime % (24 * 60 * 60)) % (60 * 60)) / 60
           );
-          property.secs = Math.floor(
+          property.second = Math.floor(
             ((remainingTime % (24 * 60 * 60)) % (60 * 60)) % 60
           );
         }

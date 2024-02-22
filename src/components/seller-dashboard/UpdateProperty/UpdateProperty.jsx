@@ -18,12 +18,13 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import React, { useContext, useEffect, useState } from "react";
-import { propertyTypes } from "./propTypes";
+import { propertyTypes } from "../propTypes";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { provinceURL } from "../../apiConfig";
-import { RealEstateContext } from "../../context/real-estate.context";
-import { AuthContext } from "../../context/auth.context";
+import { provinceURL } from "../../../apiConfig";
+import { AuthContext } from "../../../context/auth.context";
+import { RealEstateContext } from "../../../context/real-estate.context";
+import { useParams } from "react-router-dom";
 
 const REQUIRED_COUNT = 180;
 
@@ -70,7 +71,7 @@ const pdftyle = {
   p: 4,
 };
 
-const AddProperties = () => {
+const UpdateProperty = () => {
   const { user } = useContext(AuthContext);
 
   const [property, setProperty] = useState({
@@ -95,8 +96,22 @@ const AddProperties = () => {
   const [openImage, setOpenImageList] = useState(false);
   const [openDocument, setOpenDocument] = useState(false);
 
-  const { uploadImages, uploadPDFs, createNewRealEstate } =
+  const [pdfName, setPdfName] = useState([]);
+
+  const { uploadImages, uploadPDFs, createNewRealEstate, getRealEstateByID } =
     useContext(RealEstateContext);
+
+  const { id } = useParams();
+
+  //   useEffect(() => {
+  //     const fetchData = async () => {
+
+  //     };
+
+  //     fetchData();
+  //   }, [id]);
+
+  console.log(pdfName);
 
   const [location, setLocation] = useState({
     provinces: [],
@@ -104,23 +119,10 @@ const AddProperties = () => {
     wards: [],
   });
 
-  useEffect(() => {
-    const getProvince = `${provinceURL}/api/province`;
-    fetch(getProvince)
-      .then((response) => response.json())
-      .then((data) => {
-        const provincesData = data.results.map((result) => ({
-          province_id: result.province_id,
-          province_name: result.province_name,
-        }));
+  //   useEffect(() => {
 
-        setLocation((prevLocation) => ({
-          ...prevLocation,
-          provinces: provincesData,
-        }));
-      })
-      .catch((err) => console.error("Error fetching data: ", err));
-  }, []);
+  //       .catch((err) => console.error("Error fetching data: ", err));
+  //   }, []);
 
   const handleSelectLocation = async (fieldName, selectedValue) => {
     setProperty((prevProp) => ({
@@ -132,28 +134,25 @@ const AddProperties = () => {
       const selectedProvince = location.provinces.find(
         (province) => province.province_name === selectedValue
       );
+      // Fetch districts based on the selected province_id
+      const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
+      try {
+        const response = await fetch(getDistricts);
+        const data = await response.json();
 
-      if (selectedProvince) {
-        // Fetch districts based on the selected province_id
-        const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
-        try {
-          const response = await fetch(getDistricts);
-          const data = await response.json();
+        if (data.results) {
+          const districtNames = data.results.map((result) => ({
+            district_id: result.district_id,
+            district_name: result.district_name,
+          }));
 
-          if (data.results) {
-            const districtNames = data.results.map((result) => ({
-              district_id: result.district_id,
-              district_name: result.district_name,
-            }));
-
-            setLocation((prevLocation) => ({
-              ...prevLocation,
-              districts: districtNames,
-            }));
-          }
-        } catch (err) {
-          console.error("Error fetching districts: ", err);
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            districts: districtNames,
+          }));
         }
+      } catch (err) {
+        console.error("Error fetching districts: ", err);
       }
     } else if (fieldName === "district") {
       const selectedDistrict = location.districts.find(
@@ -166,10 +165,78 @@ const AddProperties = () => {
         const response = await fetch(getWards);
         const data = await response.json();
 
-      if (selectedDistrict) {
-        // Fetch wards based on the selected district_id
-        const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
-        try {
+        if (data.results) {
+          const wardNames = data.results.map((result) => ({
+            ward_id: result.ward_id,
+            ward_name: result.ward_name,
+          }));
+
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            wards: wardNames,
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching wards: ", err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getRealEstateByID(id);
+        console.log(res);
+        setProperty(res);
+
+        const getProvince = `${provinceURL}/api/province`;
+        const response = await fetch(getProvince);
+
+        const data = await response.json();
+        const provincesData = data.results.map((result) => ({
+          province_id: result.province_id,
+          province_name: result.province_name,
+        }));
+
+        setLocation((prevLocation) => ({
+          ...prevLocation,
+          provinces: provincesData,
+        }));
+
+        console.log(property.city);
+
+        const selectedProvince = provincesData.find(
+          (province) => province.province_name === res.city
+        );
+
+        // Fetch districts based on the selected province_id
+        const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
+        let districtName = [];
+
+        const responseDistrict = await fetch(getDistricts);
+        const dataDistrict = await responseDistrict.json();
+
+        if (dataDistrict.results) {
+          districtName = dataDistrict.results.map((result) => ({
+            district_id: result.district_id,
+            district_name: result.district_name,
+          }));
+          console.log("Fetched districts:", districtName);
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            districts: districtName,
+          }));
+        }
+
+        console.log(districtName);
+
+        if (districtName.length > 0) {
+          const selectedDistrict = districtName.find(
+            (district) => district.district_name === res.district
+          );
+
+          // Fetch wards based on the selected district_id
+          const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
           const response = await fetch(getWards);
           const data = await response.json();
 
@@ -184,12 +251,16 @@ const AddProperties = () => {
               wards: wardNames,
             }));
           }
-        } catch (err) {
-          console.error("Error fetching wards: ", err);
         }
+      } catch (err) {
+        console.error("Error fetching wards: ", err);
       }
-    }
-  };
+    };
+
+    fetchData();
+  }, []);
+
+  console.log(location);
 
   const handleOpenImg = () => {
     setOpenImageList(true);
@@ -246,11 +317,19 @@ const AddProperties = () => {
   };
 
   const handleDeleteImg = (index) => {
-    setImage((prev) => {
-      const updatedList = [...prev];
-      updatedList.splice(index, 1);
-      return updatedList;
-    });
+    if (property.image.length > 0) {
+      setProperty((prev) => {
+        const updatedList = [...prev.image];
+        updatedList.splice(index, 1);
+        return { ...prev, image: updatedList };
+      });
+    } else {
+      setImage((prev) => {
+        const updatedList = [...prev];
+        updatedList.splice(index, 1);
+        return updatedList;
+      });
+    }
   };
 
   const handleDocumentChange = (event) => {
@@ -373,7 +452,7 @@ const AddProperties = () => {
             fontWeight={600}
             sx={{ mr: "40px" }}
           >
-            Add Property
+            Update Property
           </Typography>
         </div>
         <CustomDivider />
@@ -490,14 +569,24 @@ const AddProperties = () => {
                 label="Property Image"
                 name="image"
                 onChange={handleInputChange}
-                value={image.length > 0 ? "Image list" : ""}
+                value={
+                  image.length > 0 || property.image.length > 0
+                    ? "Image list"
+                    : ""
+                }
                 sx={{ width: "630px" }}
                 InputProps={{
                   readOnly: true,
                   style: inputStyle,
                   endAdornment: (
                     <InputAdornment>
-                      {image.length > 0 ? (
+                      {property.image.length > 0 ? (
+                        <Chip
+                          label={`View files (${property.image.length})`}
+                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                          onClick={() => handleOpenImg()}
+                        />
+                      ) : image.length > 0 ? (
                         <Chip
                           label={`View files (${image.length})`}
                           sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
@@ -692,7 +781,13 @@ const AddProperties = () => {
                   style: inputStyle,
                   endAdornment: (
                     <InputAdornment>
-                      {pdf.length > 0 ? (
+                      {property.pdf.length > 0 ? (
+                        <Chip
+                          label={`View files (${property.pdf.length})`}
+                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                          onClick={() => handleOpenDoc()}
+                        />
+                      ) : pdf.length > 0 ? (
                         <Chip
                           label={`View files (${pdf.length})`}
                           sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
@@ -772,30 +867,55 @@ const AddProperties = () => {
                 overflowX: "auto",
               }}
             >
-              {image.map((image, index) => (
-                <div key={index} style={{ position: "relative" }}>
-                  <img
-                    src={image.url}
-                    alt={image.name}
-                    style={{
-                      width: "300px",
-                      height: "300px", // Maintain the aspect ratio
-                    }}
-                  />
-                  <Button
-                    onClick={() => handleDeleteImg(index)}
-                    style={{
-                      position: "absolute",
-                      top: 5,
-                      right: 5,
-                      color: "black",
-                      background: "white",
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ))}
+              {property.image.length > 0
+                ? property.image.map((image, index) => (
+                    <div key={index} style={{ position: "relative" }}>
+                      <img
+                        src={image}
+                        alt="img"
+                        style={{
+                          width: "300px",
+                          height: "300px", // Maintain the aspect ratio
+                        }}
+                      />
+                      <Button
+                        onClick={() => handleDeleteImg(index)}
+                        style={{
+                          position: "absolute",
+                          top: 5,
+                          right: 5,
+                          color: "black",
+                          background: "white",
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  ))
+                : image.map((image, index) => (
+                    <div key={index} style={{ position: "relative" }}>
+                      <img
+                        src={image.url}
+                        alt={image.name}
+                        style={{
+                          width: "300px",
+                          height: "300px", // Maintain the aspect ratio
+                        }}
+                      />
+                      <Button
+                        onClick={() => handleDeleteImg(index)}
+                        style={{
+                          position: "absolute",
+                          top: 5,
+                          right: 5,
+                          color: "black",
+                          background: "white",
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  ))}
             </div>
           </Box>
         </Modal>
@@ -808,28 +928,51 @@ const AddProperties = () => {
           aria-describedby="modal-modal-description"
         >
           <Box sx={pdftyle}>
-            {pdf.map((document, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <a
-                  href={document.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "red" }}
-                >
-                  {document.name}
-                </a>
-                <button onClick={() => handleDeleteDocument(index)}>
-                  delete
-                </button>
-              </div>
-            ))}
+            {property.pdf.length > 0
+              ? property.pdf.map((document, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <a
+                      href={document}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "red" }}
+                    >
+                      abcd
+                    </a>
+                    <button onClick={() => handleDeleteDocument(index)}>
+                      delete
+                    </button>
+                  </div>
+                ))
+              : pdf.map((document, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <a
+                      href={document.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "red" }}
+                    >
+                      {document.name}
+                    </a>
+                    <button onClick={() => handleDeleteDocument(index)}>
+                      delete
+                    </button>
+                  </div>
+                ))}
           </Box>
         </Modal>
       </div>
@@ -837,4 +980,4 @@ const AddProperties = () => {
   );
 };
 
-export default AddProperties;
+export default UpdateProperty;
