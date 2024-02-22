@@ -396,21 +396,27 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                     onClose={handleClosePopover}
                   >
                     <ClickAwayListener onClickAway={handleClickAway}>
-                      <List sx={{ background: "white" }}>
+                      <List
+                        sx={{
+                          background: "white",
+                        }}
+                      >
                         {actions.map((action) => (
                           <ListItem
                             sx={{
                               display: "flex",
+                              flexDirection: "column",
                               justifyContent: "flex-start",
+                              alignItems: "flex-start",
                             }}
                           >
                             <Button
                               startIcon={action.icon}
                               onClick={action.onClick}
                               sx={{
-                                width: "100%",
                                 textTransform: "none",
                                 fontWeight: 600,
+                                color: "black",
                               }}
                             >
                               {action.name}

@@ -45,23 +45,19 @@ const sideBar = [
 ];
 
 const AdminSideBar = () => {
-  const [selectedIndex, setSelectedIndex] = useState("Dashboard");
+  const [selectedIndex, setSelectedIndex] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+
   const currentLocation = location.pathname;
 
-  console.log(currentLocation);
+  const currentTab = sideBar.find((tab) => tab.url === currentLocation);
 
   useEffect(() => {
-    navigate("/accommondation-admin");
+    if (currentLocation === "/accommondation-admin") {
+      setSelectedIndex("Dashboard");
+    } else setSelectedIndex(currentTab.name);
   }, []);
-
-  if (window.location.reload) {
-    const findLocation = sideBar.find(
-      (location) => currentLocation === location.url
-    );
-    console.log(findLocation);
-  }
 
   const handleNavigate = (url) => {
     navigate(url);
