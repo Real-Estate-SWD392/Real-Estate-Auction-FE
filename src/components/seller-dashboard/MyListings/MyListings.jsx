@@ -59,7 +59,7 @@ export const statusColor = [
 const MyListings = () => {
   const { user, accessToken } = useContext(AuthContext);
 
-  const [auctionList, setAuctionList] = useState({});
+  const [auctionList, setAuctionList] = useState([]);
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -121,7 +121,13 @@ const MyListings = () => {
                 fontSize={14}
                 fontWeight={500}
               >
-                {status.name} ({status.amount})
+                {status.name} (
+                {
+                  auctionList.filter(
+                    (auction) => auction.status.toUpperCase() === status.name
+                  ).length
+                }
+                )
               </Typography>
             </Button>
           ))}

@@ -337,8 +337,6 @@ const MyProfile = ({
     }
   };
 
-  console.log(file);
-
   return (
     <>
       <Card

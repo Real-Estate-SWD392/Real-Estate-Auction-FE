@@ -68,6 +68,8 @@ function ResponsiveAppBar({ userName }) {
 
   const currentLocation = location.pathname;
 
+  const { user } = useContext(AuthContext);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -90,6 +92,10 @@ function ResponsiveAppBar({ userName }) {
   };
 
   const [modalShow, setModalShow] = React.useState(false);
+
+  console.log(anchorEl);
+
+  console.log(Boolean(anchorEl));
 
   return (
     <div className="navbar-container">
@@ -169,7 +175,7 @@ function ResponsiveAppBar({ userName }) {
               ))}
             </Box>
             <Box>
-              {userName ? (
+              {user ? (
                 <>
                   <Button
                     onClick={handleClick}
@@ -237,7 +243,10 @@ function ResponsiveAppBar({ userName }) {
               ) : (
                 <display
                   className="button-login-container"
-                  onClick={() => setModalShow(true)}
+                  onClick={() => {
+                    setModalShow(true);
+                    setAnchorEl(false);
+                  }}
                 >
                   Register / Sign In
                 </display>

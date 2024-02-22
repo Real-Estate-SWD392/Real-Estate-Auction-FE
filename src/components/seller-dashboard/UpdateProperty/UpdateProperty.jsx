@@ -98,31 +98,16 @@ const UpdateProperty = () => {
 
   const [pdfName, setPdfName] = useState([]);
 
-  const { uploadImages, uploadPDFs, createNewRealEstate, getRealEstateByID } =
+  const { uploadImages, uploadPDFs, updateRealEstate, getRealEstateByID } =
     useContext(RealEstateContext);
 
   const { id } = useParams();
-
-  //   useEffect(() => {
-  //     const fetchData = async () => {
-
-  //     };
-
-  //     fetchData();
-  //   }, [id]);
-
-  console.log(pdfName);
 
   const [location, setLocation] = useState({
     provinces: [],
     districts: [],
     wards: [],
   });
-
-  //   useEffect(() => {
-
-  //       .catch((err) => console.error("Error fetching data: ", err));
-  //   }, []);
 
   const handleSelectLocation = async (fieldName, selectedValue) => {
     setProperty((prevProp) => ({
@@ -259,8 +244,6 @@ const UpdateProperty = () => {
 
     fetchData();
   }, []);
-
-  console.log(location);
 
   const handleOpenImg = () => {
     setOpenImageList(true);
@@ -411,15 +394,15 @@ const UpdateProperty = () => {
     }
   };
 
-  const handleCreateProperty = async () => {
+  const handleUpdateProperty = async () => {
     try {
       let imgUrl = "";
       let pdfUrl = "";
-      if (property.image) imgUrl = await uploadImagesFile();
+      if (image.length > 0) imgUrl = await uploadImagesFile();
 
-      if (property.pdf) pdfUrl = await uploadPDFsFile();
+      if (pdf.length > 0) pdfUrl = await uploadPDFsFile();
 
-      await createNewRealEstate({ property, image: imgUrl, pdf: pdfUrl });
+      await updateRealEstate(id, { property, image: imgUrl, pdf: pdfUrl });
     } catch (error) {
       console.log(error);
     }
@@ -846,7 +829,7 @@ const UpdateProperty = () => {
               mt: "50px",
               fontSize: "16px",
             }}
-            onClick={() => handleCreateProperty()}
+            onClick={() => handleUpdateProperty()}
           >
             Save
           </Button>
@@ -867,7 +850,7 @@ const UpdateProperty = () => {
                 overflowX: "auto",
               }}
             >
-              {property.image.length > 0
+              {image.length === 0
                 ? property.image.map((image, index) => (
                     <div key={index} style={{ position: "relative" }}>
                       <img

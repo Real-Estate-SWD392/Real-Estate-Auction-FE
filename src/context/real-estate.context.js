@@ -82,22 +82,59 @@ export const RealEstateContextProvider = ({ children }) => {
       if (response.status >= 200 && response.status <= 300) {
         const data = response.data;
         console.log("Upload successfully", response);
-        toast.success("Create request auction successully!!");
+        toast.success("Create real estate successully!!");
         return data;
       } else {
         console.error("Upload failed", response);
-        toast.error("Create request auction fail!!");
         return response;
       }
     } catch (error) {
+      toast.error("Create real estate fail!!");
+      console.error("Error during upload", error);
+    }
+  };
+
+  const updateRealEstate = async (id, values) => {
+    if (values.image !== "") {
+      values.property.image = values.image;
+    }
+
+    if (values.pdf !== "") {
+      values.property.pdf = values.pdf;
+    }
+
+    console.log(values);
+
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/real-estate/${id}`,
+        values.property,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Update successfully", response);
+        toast.success("Update real estate successully!!");
+        return data;
+      } else {
+        console.error("Upload failed", response);
+        return response;
+      }
+    } catch (error) {
+      toast.error("Update real estate fail!!");
       console.error("Error during upload", error);
     }
   };
 
   const removeRealEstate = async (id) => {
     try {
-      console.log(accessToken);
-
       const response = await axios.put(
         `http://localhost:8080/real-estate/remove/${id}`,
         {},
@@ -190,6 +227,7 @@ export const RealEstateContextProvider = ({ children }) => {
         uploadImages,
         removeRealEstate,
         uploadPDFs,
+        updateRealEstate,
       }}
     >
       {children}

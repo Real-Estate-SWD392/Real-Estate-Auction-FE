@@ -1,5 +1,7 @@
 import { createContext, useContext } from "react";
 import { AuthContext } from "./auth.context";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 export const UserContext = createContext();
 
@@ -11,30 +13,31 @@ export const UserContextProvider = ({ children }) => {
 
     console.log(values);
     try {
-      const response = await fetch(
+      const response = await axios.patch(
         `http://localhost:8080/member/update-profile/${id}`,
+        values.profile,
         {
-          method: "PATCH",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          credentials: "include", // Include cookies in the request
-          body: JSON.stringify(values),
+          withCredentials: true, // Include cookies in the request
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        // Handle successful login, e.g., save token to local storage, redirect, etc.
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
         console.log("Update successfully", data);
+        toast.success("Update User Profile Successfully!!");
         setUser(data.response);
       } else {
-        const errorData = await response.json();
-        console.error("Update failed", errorData);
+        console.error("Update failed", response.data);
+        toast.error("Update User Profile Failed!!");
       }
     } catch (error) {
       console.error("Error during update", error);
+      toast.error("Update User Profile Failed!!");
     }
   };
 
@@ -56,18 +59,48 @@ export const UserContextProvider = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         // Handle successful login, e.g., save token to local storage, redirect, etc.
-        console.log("Update successfully", data);
+        console.log("Change Password successfully", data);
         setUser(data.response);
+        toast.success("Change Password successfully");
       } else {
         const errorData = await response.json();
+        toast.error("Change Password Fail!");
         console.error("Update failed", errorData);
+      }
+    } catch (error) {
+      console.error("Error during update", error);
+      toast.error("Change Password Fail!");
+    }
+  };
+
+  const getMemberInfoById = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/member/update-profile/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Get successfully", data);
+      } else {
+        console.error("Update failed", response.data);
       }
     } catch (error) {
       console.error("Error during update", error);
     }
   };
   return (
-    <UserContext.Provider value={{ updateProfile, changePassword }}>
+    <UserContext.Provider
+      value={{ updateProfile, changePassword, getMemberInfoById }}
+    >
       {children}
     </UserContext.Provider>
   );

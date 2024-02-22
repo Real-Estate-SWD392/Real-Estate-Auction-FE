@@ -62,7 +62,9 @@ const StatusBall = styled("div")((props) => ({
 }));
 
 const getStatusColor = (status) => {
-  const statusObj = statusColor.find((item) => item.name === status);
+  const statusObj = statusColor.find(
+    (item) => item.name === status.toUpperCase()
+  );
   return statusObj ? statusObj.color : "white";
 };
 

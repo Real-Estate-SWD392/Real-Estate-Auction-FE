@@ -31,16 +31,19 @@ export const AuthContextProvider = ({ children }) => {
 
   const login = async (inputs) => {
     try {
-      const response = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(inputs),
-      });
+      const response = await axios.post(
+        "http://localhost:8080/auth/login",
+        inputs,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response.status === 200) {
+        toast.success("Login successfully");
+        const data = response.data;
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Logged in successfully", data);
         setUser(data.response);
@@ -50,9 +53,8 @@ export const AuthContextProvider = ({ children }) => {
           secure: true,
           sameSite: "None",
         });
-        toast.success("Login successfully");
       } else {
-        const errorData = await response.json();
+        const errorData = response.data;
         console.error("Login failed", errorData);
         console.log("Response: ", response);
       }
