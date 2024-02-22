@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   Box,
@@ -35,6 +35,12 @@ import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  handleAuctionRequestByAdmin,
+  listAuctions,
+} from "../../service/auctionService";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../context/auth.context";
 const filterType = [
   {
     name: "All",
@@ -147,7 +153,34 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     );
   };
 
-  const actions = [
+  const [auctionsInfo, setAuctionsInfo] = useState({});
+  const { user, accessToken } = useContext(AuthContext);
+  const userID = user ? user._id : null;
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  };
+
+  const data = {
+    "checkedStatus" : "Accepted"
+}
+
+  const handleAuctionRequest = async (id) => {
+    console.log("relasls", id);
+    console.log("toke", accessToken);
+    try {
+      const res = await handleAuctionRequestByAdmin(id,data, headers);
+      console.log("AUction Man", res);
+      if (res.data.success) {
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const actions = (id) => [
     {
       name: "View Detail",
       onClick: () => {
@@ -157,7 +190,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     },
     {
       name: "Approve Auction",
-      onClick: () => {},
+      onClick: () => handleAuctionRequest(id),
       icon: <ChecklistRtlIcon />,
     },
     {
@@ -177,6 +210,19 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     },
   ];
 
+  const fetchAllAuction = async () => {
+    try {
+      const res = await listAuctions();
+      console.log("ABC", res.data.response);
+      setAuctionsInfo(res.data.response);
+    } catch (error) {
+      console.log("Problem", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllAuction();
+  }, []);
   return (
     <div style={{ marginLeft: "50px" }}>
       <Typography
@@ -324,104 +370,108 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {auctionData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell align="center">{count + index}</TableCell>
-                  <TableCell>
-                    <div className="">
-                      <Grid container alignItems="center" spacing={2}>
-                        <Grid item>
-                          <img
-                            src={row.img}
-                            alt=""
-                            width="80px"
-                            height="80px"
-                            style={{ borderRadius: "10px" }}
-                          />
-                        </Grid>
-                        <Grid item>
-                          <Typography
-                            variant="body1"
-                            color="initial"
-                            sx={{
-                              width: "300px",
-                              display: "-webkit-box",
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              WebkitLineClamp: 2,
-                            }}
-                          >
-                            {row.address}
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            color="initial"
-                            fontWeight={600}
-                            sx={{ marginTop: "10px" }}
-                          >
-                            {row.type}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </div>
-                  </TableCell>
-                  <TableCell align="center">{row.owner}</TableCell>
-                  <TableCell align="center">{row.createDate}</TableCell>
-                  <TableCell align="center">
-                    <CurrencyFormatter amount={row.startingPrice} />
-                  </TableCell>
-                  <TableCell align="center">
-                    <CurrencyFormatter amount={row.buyPrice} />
-                  </TableCell>
-                  <TableCell align="center">
-                    <Chip
-                      label={row.status}
-                      style={{
-                        background: statusColor[row.status].background,
-                        fontWeight: 600,
-                        color: statusColor[row.status].color,
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      onClick={(event) => handleOpenPopover(event, index)}
-                    >
-                      <MoreHorizIcon />
-                    </IconButton>
-                  </TableCell>
-                  <Popper
-                    open={open && selectedRowIndex === index}
-                    anchorEl={anchorEl}
-                    onClose={handleClosePopover}
-                  >
-                    <ClickAwayListener onClickAway={handleClickAway}>
-                      <List sx={{ background: "white" }}>
-                        {actions.map((action) => (
-                          <ListItem
-                            sx={{
-                              display: "flex",
-                              justifyContent: "flex-start",
-                            }}
-                          >
-                            <Button
-                              startIcon={action.icon}
-                              onClick={action.onClick}
+              {auctionsInfo &&
+                Array.isArray(auctionsInfo) &&
+                auctionsInfo?.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell align="center">{count + index}</TableCell>
+                    <TableCell>
+                      <div className="">
+                        <Grid container alignItems="center" spacing={2}>
+                          <Grid item>
+                            <img
+                              src={row.realEstateID.image}
+                              alt=""
+                              width="80px"
+                              height="80px"
+                              style={{ borderRadius: "10px" }}
+                            />
+                          </Grid>
+                          <Grid item>
+                            <Typography
+                              variant="body1"
+                              color="initial"
                               sx={{
-                                width: "100%",
-                                textTransform: "none",
-                                fontWeight: 600,
+                                width: "300px",
+                                display: "-webkit-box",
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                WebkitLineClamp: 2,
                               }}
                             >
-                              {action.name}
-                            </Button>
-                          </ListItem>
-                        ))}
-                      </List>
-                    </ClickAwayListener>
-                  </Popper>
-                </TableRow>
-              ))}
+                              {row.realEstateID.city}
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              color="initial"
+                              fontWeight={600}
+                              sx={{ marginTop: "10px" }}
+                            >
+                              {row.realEstateID.type}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">{row.owner}</TableCell>
+                    <TableCell align="center">
+                      {row.realEstateID.createdAt}
+                    </TableCell>
+                    <TableCell align="center">
+                      <CurrencyFormatter amount={row.startPrice} />
+                    </TableCell>
+                    <TableCell align="center">
+                      <CurrencyFormatter amount={row.buyNowPrice} />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Chip
+                        label={row.status}
+                        style={{
+                          // background: statusColor[row.status].background,
+                          fontWeight: 600,
+                          // color: statusColor[row.status].color,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        onClick={(event) => handleOpenPopover(event, index)}
+                      >
+                        <MoreHorizIcon />
+                      </IconButton>
+                    </TableCell>
+                    <Popper
+                      open={open && selectedRowIndex === index}
+                      anchorEl={anchorEl}
+                      onClose={handleClosePopover}
+                    >
+                      <ClickAwayListener onClickAway={handleClickAway}>
+                        <List sx={{ background: "white" }}>
+                          {actions(row._id).map((action) => (
+                            <ListItem
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-start",
+                              }}
+                            >
+                              <Button
+                                startIcon={action.icon}
+                                onClick={action.onClick}
+                                sx={{
+                                  width: "100%",
+                                  textTransform: "none",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {action.name}
+                              </Button>
+                            </ListItem>
+                          ))}
+                        </List>
+                      </ClickAwayListener>
+                    </Popper>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

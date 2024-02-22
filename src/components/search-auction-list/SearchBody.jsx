@@ -77,7 +77,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
     const fetchFilteredAuction = async () => {
       try {
         const res = await filterAuction(filterValues);
-        console.log(res.response);
+        console.log("Fileeee", res.response);
 
         if (res.response) {
           dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
@@ -87,9 +87,17 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         console.error(error);
       }
     };
-
-    fetchFilteredAuction();
+    if (
+      filterValues.bathRoom !== "" ||
+      filterValues.bedRoom !== "" ||
+      filterValues.city !== "" ||
+      filterValues.type !== ""
+    ) {
+      fetchFilteredAuction();
+    }
   }, [filterValues]); // Execute whenever filterValues changes
+
+  console.log(filterValues);
 
   useEffect(() => {
     const getProvince = `${provinceURL}/api/province`;

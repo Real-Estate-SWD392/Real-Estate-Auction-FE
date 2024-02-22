@@ -12,7 +12,7 @@ export const AuctionContextProvider = ({ children }) => {
 
   const getAllAuctions = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/auction`, {
+      const response = await fetch(`http://localhost:8080/auction/status/In Auction`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
