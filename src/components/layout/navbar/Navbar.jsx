@@ -178,7 +178,8 @@ function ResponsiveAppBar({ userName }) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
-                        width: "90px",
+                        maxWidth: "50px", // Set max width to define the truncation point
+                        display: "inline-block", // Ensure that the span behaves like a block element
                       }}
                     >
                       {userName}

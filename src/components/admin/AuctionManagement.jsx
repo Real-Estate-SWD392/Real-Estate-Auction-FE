@@ -95,6 +95,7 @@ const statusColor = {
 
 const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [filterList, setFilterList] = useState("All");
   const [search, setSearch] = useState("");
   const [amount, setAmount] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -146,6 +147,12 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       </Typography>
     );
   };
+
+  const filteredAuctionData = auctionData.filter(
+    (row) =>
+      selectedFilter === "All" ||
+      (selectedFilter !== "All" && row.status === selectedFilter)
+  );
 
   const actions = [
     {
@@ -324,7 +331,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {auctionData.map((row, index) => (
+              {filteredAuctionData.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
                   <TableCell>

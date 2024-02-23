@@ -139,6 +139,12 @@ const UserManagement = ({}) => {
     );
   };
 
+  const filterUserData = users.filter(
+    (row) =>
+      selectedFilter === "All" ||
+      (selectedFilter !== "All" && row.status === selectedFilter)
+  );
+
   const actions = [
     {
       name: "View User",
@@ -308,7 +314,7 @@ const UserManagement = ({}) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((row, index) => (
+              {filterUserData.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
                   <TableCell>

@@ -39,4 +39,14 @@ export const auctionData = [
     buyPrice: 2800,
     status: "Ended",
   },
+  {
+    img: "https://i.pinimg.com/236x/96/9e/29/969e29466c4040aa181f7d80e6cac331.jpg",
+    address: "187/2 TTS32, Phường Tân Thới Hiệp, Quận 12, TP. Hồ Chí Minh",
+    type: "Villa",
+    owner: "SonVPSE",
+    createDate: "20 Feb 2024",
+    startingPrice: 100,
+    buyPrice: 2800,
+    status: "Active",
+  },
 ];
