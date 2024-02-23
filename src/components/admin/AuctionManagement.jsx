@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   Box,
@@ -35,38 +35,7 @@ import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
-const filterType = [
-  {
-    name: "All",
-    amount: 20,
-    background: "#222B36",
-    color: "white",
-  },
-  {
-    name: "Active",
-    amount: 5,
-    background: "rgb(57,143,95, 0.1)",
-    color: "rgb(57,143,95)",
-  },
-  {
-    name: "Pending",
-    amount: 5,
-    background: "rgb(249, 168, 29, 0.1)",
-    color: "rgb(249, 168, 29)",
-  },
-  {
-    name: "Rejected",
-    amount: 5,
-    background: "rgb(182, 43, 41, 0.1)",
-    color: "rgb(182, 43, 41)",
-  },
-  {
-    name: "Ended",
-    amount: 5,
-    background: "rgb(105, 120, 133, 0.1)",
-    color: "rgb(105, 120, 133)",
-  },
-];
+import { users } from "./userData";
 
 const count = 1;
 
@@ -100,7 +69,37 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const [amount, setAmount] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [statusCount, setStatusCount] = useState({
+    all: 0,
+    active: 0,
+    pending: 0,
+    rejected: 0,
+    ended: 0,
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const countStatus = (listAuction, status) => {
+      // Count the number of users with the specified status
+      const count = listAuction.reduce((acc, auction) => {
+        if (auction.status.toLowerCase() === status.toLowerCase()) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+
+      return count;
+    };
+
+    setStatusCount((prevCount) => ({
+      ...prevCount,
+      all: auctionData.length,
+      active: countStatus(auctionData, "Active"),
+      pending: countStatus(auctionData, "Pending"),
+      rejected: countStatus(auctionData, "Rejected"),
+      ended: countStatus(auctionData, "Ended"),
+    }));
+  }, [auctionData]);
 
   const handleOpenPopover = (event, index) => {
     setAnchorEl(event.currentTarget);
@@ -181,6 +180,39 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       name: "Delete Auction",
       onClick: () => {},
       icon: <DeleteIcon />,
+    },
+  ];
+
+  const filterType = [
+    {
+      name: "All",
+      amount: statusCount.all,
+      background: "#222B36",
+      color: "white",
+    },
+    {
+      name: "Active",
+      amount: statusCount.active,
+      background: "rgb(57,143,95, 0.1)",
+      color: "rgb(57,143,95)",
+    },
+    {
+      name: "Pending",
+      amount: statusCount.pending,
+      background: "rgb(249, 168, 29, 0.1)",
+      color: "rgb(249, 168, 29)",
+    },
+    {
+      name: "Rejected",
+      amount: statusCount.rejected,
+      background: "rgb(182, 43, 41, 0.1)",
+      color: "rgb(182, 43, 41)",
+    },
+    {
+      name: "Ended",
+      amount: statusCount.ended,
+      background: "rgb(105, 120, 133, 0.1)",
+      color: "rgb(105, 120, 133)",
     },
   ];
 

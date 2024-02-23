@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   Box,
@@ -37,32 +37,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BlockIcon from "@mui/icons-material/Block";
 import { users } from "./userData";
-const filterType = [
-  {
-    name: "All",
-    amount: 20,
-    background: "#222B36",
-    color: "white",
-  },
-  {
-    name: "Active",
-    amount: 5,
-    background: "rgb(57,143,95, 0.1)",
-    color: "rgb(57,143,95)",
-  },
-  {
-    name: "Pending",
-    amount: 5,
-    background: "rgb(249, 168, 29, 0.1)",
-    color: "rgb(249, 168, 29)",
-  },
-  {
-    name: "Banned",
-    amount: 5,
-    background: "rgb(182, 43, 41, 0.1)",
-    color: "rgb(182, 43, 41)",
-  },
-];
 
 const count = 1;
 
@@ -91,7 +65,33 @@ const UserManagement = ({}) => {
   const [amount, setAmount] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  const navigate = useNavigate();
+  const [statusCount, setStatusCount] = useState({
+    all: 0,
+    active: 0,
+    pending: 0,
+    banned: 0,
+  });
+
+  useEffect(() => {
+    const countStatus = (listUser, status) => {
+      const count = listUser.reduce((acc, user) => {
+        if (user.status.toLowerCase() === status.toLowerCase()) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+
+      return count;
+    };
+
+    setStatusCount((prevCount) => ({
+      ...prevCount,
+      all: users.length,
+      active: countStatus(users, "Active"),
+      pending: countStatus(users, "Pending"),
+      banned: countStatus(users, "Banned"),
+    }));
+  }, [users]);
 
   const handleOpenPopover = (event, index) => {
     setAnchorEl(event.currentTarget);
@@ -124,21 +124,6 @@ const UserManagement = ({}) => {
     //call api for search
     //update result amount
   };
-
-  const CurrencyFormatter = ({ amount }) => {
-    // Ensure amount is a number
-    const formattedAmount = Number(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    return (
-      <Typography variant="body1" color="initial" fontWeight={500}>
-        {formattedAmount}
-      </Typography>
-    );
-  };
-
   const filterUserData = users.filter(
     (row) =>
       selectedFilter === "All" ||
@@ -164,6 +149,33 @@ const UserManagement = ({}) => {
       onClick: () => {},
       icon: <CloseIcon />,
       disabled: (status) => (status === "Banned" ? false : true),
+    },
+  ];
+
+  const filterType = [
+    {
+      name: "All",
+      amount: statusCount.all,
+      background: "#222B36",
+      color: "white",
+    },
+    {
+      name: "Active",
+      amount: statusCount.active,
+      background: "rgb(57,143,95, 0.1)",
+      color: "rgb(57,143,95)",
+    },
+    {
+      name: "Pending",
+      amount: statusCount.pending,
+      background: "rgb(249, 168, 29, 0.1)",
+      color: "rgb(249, 168, 29)",
+    },
+    {
+      name: "Banned",
+      amount: statusCount.banned,
+      background: "rgb(182, 43, 41, 0.1)",
+      color: "rgb(182, 43, 41)",
     },
   ];
 

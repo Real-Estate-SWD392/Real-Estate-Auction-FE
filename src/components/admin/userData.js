@@ -49,4 +49,14 @@ export const users = [
     status: "Banned",
     joinDate: "22 Feb 2024",
   },
+  {
+    firstName: "Anh",
+    lastName: "Anh",
+    email: "phucanhdodang1211@gmail.com",
+    phoneNumber: "1234567890",
+    address: "167/2 TRD21, Phường Tân Thới Hiệp, Quận 12, TP. Hồ Chí Minh",
+    sales: 10,
+    status: "Active",
+    joinDate: "22 Feb 2024",
+  },
 ];
