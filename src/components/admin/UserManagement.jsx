@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   Box,
@@ -60,20 +60,8 @@ const statusColor = {
 };
 
 const UserManagement = ({}) => {
-  const [selectedFilter, setSelectedFilter] = useState("All");
-  const [search, setSearch] = useState("");
-  const [amount, setAmount] = useState(10);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  const [statusCount, setStatusCount] = useState({
-    all: 0,
-    active: 0,
-    pending: 0,
-    banned: 0,
-  });
-
-  useEffect(() => {
-    const countStatus = (listUser, status) => {
+  const countStatus = useMemo(() => {
+    return (listUser, status) => {
       const count = listUser.reduce((acc, user) => {
         if (user.status.toLowerCase() === status.toLowerCase()) {
           return acc + 1;
@@ -83,7 +71,20 @@ const UserManagement = ({}) => {
 
       return count;
     };
+  }, []);
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [amount, setAmount] = useState(10);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [statusCount, setStatusCount] = useState({
+    all: users.length,
+    active: countStatus(auctionData, "Active"),
+    pending: countStatus(auctionData, "Pending"),
+    banned: countStatus(auctionData, "Banned"),
+  });
 
+  useEffect(() => {
     setStatusCount((prevCount) => ({
       ...prevCount,
       all: users.length,

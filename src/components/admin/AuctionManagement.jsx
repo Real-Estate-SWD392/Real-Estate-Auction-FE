@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   Box,
@@ -63,24 +63,8 @@ const statusColor = {
 };
 
 const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
-  const [selectedFilter, setSelectedFilter] = useState("All");
-  const [filterList, setFilterList] = useState("All");
-  const [search, setSearch] = useState("");
-  const [amount, setAmount] = useState(10);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  const [statusCount, setStatusCount] = useState({
-    all: 0,
-    active: 0,
-    pending: 0,
-    rejected: 0,
-    ended: 0,
-  });
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const countStatus = (listAuction, status) => {
-      // Count the number of users with the specified status
+  const countStatus = useMemo(() => {
+    return (listAuction, status) => {
       const count = listAuction.reduce((acc, auction) => {
         if (auction.status.toLowerCase() === status.toLowerCase()) {
           return acc + 1;
@@ -90,7 +74,22 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
 
       return count;
     };
+  }, []);
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [amount, setAmount] = useState(10);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [statusCount, setStatusCount] = useState({
+    all: auctionData.length,
+    active: countStatus(auctionData, "Active"),
+    pending: countStatus(auctionData, "Pending"),
+    rejected: countStatus(auctionData, "Rejected"),
+    ended: countStatus(auctionData, "Ended"),
+  });
+  const navigate = useNavigate();
 
+  useEffect(() => {
     setStatusCount((prevCount) => ({
       ...prevCount,
       all: auctionData.length,
