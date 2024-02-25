@@ -12,6 +12,7 @@ import { AuctionContextProvider } from "./context/auction.context";
 import { RealEstateContextProvider } from "./context/real-estate.context";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { BidContextProvider } from "./context/bid.context";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
@@ -31,7 +32,9 @@ root.render(
       <UserContextProvider>
         <AuctionContextProvider>
           <RealEstateContextProvider>
-            <App />
+            <BidContextProvider>
+              <App />
+            </BidContextProvider>
           </RealEstateContextProvider>
         </AuctionContextProvider>
       </UserContextProvider>

@@ -164,6 +164,7 @@ const UpdatePropertyCard = ({
             color="initial"
             style={combinedStyles}
             fontSize={17}
+            marginBottom={"15px"}
           >
             {propAddress}
           </Typography>

@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AuctionPropCard from "../home/related-prop/AuctionPropCard";
 import { AuctionContext } from "../../context/auction.context";
 import { setProperties } from "../../redux/reducers/auctionSlice";
-import { getSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
+import { setSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
 import { textAlign } from "@mui/system";
 
@@ -28,7 +28,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
 
   const [auctions, setAuctions] = useState({});
 
-  const properties = useSelector((state) => state.auction.properties);
+  const properties = useSelector((state) => state.search.searchResults);
 
   const [provinceList, setProvinceList] = useState(null);
 
@@ -77,16 +77,15 @@ const SearchBody = ({ searchTerm, resultCount }) => {
     const fetchFilteredAuction = async () => {
       try {
         const res = await filterAuction(filterValues);
+        console.log("Fileeee", res.response);
 
         if (res.response) {
-          dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
-          dispatch(getSearchResutlts(res.response));
+          dispatch(setSearchResutlts(res.response));
         }
       } catch (error) {
         console.error(error);
       }
     };
-
     if (
       filterValues.bathRoom !== "" ||
       filterValues.bedRoom !== "" ||
@@ -96,6 +95,8 @@ const SearchBody = ({ searchTerm, resultCount }) => {
       fetchFilteredAuction();
     }
   }, [filterValues]); // Execute whenever filterValues changes
+
+  console.log(filterValues);
 
   useEffect(() => {
     const getProvince = `${provinceURL}/api/province`;
@@ -282,7 +283,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
               </Grid>
             ))
           ) : (
-            <h2 style={{ textAlign: "center" }}>No Result Found</h2>
+            <h3 style={{ textAlign: "center" }}>No Result Found</h3>
           )}
         </Grid>
       </Box>

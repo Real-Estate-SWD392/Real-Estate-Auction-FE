@@ -48,9 +48,15 @@ export const userSettings = [
     name: "My Account",
     url: "/my-account",
   },
+
   {
     name: "Seller Dashboard",
-    url: "/sell",
+    url: "/sell/profile",
+  },
+
+  {
+    name: "Staff Dashboard",
+    url: "/accommondation-admin",
   },
 ];
 
@@ -111,6 +117,7 @@ function ResponsiveAppBar({ userName }) {
               noWrap
               component="a"
               onClick={() => navigate("/")}
+              style={{ cursor: "pointer" }}
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -208,23 +215,43 @@ function ResponsiveAppBar({ userName }) {
                     onClose={handleClose}
                     sx={{}}
                   >
-                    {userSettings.map((setting, index) => (
-                      <div key={index}>
-                        <MenuItem
-                          sx={{
-                            py: "16px",
-                            fontSize: "17px",
-                            pl: "20px",
-                            pr: "80px",
-                            fontWeight: 600,
-                          }}
-                          onClick={() => handleNavigate(setting.url)}
-                        >
-                          {setting.name}
-                        </MenuItem>
-                        <CustomDivider />
-                      </div>
-                    ))}
+                    {user.role === "staff"
+                      ? userSettings.map((setting, index) => (
+                          <div key={index}>
+                            <MenuItem
+                              sx={{
+                                py: "16px",
+                                fontSize: "17px",
+                                pl: "20px",
+                                pr: "80px",
+                                fontWeight: 600,
+                              }}
+                              onClick={() => handleNavigate(setting.url)}
+                            >
+                              {setting.name}
+                            </MenuItem>
+                            <CustomDivider />
+                          </div>
+                        ))
+                      : userSettings
+                          .filter((item) => item.name !== "Staff Dashboard")
+                          .map((setting, index) => (
+                            <div key={index}>
+                              <MenuItem
+                                sx={{
+                                  py: "16px",
+                                  fontSize: "17px",
+                                  pl: "20px",
+                                  pr: "80px",
+                                  fontWeight: 600,
+                                }}
+                                onClick={() => handleNavigate(setting.url)}
+                              >
+                                {setting.name}
+                              </MenuItem>
+                              <CustomDivider />
+                            </div>
+                          ))}
                     <MenuItem
                       sx={{
                         py: "16px",

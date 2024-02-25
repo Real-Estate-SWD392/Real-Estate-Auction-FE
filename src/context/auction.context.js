@@ -6,18 +6,21 @@ import { toast } from "react-toastify";
 export const AuctionContext = createContext();
 
 export const AuctionContextProvider = ({ children }) => {
-  const { setUser, accessToken } = useContext(AuthContext);
+  const { user, setUser, accessToken } = useContext(AuthContext);
 
   const [auctionList, setAuctionList] = useState([]);
 
   const getAllAuctions = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/auction`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8080/auction/status/In Auction`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -231,6 +234,95 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const addToJoinList = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/auction/addMember/${id}/${user._id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        console.log("Add To Join List Sucess: ", data);
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Add To Join List failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Add To Join List Fail!!");
+      console.log(error);
+    }
+  };
+
+  const setWinner = async (id, userID) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/auction/setWinner/${id}`,
+        { userID },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Set Winner Sucess: ", data);
+      } else {
+        const errorData = await response.data;
+        console.error("Set Winner failed", errorData);
+      }
+    } catch (error) {
+      toast.error("Set Winner Auction Fail!!");
+      console.log(error);
+    }
+  };
+
+  const closeAuction = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/auction/closeAuction/${id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Close Sucess: ", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        const errorData = await response.data;
+        toast.error(errorData.message);
+        console.error("Close failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Close Auction Fail!!");
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -255,6 +347,9 @@ export const AuctionContextProvider = ({ children }) => {
         sortByPopular,
         createAuction,
         getAuctionByRealEstateID,
+        closeAuction,
+        setWinner,
+        addToJoinList,
       }}
     >
       {children}

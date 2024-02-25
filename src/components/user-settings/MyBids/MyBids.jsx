@@ -1,8 +1,16 @@
-import React from "react";
-import { Button, Card, Grid, Typography } from "@mui/material";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  CircularProgress,
+  Grid,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/system";
 import { auctionProp } from "../listProp";
 import MyBidCard from "./MyBidCard";
+import { BidContext } from "../../../context/bid.context";
+import Loading from "../../loading/Loading";
 
 const Divider = styled("div")({
   width: "100%",
@@ -11,6 +19,9 @@ const Divider = styled("div")({
 });
 
 const MyBids = () => {
+  const [isLoading, setIsloading] = useState(true);
+  const { bidList } = useContext(BidContext);
+
   return (
     <Card
       sx={{
@@ -41,32 +52,44 @@ const MyBids = () => {
         </Typography>
       </div>
       <Divider />
-      <div className="listing" style={{ marginTop: "30px" }}>
-        <Grid container spacing={3} justifyContent="flex-start">
-          {auctionProp.map((prop, index) => (
-            <Grid item key={index}>
-              <MyBidCard
-                propImg={prop.propImg}
-                imgList={prop.imgList}
-                propType={prop.propType}
-                name={prop.name}
-                propAddress={prop.propAddress}
-                days={prop.days}
-                hours={prop.hours}
-                mins={prop.mins}
-                secs={prop.secs}
-                startingBid={prop.startingBid}
-                currentBid={prop.currentBid}
-                isFav={prop.isFav}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
-                yourBid={prop.yourBid}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </div>
+
+      {isLoading ? (
+        <Loading setIsLoading={setIsloading} />
+      ) : (
+        <div className="listing" style={{ marginTop: "30px" }}>
+          <Grid container spacing={3} justifyContent="flex-start">
+            {bidList.length > 0 ? (
+              bidList.map((prop, index) => (
+                <Grid item key={index}>
+                  <MyBidCard
+                    propID={prop?.auctionID?._id}
+                    propImg={prop?.auctionID?.realEstateID?.image[0]}
+                    imgList={prop?.auctionID?.realEstateID?.image?.length}
+                    propType={prop?.auctionID?.realEstateID?.type}
+                    propAddress={`${prop?.auctionID?.realEstateID?.street}, ${prop?.auctionID?.realEstateID?.ward}, ${prop?.auctionID?.realEstateID?.district}, ${prop?.auctionID?.realEstateID?.city} `}
+                    name={`${prop?.auctionID?.realEstateID?.ownerID?.firstName} ${prop?.auctionID?.realEstateID?.ownerID?.lastName}`}
+                    days={prop?.auctionID?.day}
+                    hours={prop?.auctionID?.hour}
+                    mins={prop?.auctionID?.minute}
+                    secs={prop?.auctionID?.second}
+                    startingBid={prop?.auctionID?.startingBid}
+                    currentBid={prop?.auctionID?.currentPrice}
+                    isFav={prop?.isFav}
+                    beds={prop?.auctionID?.realEstateID.bedRoom}
+                    baths={prop?.auctionID?.realEstateID.bathRoom}
+                    area={prop?.auctionID?.realEstateID.size}
+                    yourBid={prop?.price}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <h3 style={{ width: "100%", textAlign: "center" }}>
+                You Haven't Place A Bid Yet!
+              </h3>
+            )}
+          </Grid>
+        </div>
+      )}
     </Card>
   );
 };

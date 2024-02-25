@@ -17,7 +17,6 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
-import { detailProp } from "./detailProp";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -42,6 +41,10 @@ import { addAuctionToFavList } from "../../service/memberService";
 import { getAuctionById } from "../../service/auctionService";
 import { toast } from "react-toastify";
 import { UserContext } from "../../context/user.context";
+import { BidContext } from "../../context/bid.context";
+import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AuctionContext } from "../../context/auction.context";
 
 const specStyle = {
   textAlign: "center",
@@ -111,12 +114,18 @@ export const methodList = [
 ];
 
 const AuctionDetail1 = () => {
+  const dispatch = useDispatch();
+
+  const property = useSelector((state) => state.auction.detail);
+
   const [isFavorite, setIsFavorite] = useState(false);
+  const [joinList, setJoinList] = useState([]);
   const [info, setInfo] = useState({});
-  const { currentBid } = detailProp;
+  const { currentPrice } = property;
   const [open, setOpen] = useState(false);
   const [openBuy, setOpenBuy] = useState(false);
-  const [bidPrice, setBidPrice] = useState(currentBid);
+  const [openPay, setOpenPay] = useState(false);
+  const [bidPrice, setBidPrice] = useState(property?.currentPrice);
   const [paymentMethod, setPaymentMethod] = useState({
     value: "",
     img: "",
@@ -142,6 +151,10 @@ const AuctionDetail1 = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -158,12 +171,20 @@ const AuctionDetail1 = () => {
     setOpenBuy(false);
   };
 
+  const handleOpenPay = () => {
+    setOpenPay(true);
+  };
+
+  const handleClosePay = () => {
+    setOpenPay(false);
+  };
+
   const handleDecrement = () => {
-    setBidPrice(bidPrice - detailProp.priceStep);
+    setBidPrice(bidPrice - property.priceStep);
   };
 
   const handleIncrement = () => {
-    setBidPrice(bidPrice + detailProp.priceStep);
+    setBidPrice(bidPrice + property.priceStep);
   };
 
   const formattedValue = (value) => {
@@ -199,18 +220,16 @@ const AuctionDetail1 = () => {
   //   }
   // }
 
-  const getAuctionInfoById = async () => {
-    try {
-      let res = null;
-      res = await getAuctionById(id);
-      console.log("hhuhu", res.data.response);
-      setInfo(res.data.response);
-    } catch (error) {
-      console.error("Error fetching auction detail:", error);
-    }
-  };
-
   const { user, accessToken, setUser } = useContext(AuthContext);
+
+  const { setWinner, addToJoinList } = useContext(AuctionContext);
+
+  const [checkAlreadyBid, setAlreadyBid] = useState(false);
+
+  const { bidList, updateNewBid, setBidList } = useContext(BidContext);
+
+  const propertyList = useSelector((state) => state.auction.properties);
+
   const userID = user ? user._id : null;
 
   const headers = {
@@ -238,36 +257,52 @@ const AuctionDetail1 = () => {
     }
   };
 
-  const auctionId = {
-    _id: id,
+  useEffect(() => {
+    if (Array.isArray(bidList)) {
+      const check = bidList.find((item) => item?.auctionID?._id === id);
+      setAlreadyBid(!!check); // Convert check result to a boolean value
+    }
+  }, [bidList, id]);
+
+  const getAuctionInfoById = async () => {
+    try {
+      let res = null;
+      res = await getAuctionById(id);
+      dispatch(setDetail(res.data.response));
+      setBidPrice(res.data.response.currentPrice);
+      setJoinList(res.data.response.joinList);
+    } catch (error) {
+      console.error("Error fetching auction detail:", error);
+    }
   };
-  console.log("hahaha", info);
-  // console.log("listHAV", user.favoriteList);
 
   const handleAddAuctionToFavList = async () => {
     try {
       const res = await addAuctionToFavList(userID, addToFavListData, headers);
-      setIsFavorite(!isFavorite);
-      if (res && res.data && res.data.success) {
-        console.log("Add to list completed");
-        toast.success("Add to list completed successfully !!!");
+
+      console.log(res);
+      if (res.data.success) {
+        console.log("Add to list completed", res.data.response);
+        toast.success("Add To Favorite List Successfully !!!");
         setUser(res.data.response);
         // handleClose();
         // navigate("/auctions");
       } else {
-        toast.error("Add to list failed !!!");
+        toast.error("Add To Favorite List Failed !!!");
       }
     } catch (error) {
       console.error("Error placing Add to list:", error);
-      toast.error("Add to list failed !!!");
+      toast.error("Add To Favorite List Failed !!!");
     }
   };
 
   const handleRemoveFromFavList = async () => {
     try {
       const res = await removeFromFavList(id);
-      if (res && res.data && res.data.success) {
-        setUser(res.data.response);
+
+      console.log(res);
+      if (res.success) {
+        setUser(res.response);
       }
     } catch (error) {
       console.error("Error Remove from list:", error);
@@ -276,27 +311,109 @@ const AuctionDetail1 = () => {
 
   const handlePlaceBid = async () => {
     try {
-      const res = await createBid(bidData, headers);
-      if (res && res.data && res.data.success) {
-        console.log("Bid completed");
-        alert("Bid completed successfully !!!");
-        handleClose();
-        navigate("/auctions");
+      if (checkAlreadyBid) {
+        const res = await updateNewBid(bidData);
+        if (res.success) {
+          dispatch(setDetail(res.response.auctionID));
+          setBidList(res.response);
+          toast.success("Bid completed successfully !!!");
+          handleClose();
+
+          const indexToUpdate = propertyList.findIndex(
+            (item) => item._id === res.response.auctionID._id
+          );
+
+          // If the index is found, update the auctionList
+          if (indexToUpdate !== -1) {
+            console.log(res);
+            const updatedAuctionList = [...propertyList];
+            updatedAuctionList[indexToUpdate] = res.response.auctionID;
+            dispatch(setProperties(updatedAuctionList));
+          }
+        } else {
+          console.log("Bid failed");
+          toast.error("Bid failed !!!");
+        }
       } else {
-        console.log("Bid failed");
-        alert("Bid failed !!!");
+        const res = await createBid(bidData, headers);
+        console.log(res);
+        if (res && res.data && res.data.success) {
+          dispatch(setDetail(res.data.response.auctionID));
+          setBidList([...bidList, res.data.response]);
+          setAlreadyBid(true);
+          toast.success("Bid completed successfully !!!");
+          handleClose();
+
+          const indexToUpdate = propertyList.findIndex(
+            (item) => item._id === res.data.response.auctionID._id
+          );
+
+          // If the index is found, update the auctionList
+          if (indexToUpdate !== -1) {
+            console.log(res);
+            const updatedAuctionList = [...propertyList];
+            updatedAuctionList[indexToUpdate] = res.data.response.auctionID;
+            dispatch(setProperties(updatedAuctionList));
+          }
+        } else {
+          console.log("Bid failed");
+          toast.error("Bid failed !!!");
+        }
       }
     } catch (error) {
       console.error("Error placing bid:", error);
-      alert("Error placing bid. Please try again later.");
-      console.log("Aaa", error);
+      toast.error("Error placing bid. Please try again later.");
+    }
+  };
+
+  const handleAddToJoinList = async () => {
+    try {
+      const res = await addToJoinList(id);
+      console.log(res);
+      if (res.success) {
+        dispatch(setDetail(res.response));
+        setJoinList(res.response.joinList);
+        toast.success("Join List successfully !!!");
+        handleClosePay();
+
+        const indexToUpdate = propertyList.findIndex(
+          (item) => item._id === res.response._id
+        );
+
+        // If the index is found, update the auctionList
+        if (indexToUpdate !== -1) {
+          console.log(res);
+          const updatedAuctionList = [...propertyList];
+          updatedAuctionList[indexToUpdate] = res.response;
+          dispatch(setProperties(updatedAuctionList));
+        }
+      } else {
+        toast.error("Join List Fail failed !!!");
+      }
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      toast.error("Error placing bid. Please try again later.");
+    }
+  };
+
+  const handleSetWinner = async (type) => {
+    try {
+      await setWinner(id, user._id);
+      if (type === "Buy Now") {
+        toast.success("Buy Auction Successfully");
+        handleCloseBuy();
+      }
+    } catch (error) {
+      console.error("Set Winner Fail:", error);
     }
   };
 
   useEffect(() => {
-    getAuctionInfoById(id);
+    getAuctionInfoById();
     checkFavorite();
   }, [id]);
+
+  console.log(user, id);
 
   return (
     <Box sx={{ background: "white" }}>
@@ -350,11 +467,7 @@ const AuctionDetail1 = () => {
               >
                 <CardMedia
                   component="img"
-                  src={
-                    info && info.realEstateID && info.realEstateID.image
-                      ? info.realEstateID.image[0]
-                      : ""
-                  }
+                  src={property?.realEstateID?.image[0]}
                   sx={{
                     height: "100%",
                     width: "calc(100% - 70px)",
@@ -379,7 +492,7 @@ const AuctionDetail1 = () => {
                     },
                   }}
                 >
-                  View {detailProp.imgList} photo(s)
+                  View {property?.realEstateID?.image.length} photo(s)
                 </Button>
               </Card>
             </div>
@@ -399,13 +512,17 @@ const AuctionDetail1 = () => {
                 fontWeight={600}
                 sx={{ width: "450px" }}
               >
-                {detailProp.propAddress}
+                {property?.realEstateID?.street}, {property?.realEstateID?.ward}
+                , {property?.realEstateID?.district},{" "}
+                {property?.realEstateID?.city}
               </Typography>
               <div className="property-specs">
                 <Grid container spacing={4}>
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
-                      {info && info.realEstateID && info.realEstateID.bedRoom}
+                      {property &&
+                        property.realEstateID &&
+                        property.realEstateID.bedRoom}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Beds
@@ -413,7 +530,9 @@ const AuctionDetail1 = () => {
                   </Grid>
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
-                      {info && info.realEstateID && info.realEstateID.bathRoom}
+                      {property &&
+                        property.realEstateID &&
+                        property.realEstateID.bathRoom}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Baths
@@ -421,7 +540,9 @@ const AuctionDetail1 = () => {
                   </Grid>
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
-                      {info && info.realEstateID && info.realEstateID.size}
+                      {property &&
+                        property.realEstateID &&
+                        property.realEstateID.size}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Square meter
@@ -439,7 +560,7 @@ const AuctionDetail1 = () => {
                 color="initial"
                 sx={{ width: "100%" }}
               >
-                {detailProp.desc}
+                {property?.realEstateID?.description}
               </Typography>
               <Typography
                 variant="body1"
@@ -486,11 +607,13 @@ const AuctionDetail1 = () => {
               </Typography>
               <Typography variant="body1" color="initial" sx={{}}>
                 The following documents are available for{" "}
-                {detailProp.propAddress}
+                {property?.realEstateID?.street}, {property?.realEstateID?.ward}
+                , {property?.realEstateID?.district},{" "}
+                {property?.realEstateID?.city}{" "}
               </Typography>
               <div className="document-dsiplay" style={contentMarginStyle}>
                 <Grid container spacing={4} rowSpacing={3}>
-                  {detailProp.docs.map((doc) => (
+                  {property?.pdf?.map((doc) => (
                     <Grid item sx={{ display: "flex" }}>
                       <PictureAsPdfIcon sx={{ color: "#F25D49" }} />
                       <Typography
@@ -515,7 +638,9 @@ const AuctionDetail1 = () => {
                     Beds
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {info && info.realEstateID && info.realEstateID.bedRoom}{" "}
+                    {property &&
+                      property.realEstateID &&
+                      property.realEstateID.bedRoom}{" "}
                     Beds
                   </Typography>
                 </Grid>
@@ -524,7 +649,9 @@ const AuctionDetail1 = () => {
                     Baths
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {info && info.realEstateID && info.realEstateID.bathRoom}{" "}
+                    {property &&
+                      property.realEstateID &&
+                      property.realEstateID.bathRoom}{" "}
                     Baths
                   </Typography>
                 </Grid>
@@ -533,18 +660,20 @@ const AuctionDetail1 = () => {
                     Size
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {info && info.realEstateID && info.realEstateID.size} Sq.
-                    Meter
+                    {property &&
+                      property.realEstateID &&
+                      property.realEstateID.size}{" "}
+                    Sq. Meter
                   </Typography>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                   <Typography variant="body1" color="initial" fontWeight={600}>
                     Property ID
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {detailProp.propID}
+                    {property.propID}
                   </Typography>
-                </Grid>
+                </Grid> */}
               </Grid>
             </div>
             <div className="list-by" style={sectionMarginStyle}>
@@ -556,13 +685,14 @@ const AuctionDetail1 = () => {
                 color="initial"
                 sx={{ display: "flex" }}
               >
-                Agent{" "}
+                Agent:{" "}
                 <Typography
                   variant="body1"
                   color="initial"
                   sx={{ marginLeft: "15px" }}
                 >
-                  {detailProp.name.toUpperCase()}
+                  {property?.realEstateID?.ownerID?.firstName?.toUpperCase()}{" "}
+                  {property?.realEstateID?.ownerID?.lastName?.toUpperCase()}
                 </Typography>
               </Typography>
               <Typography
@@ -576,7 +706,7 @@ const AuctionDetail1 = () => {
                   color="initial"
                   sx={{ marginLeft: "5px" }}
                 >
-                  (+84){detailProp.phoneNumber}
+                  (+84){property?.realEstateID?.ownerID?.phoneNumber}
                 </Typography>
               </Typography>
               <Typography
@@ -590,7 +720,7 @@ const AuctionDetail1 = () => {
                   color="initial"
                   sx={{ marginLeft: "5px" }}
                 >
-                  {detailProp.email}
+                  {property?.realEstateID?.ownerID?.email}
                 </Typography>
               </Typography>
             </div>
@@ -601,11 +731,11 @@ const AuctionDetail1 = () => {
                 elevation={0}
                 sx={{
                   width: "432px",
-                  height: "791px",
+                  maxHeight: "791px",
                   border: "1px solid #D1DEEA",
                   borderRadius: "16px",
                   px: "20px",
-                  pt: "50px",
+                  py: "40px",
                 }}
               >
                 <div className="countdown-timer">
@@ -618,7 +748,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {info.day < 10 ? "0" + info.day : info.day}
+                        {property.day < 10 ? "0" + property.day : property.day}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Days
@@ -642,7 +772,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {info.hour < 10 ? "0" + info.hour : info.hour}
+                        {property.hour < 10
+                          ? "0" + property.hour
+                          : property.hour}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Hours
@@ -666,7 +798,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {info.minute < 10 ? "0" + info.minute : info.minute}
+                        {property.minute < 10
+                          ? "0" + property.minute
+                          : property.minute}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Mins
@@ -690,7 +824,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {info.second < 10 ? "0" + info.second : info.second}
+                        {property.second < 10
+                          ? "0" + property.second
+                          : property.second}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Secs
@@ -712,12 +848,12 @@ const AuctionDetail1 = () => {
                         fontSize={45}
                         fontWeight={600}
                       >
-                        {info.startPrice > info.currentPrice
-                          ? formattedValue(info.startPrice)
-                          : formattedValue(info.currentPrice)}
+                        {property.startPrice > property.currentPrice
+                          ? formattedValue(property.startPrice)
+                          : formattedValue(property.currentPrice)}
                       </Typography>
                       <Typography variant="body1" color="initial" fontSize={20}>
-                        {info.startPrice > info.currentPrice
+                        {property.startPrice > property.currentPrice
                           ? "Starting Bid"
                           : "Current Bid"}
                       </Typography>
@@ -732,7 +868,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         fontWeight={600}
                       >
-                        {info && info.numberOfBidder}
+                        {property && property.numberOfBidder}
                       </Typography>
                       <Typography variant="body1" color="initial" fontSize={12}>
                         Bidders
@@ -768,7 +904,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       fontWeight={600}
                     >
-                      {formattedValue(detailProp.startingBid)}
+                      {formattedValue(property.startPrice)}
                     </Typography>
                   </Box>
                   <Box
@@ -807,26 +943,49 @@ const AuctionDetail1 = () => {
                     justifyContent="center"
                   >
                     <Grid item>
-                      <Button
-                        sx={{
-                          background: "#F25D49",
-                          textTransform: "none",
-                          color: "white",
-                          fontWeight: 600,
-                          py: "17px",
-                          px: "110px",
-                          borderRadius: "8px",
-                          fontSize: "15px",
-                          "&:hover": {
+                      {joinList.includes(user._id) ? (
+                        <Button
+                          sx={{
                             background: "#F25D49",
                             textTransform: "none",
                             color: "white",
-                          },
-                        }}
-                        onClick={() => handleOpen()}
-                      >
-                        Place Bid
-                      </Button>
+                            fontWeight: 600,
+                            py: "19px",
+                            px: "110px",
+                            borderRadius: "8px",
+                            fontSize: "15px",
+                            "&:hover": {
+                              background: "#F25D49",
+                              textTransform: "none",
+                              color: "white",
+                            },
+                          }}
+                          onClick={() => handleOpen()}
+                        >
+                          Place Bid
+                        </Button>
+                      ) : (
+                        <Button
+                          sx={{
+                            background: "#F25D49",
+                            textTransform: "none",
+                            color: "white",
+                            fontWeight: 600,
+                            py: "19px",
+                            px: "50px",
+                            borderRadius: "8px",
+                            fontSize: "15px",
+                            "&:hover": {
+                              background: "#F25D49",
+                              textTransform: "none",
+                              color: "white",
+                            },
+                          }}
+                          onClick={() => handleOpenPay()}
+                        >
+                          Pay {formattedValue(100)} To Start Bidding
+                        </Button>
+                      )}
                     </Grid>
                     <Grid item>
                       <Checkbox
@@ -854,14 +1013,13 @@ const AuctionDetail1 = () => {
                             }}
                           />
                         }
-                        checked={user.favoriteList.find((item) => {
-                          if (item === id) {
-                            return true;
-                          }
-                          return false;
-                        })}
+                        checked={user.favoriteList.find(
+                          (item) => item._id === id
+                        )}
                         onClick={() => {
-                          if (user.favoriteList.find((item) => item === id)) {
+                          if (
+                            user.favoriteList.find((item) => item._id === id)
+                          ) {
                             handleRemoveFromFavList();
                           } else {
                             handleAddAuctionToFavList();
@@ -890,6 +1048,7 @@ const AuctionDetail1 = () => {
                       px: "75px",
                       borderRadius: "8px",
                       fontSize: "15px",
+                      width: "100%",
                       "&:hover": {
                         background: "#F25D49",
                         textTransform: "none",
@@ -898,7 +1057,8 @@ const AuctionDetail1 = () => {
                     }}
                     onClick={() => handleOpenBuy()}
                   >
-                    Buy this property with {formattedValue(detailProp.buyPrice)}
+                    Buy this property with{" "}
+                    {formattedValue(property.buyNowPrice)}
                   </Button>
                   <Button
                     sx={{
@@ -910,6 +1070,7 @@ const AuctionDetail1 = () => {
                       px: "96px",
                       borderRadius: "8px",
                       fontSize: "15px",
+                      width: "100%",
                       "&:hover": {
                         background: "#44A9FF",
                         textTransform: "none",
@@ -1104,9 +1265,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.days < 10
-                        ? "0" + detailProp.days
-                        : detailProp.days}
+                      {property.day < 10 ? "0" + property.day : property.day}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1133,9 +1292,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.hours < 10
-                        ? "0" + detailProp.hours
-                        : detailProp.hours}
+                      {property.hour < 10 ? "0" + property.hour : property.hour}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1162,9 +1319,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.mins < 10
-                        ? "0" + detailProp.mins
-                        : detailProp.mins}
+                      {property.minute < 10
+                        ? "0" + property.minute
+                        : property.minute}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1191,9 +1348,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.secs < 10
-                        ? "0" + detailProp.secs
-                        : detailProp.secs}
+                      {property.second < 10
+                        ? "0" + property.second
+                        : property.second}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1220,7 +1377,7 @@ const AuctionDetail1 = () => {
                           <InputAdornment>
                             <IconButton
                               onClick={() => handleDecrement()}
-                              disabled={bidPrice === currentBid}
+                              disabled={bidPrice === currentPrice}
                             >
                               <RemoveIcon />
                             </IconButton>
@@ -1247,7 +1404,7 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <TextField
                       label="Price step"
-                      value={formattedValue(detailProp.priceStep)}
+                      value={formattedValue(property.priceStep)}
                       sx={{ width: "165px" }}
                       InputProps={{
                         readOnly: "true",
@@ -1405,7 +1562,7 @@ const AuctionDetail1 = () => {
                 fontSize={24}
                 fontWeight={600}
               >
-                Bid this Property?
+                Buy this Property?
               </Typography>
               <Typography
                 variant="body1"
@@ -1429,9 +1586,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.days < 10
-                        ? "0" + detailProp.days
-                        : detailProp.days}
+                      {property.day < 10 ? "0" + property.day : property.day}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1458,9 +1613,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.hours < 10
-                        ? "0" + detailProp.hours
-                        : detailProp.hours}
+                      {property.hour < 10 ? "0" + property.hour : property.hour}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1487,9 +1640,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.mins < 10
-                        ? "0" + detailProp.mins
-                        : detailProp.mins}
+                      {property.minute < 10
+                        ? "0" + property.minute
+                        : property.minute}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1516,9 +1669,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {detailProp.secs < 10
-                        ? "0" + detailProp.secs
-                        : detailProp.secs}
+                      {property.second < 10
+                        ? "0" + property.second
+                        : property.second}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1536,8 +1689,8 @@ const AuctionDetail1 = () => {
                 <Grid container>
                   <Grid item>
                     <TextField
-                      label="Buy price"
-                      value={formattedValue(detailProp.buyPrice)}
+                      label="Buy Price"
+                      value={formattedValue(property.buyNowPrice)}
                       sx={{ width: "495px" }}
                       InputProps={{
                         readOnly: "true",
@@ -1568,7 +1721,7 @@ const AuctionDetail1 = () => {
                     {methodList.map((method, index) => (
                       <MenuItem
                         key={index}
-                        disabled={method.balance < detailProp.buyPrice}
+                        disabled={method.balance < property.buyPrice}
                         value={method.value}
                       >
                         <Box
@@ -1651,9 +1804,193 @@ const AuctionDetail1 = () => {
                   fontWeight: 600,
                   borderRadius: "8px",
                 }}
-                onClick={() => handleCloseBuy()}
+                onClick={() => {
+                  handleSetWinner("Buy Now");
+                }}
               >
                 Buy now
+              </Button>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+
+      <div className="buy-modal">
+        <Modal
+          open={openPay}
+          onClose={handleClosePay}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <div
+              className="close-btn"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "-10px",
+              }}
+            >
+              <IconButton onClick={() => handleClosePay()}>
+                <Close />
+              </IconButton>
+            </div>
+            <div
+              className="modal-content"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: "-20px",
+              }}
+            >
+              <Typography
+                variant="body1"
+                color="initial"
+                fontSize={24}
+                fontWeight={600}
+              >
+                Pay To Join Auction
+              </Typography>
+              <Typography
+                variant="body1"
+                color="#85929E"
+                fontSize={14}
+                sx={{ mt: "8px" }}
+              >
+                Once you pay, you're committed to start bidding in this auction
+              </Typography>
+              <div
+                className="duration-input"
+                style={{
+                  marginTop: "30px",
+                }}
+              ></div>
+              <div className="price-input" style={{ marginTop: "30px" }}>
+                <Grid container>
+                  <Grid item>
+                    <TextField
+                      label="Price"
+                      value={formattedValue(100)}
+                      sx={{ width: "495px" }}
+                      InputProps={{
+                        readOnly: "true",
+                        style: {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      inputProps={{
+                        style: {
+                          textAlign: "center",
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <FormControl sx={{ width: "498px", mt: "20px" }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Select payment method
+                  </InputLabel>
+                  <Select
+                    value={paymentMethod.value}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Select payment method"
+                    sx={{ borderRadius: "8px" }}
+                    onChange={handleSelectedChange}
+                  >
+                    {methodList.map((method, index) => (
+                      <MenuItem
+                        key={index}
+                        disabled={method.balance < property.buyPrice}
+                        value={method.value}
+                      >
+                        <Box
+                          sx={{
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            p: "10px 10px",
+                          }}
+                        >
+                          <Grid container spacing={2} alignItems="center">
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <CardMedia
+                                  component="img"
+                                  src={method.img}
+                                  sx={{ width: "60px", height: "40px" }}
+                                />
+                              )}
+                            </Grid>
+                            <Grid item>
+                              <Typography
+                                variant="body1"
+                                color="initial"
+                                fontWeight={500}
+                              >
+                                {method.value}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                          <Grid
+                            container
+                            flexDirection="column"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography
+                                  variant="body1"
+                                  color="initial"
+                                  fontWeight={600}
+                                >
+                                  Available balance
+                                </Typography>
+                              )}
+                            </Grid>
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography variant="body1" color="initial">
+                                  {formattedValue(method.balance)}
+                                </Typography>
+                              )}
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <Button
+                variant="contained"
+                sx={{
+                  mt: "40px",
+                  bgcolor: "#F25D49",
+                  p: "17px 205px",
+                  "&:hover": {
+                    bgcolor: "#F25D49",
+                  },
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+                onClick={() => {
+                  handleAddToJoinList();
+                }}
+              >
+                Pay now
               </Button>
             </div>
           </Box>

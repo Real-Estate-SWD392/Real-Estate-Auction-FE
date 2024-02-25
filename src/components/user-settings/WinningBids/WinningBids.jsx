@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { Button, Card, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { auctionProp } from "../listProp";
 import WinningBidCard from "./WinningBidCard";
+import { BidContext } from "../../../context/bid.context";
+import Loading from "../../loading/Loading";
 
 const Divider = styled("div")({
   width: "100%",
@@ -11,6 +13,9 @@ const Divider = styled("div")({
 });
 
 const WinningBids = () => {
+  const { winList } = useContext(BidContext);
+
+  const [isLoading, setIsLoading] = useState(true);
   return (
     <Card
       sx={{
@@ -41,32 +46,42 @@ const WinningBids = () => {
         </Typography>
       </div>
       <Divider />
-      <div className="listing" style={{ marginTop: "30px" }}>
-        <Grid container spacing={3} justifyContent="flex-start">
-          {auctionProp.map((prop, index) => (
-            <Grid item key={index}>
-              <WinningBidCard
-                propImg={prop.propImg}
-                imgList={prop.imgList}
-                propType={prop.propType}
-                name={prop.name}
-                propAddress={prop.propAddress}
-                days={prop.days}
-                hours={prop.hours}
-                mins={prop.mins}
-                secs={prop.secs}
-                startingBid={prop.startingBid}
-                currentBid={prop.currentBid}
-                isFav={prop.isFav}
-                beds={prop.beds}
-                baths={prop.baths}
-                area={prop.area}
-                yourBid={prop.yourBid}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </div>
+      {isLoading ? (
+        <Loading setIsLoading={setIsLoading} />
+      ) : (
+        <div className="listing" style={{ marginTop: "30px" }}>
+          <Grid container spacing={3} justifyContent="flex-start">
+            {winList.length > 0 ? (
+              winList.map((prop, index) => (
+                <Grid item key={index}>
+                  <WinningBidCard
+                    propImg={prop?.realEstateID?.image[0]}
+                    imgList={prop?.realEstateID?.image.length}
+                    propType={prop?.realEstateID?.type}
+                    name={prop?.name}
+                    propAddress={`${prop?.realEstateID?.street}, ${prop?.realEstateID?.ward}, ${prop?.realEstateID?.district}, ${prop?.realEstateID?.city}`}
+                    days={prop?.day}
+                    hours={prop?.hour}
+                    mins={prop?.minute}
+                    secs={prop?.second}
+                    startingBid={prop?.startPrice}
+                    currentBid={prop?.currentPrice}
+                    isFav={prop.isFav}
+                    beds={prop?.realEstateID?.bedRoom}
+                    baths={prop?.realEstateID?.bathRoom}
+                    area={prop?.realEstateID?.size}
+                    yourBid={prop?.yourBid}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <h3 style={{ width: "100%", textAlign: "center" }}>
+                You Haven't Win Any Auction Yet!
+              </h3>
+            )}
+          </Grid>
+        </div>
+      )}
     </Card>
   );
 };

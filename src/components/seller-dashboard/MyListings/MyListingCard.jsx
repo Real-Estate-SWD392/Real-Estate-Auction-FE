@@ -63,9 +63,7 @@ const StatusBall = styled("div")((props) => ({
 }));
 
 const getStatusColor = (status) => {
-  const statusObj = statusColor.find(
-    (item) => item.name === status.toUpperCase()
-  );
+  const statusObj = statusColor.find((item) => item.name === status);
   return statusObj ? statusObj.color : "white";
 };
 
@@ -98,6 +96,7 @@ const MyListingCard = ({
   propType,
   desc,
   propStreet,
+  propWard,
   propDistrict,
   propCity,
   beds,
@@ -298,7 +297,7 @@ const MyListingCard = ({
             style={combinedStyles}
             fontSize={17}
           >
-            {propStreet} {propDistrict} {propCity}
+            {propStreet}, {propWard}, {propDistrict}, {propCity}
           </Typography>
           <Grid
             container

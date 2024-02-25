@@ -6,6 +6,7 @@ import { listSellerProps } from "../listProps";
 import { RealEstateContext } from "../../../context/real-estate.context";
 import { getRealEstateByOwnerId } from "../../../service/realEstateService";
 import { AuthContext } from "../../../context/auth.context";
+import Loading from "../../loading/Loading";
 
 const buttonStyles = {
   borderRadius: "5px",
@@ -30,27 +31,27 @@ const Divider = styled("div")({
 
 export const statusColor = [
   {
-    name: "IN AUCTION",
+    name: "In Auction",
     color: "#51C6AD",
     amount: 2,
   },
   {
-    name: "PENDING",
+    name: "Pending",
     color: "#FBBC05",
     amount: 2,
   },
   {
-    name: "AVAILABLE",
+    name: "Available",
     color: "#118BF4",
     amount: 2,
   },
   {
-    name: "SOLD",
+    name: "Sold",
     color: "#8B8B8B",
     amount: 2,
   },
   {
-    name: "REJECTED",
+    name: "Rejected",
     color: "#FF0000",
     amount: 2,
   },
@@ -59,7 +60,13 @@ export const statusColor = [
 const MyListings = () => {
   const { user, accessToken } = useContext(AuthContext);
 
+  const [isLoading, setIsloading] = useState(true);
+
+  const { getRealEstateByStatus } = useContext(RealEstateContext);
+
   const [auctionLists, setAuctionLists] = useState([]);
+
+  const [statusAmount, setStatusAmount] = useState([]);
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -75,6 +82,7 @@ const MyListings = () => {
         res = await getRealEstateByOwnerId(user._id, headers);
         console.log("Hung", res.data.response);
         setAuctionLists(res.data.response);
+        setStatusAmount(res.data.response);
       } catch (error) {
         console.error("Error fetching my list:", error);
       }
@@ -82,6 +90,24 @@ const MyListings = () => {
 
     getRealEstateByOwner();
   }, []);
+
+  const handelFilter = async (status) => {
+    try {
+      const res = await getRealEstateByStatus(status);
+      console.log(res);
+
+      if (res.success) {
+        const filterByUser = res.response.filter(
+          (item) => item.ownerID === user._id
+        );
+        setAuctionLists(filterByUser);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log(auctionLists);
 
   return (
     <Card
@@ -113,7 +139,11 @@ const MyListings = () => {
         </Typography>
         <div className="status-overall">
           {statusColor.map((status, index) => (
-            <Button style={buttonStyles} sx={{ mr: "14px" }}>
+            <Button
+              style={buttonStyles}
+              sx={{ mr: "14px" }}
+              onClick={() => handelFilter(status.name)}
+            >
               <Ball color={status.color} />
               <Typography
                 variant="body1"
@@ -121,10 +151,10 @@ const MyListings = () => {
                 fontSize={14}
                 fontWeight={500}
               >
-                {status.name} (
+                {status.name.toUpperCase()} (
                 {
-                  auctionLists.filter(
-                    (auction) => auction.status.toUpperCase() === status.name
+                  statusAmount.filter(
+                    (auction) => auction.status === status.name
                   ).length
                 }
                 )
@@ -134,33 +164,44 @@ const MyListings = () => {
         </div>
       </div>
       <Divider />
-      <div className="listing" style={{ marginTop: "30px" }}>
-        <Grid container spacing={3} justifyContent="flex-start">
-          {auctionLists &&
+      {isLoading ? (
+        <Loading setIsLoading={setIsloading} />
+      ) : (
+        <div className="listing" style={{ marginTop: "30px" }}>
+          <Grid container spacing={3} justifyContent="flex-start">
+            {auctionLists &&
             Array.isArray(auctionLists) &&
-            auctionLists.map((prop, index) => (
-              <Grid item key={index}>
-                <MyListingCard
-                  property={prop}
-                  propID={prop._id}
-                  propImg={prop.image}
-                  propType={prop.type}
-                  desc={prop.desc}
-                  propAddress={prop.propAddress}
-                  beds={prop.bedRoom}
-                  baths={prop.bathRoom}
-                  area={prop.size}
-                  status={prop.status}
-                  propStreet={prop.street}
-                  propDistrict={prop.district}
-                  propCity={prop.city}
-                  auctionLists={auctionLists}
-                  setAuctionLists={setAuctionLists}
-                />
-              </Grid>
-            ))}
-        </Grid>
-      </div>
+            auctionLists.length > 0 ? (
+              auctionLists.map((prop, index) => (
+                <Grid item key={index}>
+                  <MyListingCard
+                    property={prop}
+                    propID={prop._id}
+                    propImg={prop.image}
+                    propType={prop.type}
+                    desc={prop.desc}
+                    propAddress={prop.propAddress}
+                    beds={prop.bedRoom}
+                    baths={prop.bathRoom}
+                    area={prop.size}
+                    status={prop.status}
+                    propStreet={prop.street}
+                    propWard={prop.ward}
+                    propDistrict={prop.district}
+                    propCity={prop.city}
+                    auctionLists={auctionLists}
+                    setAuctionLists={setAuctionLists}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <h3 style={{ width: "100%", textAlign: "center" }}>
+                You Don't Create Any Auction Yet!
+              </h3>
+            )}
+          </Grid>
+        </div>
+      )}
     </Card>
   );
 };

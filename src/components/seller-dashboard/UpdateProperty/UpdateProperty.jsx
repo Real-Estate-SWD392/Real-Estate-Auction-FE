@@ -25,6 +25,7 @@ import { provinceURL } from "../../../apiConfig";
 import { AuthContext } from "../../../context/auth.context";
 import { RealEstateContext } from "../../../context/real-estate.context";
 import { useParams } from "react-router-dom";
+import Loading from "../../loading/Loading";
 
 const REQUIRED_COUNT = 180;
 
@@ -102,6 +103,8 @@ const UpdateProperty = () => {
     useContext(RealEstateContext);
 
   const { id } = useParams();
+
+  const [isLoading, setIsloading] = useState(true);
 
   const [location, setLocation] = useState({
     provinces: [],
@@ -439,401 +442,417 @@ const UpdateProperty = () => {
           </Typography>
         </div>
         <CustomDivider />
-        <div
-          className="contact-inf"
-          style={{ marginTop: "45px", padding: "0px 40px" }}
-        >
-          <Typography
-            variant="body1"
-            color="initial"
-            fontSize={20}
-            fontWeight={600}
+        {isLoading ? (
+          <Loading setIsLoading={setIsloading} />
+        ) : (
+          <div
+            className="contact-inf"
+            style={{ marginTop: "45px", padding: "0px 40px" }}
           >
-            Property Details
-          </Typography>
-          <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid
-            container
-            flexDirection="column"
-            sx={{ mt: "15px" }}
-            spacing={4}
-          >
-            <Grid item>
-              <TextField
-                id=""
-                name="street"
-                label="Street Address *"
-                onChange={handleInputChange}
-                value={property.street}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  style: inputStyle,
-                }}
-              />
-            </Grid>
-            <Grid container item spacing={2}>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">
-                    Province
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={property.city}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectLocation("city", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.provinces.map((province) => (
-                      <MenuItem
-                        key={province.province_id}
-                        value={province.province_name}
-                      >
-                        {province.province_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">
-                    District
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={property.district}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectLocation("district", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.districts.map((district) => (
-                      <MenuItem
-                        key={district.district_id}
-                        value={district.district_name}
-                      >
-                        {district.district_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">Ward</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={property.ward}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectLocation("ward", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.wards.map((ward) => (
-                      <MenuItem key={ward.ward_id} value={ward.ward_name}>
-                        {ward.ward_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="Property Image"
-                name="image"
-                onChange={handleInputChange}
-                value={
-                  image.length > 0 || property.image.length > 0
-                    ? "Image list"
-                    : ""
-                }
-                sx={{ width: "630px" }}
-                InputProps={{
-                  readOnly: true,
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      {property.image.length > 0 ? (
-                        <Chip
-                          label={`View files (${property.image.length})`}
-                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
-                          onClick={() => handleOpenImg()}
-                        />
-                      ) : image.length > 0 ? (
-                        <Chip
-                          label={`View files (${image.length})`}
-                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
-                          onClick={() => handleOpenImg()}
-                        />
-                      ) : (
-                        ""
-                      )}
-                      <label htmlFor="fileInput">
-                        <Button
-                          variant="contained"
-                          component="span"
-                          sx={{
-                            borderRadius: "0 20px 20px 0",
-                            background: "#000000",
-                            textTransform: "none",
-                            px: "30px",
-                            py: "16px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            "&:hover": {
-                              background: "#000000",
-                            },
-                            mr: "-13px",
-                          }}
-                          disabled={image.length > 4}
-                        >
-                          Add Image (.png, .jpg)
-                        </Button>
-                      </label>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <input
-                type="file"
-                name="image"
-                multiple
-                accept=".png, .jpg"
-                style={{ display: "none" }}
-                id="fileInput"
-                onChange={handleImageChange}
-              />
-            </Grid>
-          </Grid>
-          <Typography
-            variant="body1"
-            color="initial"
-            fontSize={20}
-            fontWeight={600}
-            sx={{ mt: "45px" }}
-          >
-            Property Features
-          </Typography>
-          <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid container sx={{ mt: "15px" }} spacing={4}>
-            <Grid container item spacing={4}>
-              <Grid item>
-                <FormControl sx={inputWidth}>
-                  <InputLabel id="demo-simple-select-label">
-                    Property Type
-                  </InputLabel>
-                  <Select
-                    sx={inputStyle}
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={property.type}
-                    label="Property Type"
-                    onChange={handleSelectChange}
-                  >
-                    {propertyTypes.map((type) => (
-                      <MenuItem value={type}>{type}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={20}
+              fontWeight={600}
+            >
+              Property Details
+            </Typography>
+            <Divider
+              sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }}
+            />
+            <Grid
+              container
+              flexDirection="column"
+              sx={{ mt: "15px" }}
+              spacing={4}
+            >
               <Grid item>
                 <TextField
                   id=""
-                  label="Property Size (m2)"
-                  name="size"
-                  value={property.size}
-                  sx={inputWidth}
+                  name="street"
+                  label="Street Address *"
+                  onChange={handleInputChange}
+                  value={property.street}
+                  sx={{ width: "630px" }}
                   InputProps={{
                     style: inputStyle,
                   }}
-                  onChange={handleInputChange}
                 />
               </Grid>
-            </Grid>
-            <Grid container item spacing={4}>
-              <Grid item>
-                <TextField
-                  id=""
-                  label="Bedrooms"
-                  value={property.bedRoom}
-                  sx={inputWidth}
-                  InputProps={{
-                    style: {
-                      ...inputStyle,
-                    },
-                    startAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleDecrement("bedRoom")}>
-                          <RemoveIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleIncrement("bedRoom")}>
-                          <AddIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  inputProps={{
-                    style: {
-                      textAlign: "center",
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  id=""
-                  label="Bathrooms"
-                  value={property.bathRoom}
-                  sx={inputWidth}
-                  InputProps={{
-                    style: {
-                      ...inputStyle,
-                    },
-                    startAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleDecrement("bathRoom")}>
-                          <RemoveIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleIncrement("bathRoom")}>
-                          <AddIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  inputProps={{
-                    style: {
-                      textAlign: "center",
-                    },
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="Description"
-                name="description"
-                value={property.description}
-                onChange={handleInputChange}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      <Typography
-                        variant="body1"
-                        color="initial"
-                        fontSize={12}
-                        sx={{ mr: "10px" }}
-                      >
-                        {letterCount}/{REQUIRED_COUNT}
-                      </Typography>
-                    </InputAdornment>
-                  ),
-                }}
-                multiline
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="pdf"
-                onChange={handleInputChange}
-                value={pdf.length > 0 ? "Document list" : ""}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  readOnly: true,
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      {property.pdf.length > 0 ? (
-                        <Chip
-                          label={`View files (${property.pdf.length})`}
-                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
-                          onClick={() => handleOpenDoc()}
-                        />
-                      ) : pdf.length > 0 ? (
-                        <Chip
-                          label={`View files (${pdf.length})`}
-                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
-                          onClick={() => handleOpenDoc()}
-                        />
-                      ) : (
-                        ""
-                      )}
-                      <label htmlFor="fileInputpdf">
-                        <Button
-                          variant="contained"
-                          component="span"
-                          sx={{
-                            borderRadius: "0 20px 20px 0",
-                            background: "#000000",
-                            textTransform: "none",
-                            px: "30px",
-                            py: "16px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            "&:hover": {
-                              background: "#000000",
-                            },
-                            mr: "-13px",
-                          }}
+              <Grid container item spacing={2}>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      Province
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={property.city}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectLocation("city", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.provinces.map((province) => (
+                        <MenuItem
+                          key={province.province_id}
+                          value={province.province_name}
                         >
-                          Add pdf (.pdf)
-                        </Button>
-                      </label>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <input
-                type="file"
-                name="pdf"
-                multiple
-                accept=".pdf"
-                style={{ display: "none" }}
-                id="fileInputpdf"
-                onChange={handleDocumentChange}
-              />
+                          {province.province_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      District
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={property.district}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectLocation("district", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.districts.map((district) => (
+                        <MenuItem
+                          key={district.district_id}
+                          value={district.district_name}
+                        >
+                          {district.district_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">Ward</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={property.ward}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectLocation("ward", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.wards.map((ward) => (
+                        <MenuItem key={ward.ward_id} value={ward.ward_name}>
+                          {ward.ward_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="Property Image"
+                  name="image"
+                  onChange={handleInputChange}
+                  value={
+                    image.length > 0 || property.image.length > 0
+                      ? "Image list"
+                      : ""
+                  }
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    readOnly: true,
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        {property.image.length > 0 ? (
+                          <Chip
+                            label={`View files (${property.image.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenImg()}
+                          />
+                        ) : image.length > 0 ? (
+                          <Chip
+                            label={`View files (${image.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenImg()}
+                          />
+                        ) : (
+                          ""
+                        )}
+                        <label htmlFor="fileInput">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                              borderRadius: "0 20px 20px 0",
+                              background: "#000000",
+                              textTransform: "none",
+                              px: "30px",
+                              py: "16px",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              "&:hover": {
+                                background: "#000000",
+                              },
+                              mr: "-13px",
+                            }}
+                            disabled={image.length > 4}
+                          >
+                            Add Image (.png, .jpg)
+                          </Button>
+                        </label>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <input
+                  type="file"
+                  name="image"
+                  multiple
+                  accept=".png, .jpg"
+                  style={{ display: "none" }}
+                  id="fileInput"
+                  onChange={handleImageChange}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-          <Button
-            sx={{
-              background: "#118BF4",
-              color: "white",
-              borderRadius: "8px",
-              textTransform: "none",
-              "&:hover": {
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={20}
+              fontWeight={600}
+              sx={{ mt: "45px" }}
+            >
+              Property Features
+            </Typography>
+            <Divider
+              sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }}
+            />
+            <Grid container sx={{ mt: "15px" }} spacing={4}>
+              <Grid container item spacing={4}>
+                <Grid item>
+                  <FormControl sx={inputWidth}>
+                    <InputLabel id="demo-simple-select-label">
+                      Property Type
+                    </InputLabel>
+                    <Select
+                      sx={inputStyle}
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={property.type}
+                      label="Property Type"
+                      onChange={handleSelectChange}
+                    >
+                      {propertyTypes.map((type) => (
+                        <MenuItem value={type}>{type}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Property Size (m2)"
+                    name="size"
+                    value={property.size}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: inputStyle,
+                    }}
+                    onChange={handleInputChange}
+                  />
+                </Grid>
+              </Grid>
+              <Grid container item spacing={4}>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Bedrooms"
+                    value={property.bedRoom}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: {
+                        ...inputStyle,
+                      },
+                      startAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleDecrement("bedRoom")}
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleIncrement("bedRoom")}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    inputProps={{
+                      style: {
+                        textAlign: "center",
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Bathrooms"
+                    value={property.bathRoom}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: {
+                        ...inputStyle,
+                      },
+                      startAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleDecrement("bathRoom")}
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleIncrement("bathRoom")}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    inputProps={{
+                      style: {
+                        textAlign: "center",
+                      },
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="Description"
+                  name="description"
+                  value={property.description}
+                  onChange={handleInputChange}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        <Typography
+                          variant="body1"
+                          color="initial"
+                          fontSize={12}
+                          sx={{ mr: "10px" }}
+                        >
+                          {letterCount}/{REQUIRED_COUNT}
+                        </Typography>
+                      </InputAdornment>
+                    ),
+                  }}
+                  multiline
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="pdf"
+                  onChange={handleInputChange}
+                  value={pdf.length > 0 ? "Document list" : ""}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    readOnly: true,
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        {property.pdf.length > 0 ? (
+                          <Chip
+                            label={`View files (${property.pdf.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenDoc()}
+                          />
+                        ) : pdf.length > 0 ? (
+                          <Chip
+                            label={`View files (${pdf.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenDoc()}
+                          />
+                        ) : (
+                          ""
+                        )}
+                        <label htmlFor="fileInputpdf">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                              borderRadius: "0 20px 20px 0",
+                              background: "#000000",
+                              textTransform: "none",
+                              px: "30px",
+                              py: "16px",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              "&:hover": {
+                                background: "#000000",
+                              },
+                              mr: "-13px",
+                            }}
+                          >
+                            Add pdf (.pdf)
+                          </Button>
+                        </label>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <input
+                  type="file"
+                  name="pdf"
+                  multiple
+                  accept=".pdf"
+                  style={{ display: "none" }}
+                  id="fileInputpdf"
+                  onChange={handleDocumentChange}
+                />
+              </Grid>
+            </Grid>
+            <Button
+              sx={{
                 background: "#118BF4",
-              },
-              fontWeight: "600",
-              p: "12px 295px",
-              mt: "50px",
-              fontSize: "16px",
-            }}
-            onClick={() => handleUpdateProperty()}
-          >
-            Save
-          </Button>
-        </div>
+                color: "white",
+                borderRadius: "8px",
+                textTransform: "none",
+                "&:hover": {
+                  background: "#118BF4",
+                },
+                fontWeight: "600",
+                p: "12px 295px",
+                mt: "50px",
+                fontSize: "16px",
+              }}
+              onClick={() => handleUpdateProperty()}
+            >
+              Save
+            </Button>
+          </div>
+        )}
       </Card>
       <div className="image-modal">
         <Modal

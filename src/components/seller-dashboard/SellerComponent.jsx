@@ -32,8 +32,6 @@ const SellerComponent = () => {
 
   const url = useLocation().pathname.split("sell/")[1];
 
-  console.log(url);
-
   useEffect(() => {
     for (let i = 0; i < tabs.length; i++) {
       console.log(tabs[i].link === url);
@@ -74,7 +72,7 @@ const SellerComponent = () => {
                 whiteSpace: "nowrap",
               }}
             >
-              {`${user.firstName} ${user.lastName}`}
+              {`${user?.firstName} ${user?.lastName}`}
             </Typography>
             <Typography
               variant="body1"
@@ -82,7 +80,7 @@ const SellerComponent = () => {
               fontSize={15}
               sx={{ mt: "10px", textDecoration: "underline" }}
             >
-              {user.email}
+              {user?.email}
             </Typography>
             <List sx={{ mt: "40px" }}>
               {tabs
@@ -100,9 +98,7 @@ const SellerComponent = () => {
                     >
                       <Typography
                         variant="body1"
-                        color={
-                          selectedTabIndex === index ? "#31A2FC" : "initial"
-                        }
+                        color={tab.link === url ? "#31A2FC" : "initial"}
                         fontSize={17}
                         fontWeight={600}
                       >

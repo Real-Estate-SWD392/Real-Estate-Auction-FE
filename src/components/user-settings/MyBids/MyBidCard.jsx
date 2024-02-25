@@ -15,6 +15,7 @@ import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const colorBall = {
   width: "12px",
@@ -101,7 +102,9 @@ const MyBidCard = ({
   baths,
   area,
   yourBid,
+  propID,
 }) => {
+  const nav = useNavigate();
   return (
     <Card elevation={2} sx={{ borderRadius: "12px", pb: "10px" }}>
       <Box
@@ -197,6 +200,7 @@ const MyBidCard = ({
           color="initial"
           style={combinedStyles}
           fontSize={17}
+          marginBottom={"15px"}
         >
           {propAddress}
         </Typography>
@@ -359,6 +363,7 @@ const MyBidCard = ({
               marginTop: "17px",
               py: "12px",
             }}
+            onClick={() => nav(`/auction_detail/${propID}`)}
           >
             View Detail
           </Button>

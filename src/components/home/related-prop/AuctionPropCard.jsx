@@ -85,7 +85,6 @@ const AuctionPropCard = ({
   beds,
   baths,
   area,
-  propAuctionId,
 }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const { user } = useContext(AuthContext);
@@ -93,9 +92,7 @@ const AuctionPropCard = ({
 
   const checkFavorite = async () => {
     try {
-      setIsFavorite(
-        user.favoriteList.some((item) => item._id === propAuctionId)
-      );
+      setIsFavorite(user.favoriteList.some((item) => item._id === id));
     } catch (error) {
       console.error("Error checking favorite:", error);
     }
@@ -134,7 +131,12 @@ const AuctionPropCard = ({
             />
           }
           sx={{ position: "absolute", zIndex: 3, top: 0, right: 0 }}
-          checked={isFavorite}
+          checked={user?.favoriteList.find((item) => {
+            if (item._id === id) {
+              return true;
+            }
+            return false;
+          })}
         />
         <Box
           sx={{
@@ -203,6 +205,7 @@ const AuctionPropCard = ({
           color="initial"
           style={combinedStyles}
           fontSize={17}
+          marginBottom={"15px"}
         >
           {propStreet}, {propWard}, {propDistrict}, {propCity}
         </Typography>

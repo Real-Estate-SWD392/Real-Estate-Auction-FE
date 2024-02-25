@@ -6,7 +6,7 @@ import { AuctionContext } from "../../context/auction.context";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getSearchQuery,
-  getSearchResutlts,
+  setSearchResutlts,
 } from "../../redux/reducers/searchAuctionSlice";
 import { setProperties } from "../../redux/reducers/auctionSlice";
 
@@ -31,8 +31,7 @@ const SearchBar = () => {
       console.log(res);
 
       dispatch(getSearchQuery(query));
-      dispatch(getSearchResutlts(res.response));
-      dispatch(setProperties(res.response)); // Dispatch action to set properties in the store
+      dispatch(setSearchResutlts(res.response));
     } catch (error) {}
   };
 

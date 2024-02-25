@@ -3,8 +3,11 @@ import { configureStore, applyMiddleware } from "@reduxjs/toolkit";
 import auctionReducer, {
   startTimerUpdates,
   setProperties,
+  updateDetailTimers,
+  startDetailTimerUpdates,
 } from "./reducers/auctionSlice";
 import searchAuctionReducer, {
+  setSearchResutlts,
   startSearchTimerUpdates,
 } from "./reducers/searchAuctionSlice";
 import { listProp } from "../components/home/related-prop/ListProp";
@@ -39,6 +42,7 @@ export const fetchInitialProperties = () => async (dispatch) => {
       // Handle successful login, e.g., save token to local storage, redirect, etc.
       console.log("Auction List: ", data);
       dispatch(setProperties(data.response)); // Dispatch action to set properties in the store
+      dispatch(setSearchResutlts(data.response)); // Dispatch action to set properties in the store
     } else {
       const errorData = await response.json();
       console.error("Load auction failed", errorData);
@@ -53,5 +57,9 @@ store.dispatch(fetchInitialProperties());
 
 // Start the timer updates
 store.dispatch(startTimerUpdates());
+
+store.dispatch(startDetailTimerUpdates());
+
+store.dispatch(startSearchTimerUpdates());
 
 export default store;

@@ -27,6 +27,7 @@ import { provinceURL } from "../../apiConfig";
 import { AuthContext } from "../../context/auth.context";
 import { UserContext } from "../../context/user.context";
 import { RealEstateContext } from "../../context/real-estate.context";
+import Loading from "../loading/Loading";
 
 const CustomDivider = styled("div")({
   width: "100%",
@@ -78,6 +79,8 @@ const MyProfile = ({
   const { updateProfile, changePassword } = useContext(UserContext);
 
   const { uploadImages } = useContext(RealEstateContext);
+
+  const [isLoading, setIsloading] = useState(true);
 
   const [profile, setProfile] = useState({
     firstName: user.firstName,
@@ -368,355 +371,363 @@ const MyProfile = ({
           </Typography>
         </div>
         <CustomDivider />
-        <div
-          className="contact-inf"
-          style={{ marginTop: "45px", padding: "0px 40px" }}
-        >
-          <Typography
-            variant="body1"
-            color="initial"
-            fontSize={20}
-            fontWeight={600}
+        {isLoading ? (
+          <Loading setIsLoading={setIsloading} />
+        ) : (
+          <div
+            className="contact-inf"
+            style={{ marginTop: "45px", padding: "0px 40px" }}
           >
-            Contact Information
-          </Typography>
-          <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid
-            container
-            flexDirection="column"
-            sx={{ mt: "15px" }}
-            spacing={4}
-          >
-            <Grid container item spacing={4}>
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={20}
+              fontWeight={600}
+            >
+              Contact Information
+            </Typography>
+            <Divider
+              sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }}
+            />
+            <Grid
+              container
+              flexDirection="column"
+              sx={{ mt: "15px" }}
+              spacing={4}
+            >
+              <Grid container item spacing={4}>
+                <Grid item>
+                  <TextField
+                    id=""
+                    name="firstName"
+                    label="First Name *"
+                    onChange={handleInputChange}
+                    value={profile.firstName}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: inputStyle,
+                    }}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Last Name *"
+                    name="lastName"
+                    onChange={handleInputChange}
+                    value={profile.lastName}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: inputStyle,
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Grid container item spacing={4}>
+                <Grid item>
+                  <TextField
+                    id=""
+                    name="phoneNumber"
+                    label="Phone Number *"
+                    onChange={handleInputChange}
+                    sx={inputWidth}
+                    value={profile.phoneNumber}
+                    InputProps={{
+                      style: inputStyle,
+                      inputProps: {
+                        inputMode: "numeric",
+                        pattern: "[0-9]*",
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    disabled
+                    id=""
+                    name="email"
+                    label="Email"
+                    sx={inputWidth}
+                    onChange={handleInputChange}
+                    value={profile.email}
+                    InputProps={{
+                      style: inputStyle,
+                    }}
+                  />
+                </Grid>
+              </Grid>
               <Grid item>
                 <TextField
                   id=""
-                  name="firstName"
-                  label="First Name *"
+                  name="street"
+                  label="Street Address *"
                   onChange={handleInputChange}
-                  value={profile.firstName}
-                  sx={inputWidth}
+                  value={profile.street}
+                  sx={{ width: "630px" }}
                   InputProps={{
                     style: inputStyle,
                   }}
                 />
               </Grid>
-              <Grid item>
-                <TextField
-                  id=""
-                  label="Last Name *"
-                  name="lastName"
-                  onChange={handleInputChange}
-                  value={profile.lastName}
-                  sx={inputWidth}
-                  InputProps={{
-                    style: inputStyle,
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid container item spacing={4}>
-              <Grid item>
-                <TextField
-                  id=""
-                  name="phoneNumber"
-                  label="Phone Number *"
-                  onChange={handleInputChange}
-                  sx={inputWidth}
-                  value={profile.phoneNumber}
-                  InputProps={{
-                    style: inputStyle,
-                    inputProps: {
-                      inputMode: "numeric",
-                      pattern: "[0-9]*",
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  disabled
-                  id=""
-                  name="email"
-                  label="Email"
-                  sx={inputWidth}
-                  onChange={handleInputChange}
-                  value={profile.email}
-                  InputProps={{
-                    style: inputStyle,
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                name="street"
-                label="Street Address *"
-                onChange={handleInputChange}
-                value={profile.street}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  style: inputStyle,
-                }}
-              />
-            </Grid>
-            <Grid container item spacing={2}>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">
-                    Province
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={profile.city}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectChange("city", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.provinces.map((province) => (
-                      <MenuItem
-                        key={province.province_id}
-                        value={province.province_name}
-                      >
-                        {province.province_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">
-                    District
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={profile.district}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectChange("district", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.districts.map((district) => (
-                      <MenuItem
-                        key={district.district_id}
-                        value={district.district_name}
-                      >
-                        {district.district_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">Ward</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={profile.ward}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectChange("ward", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.wards.map((ward) => (
-                      <MenuItem key={ward.ward_id} value={ward.ward_name}>
-                        {ward.ward_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <TextField
-                id="idNumber"
-                label="ID Image *"
-                name="profileImg"
-                value={file ? "An image of ID Number" : ""}
-                onChange={handleInputChange}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  readOnly: true,
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      {file ? (
-                        <Chip
-                          label="View Image"
-                          onClick={() => handleOpen()}
-                          sx={{
-                            "& .MuiChip-label": {},
-                            marginRight: "20px",
-                          }}
-                        />
-                      ) : (
-                        ""
-                      )}
-                      <label htmlFor="fileInput">
-                        <Button
-                          variant="contained"
-                          component="span"
-                          sx={{
-                            borderRadius: "0 20px 20px 0",
-                            background: "#000000",
-                            textTransform: "none",
-                            px: "30px",
-                            py: "16px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            "&:hover": {
-                              background: "#000000",
-                            },
-                            mr: "-13px",
-                          }}
+              <Grid container item spacing={2}>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      Province
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={profile.city}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectChange("city", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.provinces.map((province) => (
+                        <MenuItem
+                          key={province.province_id}
+                          value={province.province_name}
                         >
-                          Add Image (.png, .jpg)
-                        </Button>
-                      </label>
+                          {province.province_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      District
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={profile.district}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectChange("district", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.districts.map((district) => (
+                        <MenuItem
+                          key={district.district_id}
+                          value={district.district_name}
+                        >
+                          {district.district_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">Ward</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={profile.ward}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectChange("ward", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.wards.map((ward) => (
+                        <MenuItem key={ward.ward_id} value={ward.ward_name}>
+                          {ward.ward_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <TextField
+                  id="idNumber"
+                  label="ID Image *"
+                  name="profileImg"
+                  value={file ? "An image of ID Number" : ""}
+                  onChange={handleInputChange}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    readOnly: true,
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        {file ? (
+                          <Chip
+                            label="View Image"
+                            onClick={() => handleOpen()}
+                            sx={{
+                              "& .MuiChip-label": {},
+                              marginRight: "20px",
+                            }}
+                          />
+                        ) : (
+                          ""
+                        )}
+                        <label htmlFor="fileInput">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                              borderRadius: "0 20px 20px 0",
+                              background: "#000000",
+                              textTransform: "none",
+                              px: "30px",
+                              py: "16px",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              "&:hover": {
+                                background: "#000000",
+                              },
+                              mr: "-13px",
+                            }}
+                          >
+                            Add Image (.png, .jpg)
+                          </Button>
+                        </label>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <input
+                  type="file"
+                  accept=".png, .jpg"
+                  style={{ display: "none" }}
+                  id="fileInput"
+                  onChange={handleImageChange}
+                  name="image"
+                />
+              </Grid>
+            </Grid>
+            <Button
+              sx={{
+                background: "#118BF4",
+                color: "white",
+                borderRadius: "8px",
+                textTransform: "none",
+                "&:hover": {
+                  background: "#118BF4",
+                },
+                fontWeight: "600",
+                p: "12px 40px",
+                mt: "30px",
+                fontSize: "16px",
+              }}
+              onClick={() => handleSaveProfile()}
+            >
+              Save
+            </Button>
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={20}
+              fontWeight={600}
+              sx={{ mt: "45px" }}
+            >
+              Set Password
+            </Typography>
+            <Divider
+              sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }}
+            />
+            <Grid container sx={{ mt: "15px" }} spacing={3}>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="Old Password"
+                  type={showPassword.password ? "text" : "password"}
+                  onChange={handleInputChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => tooglePassword("current")}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
                     </InputAdornment>
-                  ),
-                }}
-              />
-              <input
-                type="file"
-                accept=".png, .jpg"
-                style={{ display: "none" }}
-                id="fileInput"
-                onChange={handleImageChange}
-                name="image"
-              />
+                  }
+                  name="oldPassword"
+                  value={profile.oldPassword}
+                  sx={inputWidth}
+                  InputProps={{
+                    style: inputStyle,
+                  }}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="New Password"
+                  type={showPassword.newPassword ? "text" : "password"}
+                  onChange={handleInputChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => tooglePassword("current")}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  name="newPassword"
+                  value={profile.newPassword}
+                  sx={inputWidth}
+                  InputProps={{
+                    style: inputStyle,
+                  }}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="Confirm Password"
+                  onChange={handleInputChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => tooglePassword("current")}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  type={showPassword.confirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={profile.confirmPassword}
+                  sx={inputWidth}
+                  InputProps={{
+                    style: inputStyle,
+                  }}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-          <Button
-            sx={{
-              background: "#118BF4",
-              color: "white",
-              borderRadius: "8px",
-              textTransform: "none",
-              "&:hover": {
+            <Button
+              sx={{
                 background: "#118BF4",
-              },
-              fontWeight: "600",
-              p: "12px 40px",
-              mt: "30px",
-              fontSize: "16px",
-            }}
-            onClick={() => handleSaveProfile()}
-          >
-            Save
-          </Button>
-          <Typography
-            variant="body1"
-            color="initial"
-            fontSize={20}
-            fontWeight={600}
-            sx={{ mt: "45px" }}
-          >
-            Set Password
-          </Typography>
-          <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid container sx={{ mt: "15px" }} spacing={3}>
-            <Grid item>
-              <TextField
-                id=""
-                label="Old Password"
-                type={showPassword.password ? "text" : "password"}
-                onChange={handleInputChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => tooglePassword("current")}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                name="oldPassword"
-                value={profile.oldPassword}
-                sx={inputWidth}
-                InputProps={{
-                  style: inputStyle,
-                }}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="New Password"
-                type={showPassword.newPassword ? "text" : "password"}
-                onChange={handleInputChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => tooglePassword("current")}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                name="newPassword"
-                value={profile.newPassword}
-                sx={inputWidth}
-                InputProps={{
-                  style: inputStyle,
-                }}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="Confirm Password"
-                onChange={handleInputChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => tooglePassword("current")}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                type={showPassword.confirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={profile.confirmPassword}
-                sx={inputWidth}
-                InputProps={{
-                  style: inputStyle,
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Button
-            sx={{
-              background: "#118BF4",
-              color: "white",
-              borderRadius: "8px",
-              textTransform: "none",
-              "&:hover": {
-                background: "#118BF4",
-              },
-              fontWeight: "600",
-              p: "12px 40px",
-              mt: "30px",
-              fontSize: "16px",
-            }}
-            onClick={handleChangePassword}
-          >
-            Save
-          </Button>
-        </div>
+                color: "white",
+                borderRadius: "8px",
+                textTransform: "none",
+                "&:hover": {
+                  background: "#118BF4",
+                },
+                fontWeight: "600",
+                p: "12px 40px",
+                mt: "30px",
+                fontSize: "16px",
+              }}
+              onClick={handleChangePassword}
+            >
+              Save
+            </Button>
+          </div>
+        )}
       </Card>
       <Modal
         open={open}

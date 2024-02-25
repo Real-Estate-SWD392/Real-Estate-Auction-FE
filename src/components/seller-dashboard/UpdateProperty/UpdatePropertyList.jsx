@@ -5,6 +5,7 @@ import { styled } from "@mui/system";
 import { listSellerProps } from "../listProps";
 import { RealEstateContext } from "../../../context/real-estate.context";
 import { AuthContext } from "../../../context/auth.context";
+import Loading from "../../loading/Loading";
 
 const Divider = styled("div")({
   width: "100%",
@@ -46,6 +47,8 @@ const UpdatePropertyList = ({ setIsOpenUpdate, setSelectedTabIndex }) => {
     useContext(RealEstateContext);
 
   const [propertyList, setPropertyList] = useState([]);
+
+  const [isLoading, setIsloading] = useState(true);
 
   const handleRemoveProperty = async (propID) => {
     const isConfirm = window.confirm("Are you sure remove this real estate?");
@@ -108,34 +111,38 @@ const UpdatePropertyList = ({ setIsOpenUpdate, setSelectedTabIndex }) => {
         </Typography>
       </div>
       <Divider />
-      <div className="listing" style={{ marginTop: "30px" }}>
-        <Grid container spacing={3} justifyContent="flex-start">
-          {propertyList?.length > 0 ? (
-            propertyList.map((prop, index) => (
-              <Grid item key={index}>
-                <UpdatePropertyCard
-                  propID={prop._id}
-                  propImg={prop.image}
-                  propType={prop.type}
-                  desc={prop.description}
-                  propAddress={`${prop.street}, ${prop.ward}, ${prop.district}, ${prop.city}`}
-                  beds={prop.bedRoom}
-                  baths={prop.bathRoom}
-                  area={prop.size}
-                  status={prop.status}
-                  setIsOpenUpdate={setIsOpenUpdate}
-                  setSelectedTabIndex={setSelectedTabIndex}
-                  onRemove={() => handleRemoveProperty(prop._id)}
-                />
-              </Grid>
-            ))
-          ) : (
-            <h2 style={{ width: "100%", textAlign: "center" }}>
-              You Don't Have Any Real Estates Yet!
-            </h2>
-          )}
-        </Grid>
-      </div>
+      {isLoading ? (
+        <Loading setIsLoading={setIsloading} />
+      ) : (
+        <div className="listing" style={{ marginTop: "30px" }}>
+          <Grid container spacing={3} justifyContent="flex-start">
+            {propertyList?.length > 0 ? (
+              propertyList.map((prop, index) => (
+                <Grid item key={index}>
+                  <UpdatePropertyCard
+                    propID={prop._id}
+                    propImg={prop.image}
+                    propType={prop.type}
+                    desc={prop.description}
+                    propAddress={`${prop.street}, ${prop.ward}, ${prop.district}, ${prop.city}`}
+                    beds={prop.bedRoom}
+                    baths={prop.bathRoom}
+                    area={prop.size}
+                    status={prop.status}
+                    setIsOpenUpdate={setIsOpenUpdate}
+                    setSelectedTabIndex={setSelectedTabIndex}
+                    onRemove={() => handleRemoveProperty(prop._id)}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <h3 style={{ width: "100%", textAlign: "center" }}>
+                You Don't Have Any Real Estates Yet!
+              </h3>
+            )}
+          </Grid>
+        </div>
+      )}
     </Card>
   );
 };

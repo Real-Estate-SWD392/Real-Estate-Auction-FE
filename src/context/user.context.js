@@ -117,9 +117,11 @@ export const UserContextProvider = ({ children }) => {
         // Handle successful update, e.g., update state, display success message, etc.
         console.log("Remove successfully", data);
         toast.success(response.data.message);
+        return data;
       } else {
         console.error("Update failed", response.data);
         toast.error("Remove From Favorite List fail");
+        return response.data;
       }
     } catch (error) {
       console.error("Error during update", error);

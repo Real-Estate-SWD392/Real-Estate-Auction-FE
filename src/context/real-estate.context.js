@@ -94,6 +94,35 @@ export const RealEstateContextProvider = ({ children }) => {
     }
   };
 
+  const getRealEstateByStatus = async (status) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/real-estate/status/${status}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Get Sucess: ", data);
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Get failed", errorData);
+
+        return errorData;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const updateRealEstate = async (id, values) => {
     if (values.image !== "") {
       values.property.image = values.image;
@@ -228,6 +257,7 @@ export const RealEstateContextProvider = ({ children }) => {
         removeRealEstate,
         uploadPDFs,
         updateRealEstate,
+        getRealEstateByStatus,
       }}
     >
       {children}

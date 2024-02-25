@@ -69,6 +69,7 @@ const SavedAuctionCard = ({
   propType,
   name,
   propStreet,
+  propWard,
   propDistrict,
   propCity,
   days,
@@ -180,8 +181,9 @@ const SavedAuctionCard = ({
           color="initial"
           style={combinedStyles}
           fontSize={17}
+          marginBottom={"15px"}
         >
-          {propStreet} {propDistrict} {propCity}
+          {propStreet}, {propWard}, {propDistrict}, {propCity}
         </Typography>
         <Grid container className="specs" spacing={2} sx={{ marginTop: "1px" }}>
           <Grid item className="bedNum" style={{ display: "flex" }}>

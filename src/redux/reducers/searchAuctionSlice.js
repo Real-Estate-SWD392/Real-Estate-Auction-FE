@@ -19,12 +19,44 @@ const searchAuctionSlice = createSlice({
       state.searchTerm = action.payload;
     },
 
-    getSearchResutlts: (state, action) => {
+    setSearchResutlts: (state, action) => {
       state.searchResults = action.payload;
+    },
+
+    updateSearchTimers: (state) => {
+      state.searchResults.forEach((property) => {
+        // Update the timer for each property
+        const { day, hour, minute, second } = property;
+
+        let remainingTime =
+          day * 24 * 60 * 60 + hour * 60 * 60 + minute * 60 + second;
+
+        if (remainingTime > 0) {
+          remainingTime -= 1;
+
+          property.day = Math.floor(remainingTime / (24 * 60 * 60));
+          property.hour = Math.floor(
+            (remainingTime % (24 * 60 * 60)) / (60 * 60)
+          );
+          property.minute = Math.floor(
+            ((remainingTime % (24 * 60 * 60)) % (60 * 60)) / 60
+          );
+          property.second = Math.floor(
+            ((remainingTime % (24 * 60 * 60)) % (60 * 60)) % 60
+          );
+        }
+      });
     },
   },
 });
 
-export const { getSearchQuery, getSearchResutlts } = searchAuctionSlice.actions;
+export const { getSearchQuery, setSearchResutlts, updateSearchTimers } =
+  searchAuctionSlice.actions;
 
 export default searchAuctionSlice.reducer;
+
+export const startSearchTimerUpdates = () => (dispatch) => {
+  setInterval(() => {
+    dispatch(updateSearchTimers());
+  }, 1000);
+};
