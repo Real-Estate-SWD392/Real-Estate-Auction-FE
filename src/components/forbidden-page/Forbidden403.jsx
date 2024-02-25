@@ -3,48 +3,22 @@ import "./Forbidden403.scss";
 
 const Forbidden403 = () => {
   return (
-    <>
-      <div class="ghost">
-        <div class="ghost--navbar"></div>
-        <div class="ghost--columns">
-          <div class="ghost--column">
-            <div class="code"></div>
-            <div class="code"></div>
-            <div class="code"></div>
-            <div class="code"></div>
-          </div>
-          <div class="ghost--column">
-            <div class="code"></div>
-            <div class="code"></div>
-            <div class="code"></div>
-            <div class="code"></div>
-          </div>
-          <div class="ghost--column">
-            <div class="code"></div>
-            <div class="code"></div>
-            <div class="code"></div>
-            <div class="code"></div>
-          </div>
+    <div style={{ marginTop: "" }}>
+      <div class="scene">
+        <div class="overlay"></div>
+        <div class="overlay"></div>
+        <div class="overlay"></div>
+        <div class="overlay"></div>
+        <span class="bg-403">403</span>
+        <div class="text">
+          <span class="hero-text"></span>
+          <span class="msg">
+            can't let <span style={{ fontSize: "36px" }}>you</span> in.
+          </span>
         </div>
-        <div class="ghost--main">
-          <div class="code"></div>
-          <div class="code"></div>
-        </div>
+        <div class="lock"></div>
       </div>
-
-      <h1 class="police-tape police-tape--1">
-        &nbsp;&nbsp;&nbsp;&nbsp;Error:
-        403&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Error:
-        403&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Error:
-        403&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Error:
-        403&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Error:
-        403&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Error:
-        403&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Error: 403
-      </h1>
-      <h1 class="police-tape police-tape--2">
-        Forbidden&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Forbidden&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Forbidden&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Forbidden&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Forbidden&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Forbidden&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      </h1>
-    </>
+    </div>
   );
 };
 

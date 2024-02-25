@@ -96,7 +96,7 @@ const AppRoutes = [
     element: <AdminLogin />,
   },
   {
-    path: "/not-found",
+    path: "/forbidden",
     element: <Forbidden403 />,
   },
 ];
