@@ -5,6 +5,7 @@ import ReportManagement from "../admin/ReportManagement";
 import UserManagement from "../admin/UserManagement";
 import AuctionDetail from "../auction detail/AuctionDetail";
 import AuctionDetail1 from "../auction detail/AuctionDetail1";
+import Forbidden403 from "../forbidden-page/Forbidden403";
 import Home from "../home/Home";
 import AdminLayout from "../layout/AdminLayout";
 import Layout from "../layout/Layout";
@@ -93,6 +94,10 @@ const AppRoutes = [
   {
     path: "/accommondation-admin/login",
     element: <AdminLogin />,
+  },
+  {
+    path: "/not-found",
+    element: <Forbidden403 />,
   },
 ];
 

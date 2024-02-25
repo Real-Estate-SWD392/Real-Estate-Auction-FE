@@ -11,7 +11,7 @@ const AdminLayout = () => {
         <Grid item>
           <AdminSideBar />
         </Grid>
-        <Grid item sx={{ marginLeft: "300px", overflowX: "hidden" }}>
+        <Grid item sx={{ marginLeft: "280px", overflowX: "hidden" }}>
           <AdminHeader email={"phucanhdodang1211@gmail.com"} />
           <Outlet />
         </Grid>

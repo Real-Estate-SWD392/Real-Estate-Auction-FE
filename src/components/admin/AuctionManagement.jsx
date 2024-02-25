@@ -146,6 +146,26 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     );
   };
 
+  const DateFormater = ({ date }) => {
+    // Ensure amount is a number
+    const inputDate = new Date(date);
+
+    // Format the Date object as '20 Feb 2024'
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    const formattedDate = inputDate.toLocaleDateString("en-US", options);
+
+    return (
+      <Typography
+        variant="body1"
+        color="initial"
+        fontWeight={500}
+        fontSize={16}
+      >
+        {formattedDate}
+      </Typography>
+    );
+  };
+
   const filteredAuctionData = auctionData.filter(
     (row) =>
       selectedFilter === "All" ||
@@ -227,7 +247,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       </Typography>
       <div
         className="box"
-        style={{ marginTop: "50px", width: "calc(100% - 50px)" }}
+        style={{ marginTop: "50px", width: "calc(100% - 20px)" }}
       >
         <Box
           sx={{
@@ -403,8 +423,23 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                       </Grid>
                     </div>
                   </TableCell>
-                  <TableCell align="center">{row.owner}</TableCell>
-                  <TableCell align="center">{row.createDate}</TableCell>
+                  <TableCell align="center">
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      sx={{
+                        maxWidth: "103.7px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {row.owner}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">
+                    <DateFormater date={row.createDate} />
+                  </TableCell>
                   <TableCell align="center">
                     <CurrencyFormatter amount={row.startingPrice} />
                   </TableCell>
