@@ -13,8 +13,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Modal,
   Paper,
   Popper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +26,10 @@ import {
   TableRow,
   TextField,
   tableCellClasses,
+  FormControl,
+  FormLabel,
+  FormHelperText,
+  InputLabel,
 } from "@mui/material";
 import { NearMe } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -37,6 +44,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BlockIcon from "@mui/icons-material/Block";
 import { users } from "./userData";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
 const count = 1;
 
@@ -49,13 +57,30 @@ const statusColor = {
     background: "rgb(57,143,95, 0.1)",
     color: "rgb(57,143,95)",
   },
-  Pending: {
-    background: "rgb(249, 168, 29, 0.1)",
-    color: "rgb(249, 168, 29)",
-  },
+
   Banned: {
     background: "rgb(182, 43, 41, 0.1)",
     color: "rgb(182, 43, 41)",
+  },
+
+  New: {
+    background: "rgb(139,139,139, 0.1)",
+    color: "rgb(139,139,139)",
+  },
+};
+
+const userStatus = {
+  Admin: {
+    background: "rgb(229, 86, 4, 0.1)",
+    color: "rgb(229, 86, 4)",
+  },
+  Staff: {
+    background: "rgb(213,108,133, 0.1)",
+    color: "rgb(213,108,133)",
+  },
+  Member: {
+    background: "rgb(17,139,244, 0.1)",
+    color: "rgb(17,139,244)",
   },
 };
 
@@ -76,12 +101,21 @@ const UserManagement = ({}) => {
   const [search, setSearch] = useState("");
   const [amount, setAmount] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [statusCount, setStatusCount] = useState({
     all: users.length,
-    active: countStatus(auctionData, "Active"),
-    pending: countStatus(auctionData, "Pending"),
-    banned: countStatus(auctionData, "Banned"),
+    active: countStatus(users, "Active"),
+    new: countStatus(users, "New"),
+    banned: countStatus(users, "Banned"),
+  });
+  const [newUser, setNewUser] = useState({
+    role: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    address: "",
+    email: "",
   });
 
   useEffect(() => {
@@ -125,11 +159,20 @@ const UserManagement = ({}) => {
     //call api for search
     //update result amount
   };
+
   const filterUserData = users.filter(
     (row) =>
       selectedFilter === "All" ||
       (selectedFilter !== "All" && row.status === selectedFilter)
   );
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
   const actions = [
     {
@@ -142,8 +185,7 @@ const UserManagement = ({}) => {
       name: "Ban User",
       onClick: () => {},
       icon: <BlockIcon />,
-      disabled: (status) =>
-        status === "Pending" || status === "Banned" ? true : false,
+      disabled: (status) => (status === "Banned" ? true : false),
     },
     {
       name: "Delete User",
@@ -167,32 +209,69 @@ const UserManagement = ({}) => {
       color: "rgb(57,143,95)",
     },
     {
-      name: "Pending",
-      amount: statusCount.pending,
-      background: "rgb(249, 168, 29, 0.1)",
-      color: "rgb(249, 168, 29)",
-    },
-    {
       name: "Banned",
       amount: statusCount.banned,
       background: "rgb(182, 43, 41, 0.1)",
       color: "rgb(182, 43, 41)",
     },
+    {
+      name: "New",
+      amount: statusCount.new,
+      background: "rgb(139,139,139, 0.1)",
+      color: "rgb(139,139,139)",
+    },
   ];
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 550,
+    bgcolor: "background.paper",
+    borderRadius: "20px",
+  };
 
   return (
     <div style={{ marginLeft: "50px" }}>
-      <Typography
-        variant="body1"
-        color="initial"
-        fontSize={26}
-        fontWeight={600}
-      >
-        User List
-      </Typography>
+      <div className="header">
+        <Grid container justifyContent="space-between" alignContent="center">
+          <Grid item>
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={26}
+              fontWeight={600}
+            >
+              User List
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button
+              sx={{
+                borderRadius: "8px",
+                background: "#00D284",
+                fontWeight: 600,
+                color: "white",
+                p: "8px 20px",
+                textTransform: "none",
+                fontSize: "16px",
+                mr: "20px",
+                "&:hover": {
+                  background: "#00D284",
+                  color: "white",
+                },
+              }}
+              onClick={() => handleOpenModal()}
+            >
+              Add New User
+            </Button>
+          </Grid>
+        </Grid>
+      </div>
       <div
         className="box"
-        style={{ marginTop: "50px", width: "calc(100% - 50px)" }}
+        style={{ marginTop: "50px", width: "calc(100% - 20px)" }}
       >
         <Box
           sx={{
@@ -318,7 +397,7 @@ const UserManagement = ({}) => {
                   Create at
                 </TableCell>
                 <TableCell align="center" style={tableHeader}>
-                  Sales
+                  Role
                 </TableCell>
                 <TableCell align="center" style={tableHeader}>
                   Status
@@ -364,7 +443,16 @@ const UserManagement = ({}) => {
                     {row.address}
                   </TableCell>
                   <TableCell align="center">{row.joinDate}</TableCell>
-                  <TableCell align="center">{row.sales}</TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={row.role}
+                      style={{
+                        background: userStatus[row.role].background,
+                        fontWeight: 600,
+                        color: userStatus[row.role].color,
+                      }}
+                    />
+                  </TableCell>
                   <TableCell align="center">
                     <Chip
                       label={row.status}
@@ -421,6 +509,101 @@ const UserManagement = ({}) => {
           </Table>
         </TableContainer>
       </div>
+      <Modal
+        open={openModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <div
+            className="header"
+            style={{
+              width: "100%",
+              borderTopLeftRadius: "10px",
+              borderTopRightRadius: "10px",
+              background: "rgb(17,139,244)",
+              padding: "10px 0",
+              marginTop: "-1px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              variant="body1"
+              color="white"
+              fontWeight={600}
+              sx={{ marginLeft: "150px" }}
+            >
+              Add New User
+            </Typography>
+            <IconButton
+              aria-label=""
+              onClick={() => handleCloseModal()}
+              sx={{ ml: "50px" }}
+            >
+              <HighlightOffIcon sx={{ color: "white" }} />
+            </IconButton>
+          </div>
+          <div
+            className="body"
+            style={{
+              marginTop: "30px",
+              width: "100%",
+            }}
+          >
+            <Grid container sx={{ width: "100%" }} rowSpacing={3}>
+              <Grid
+                item
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <FormControl sx={{ width: "calc(100% - 90px)" }}>
+                  <InputLabel id="demo-simple-select-label">
+                    User Role
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={newUser.role}
+                    label="User Role"
+                    // sx={{ width: "calc(100% - 50px)" }}
+                    // onChange={handleChange}
+                  >
+                    <MenuItem value={"Admin"}>Admin</MenuItem>
+                    <MenuItem value={"Staff"}>Staff</MenuItem>
+                    <MenuItem value={"Activated Member"}>
+                      Activated Member
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid
+                container
+                item
+                sx={{ display: "flex", justifyContent: "center" }}
+                spacing={2}
+              >
+                <Grid item>
+                  <TextField id="" label="Last Name" value={newUser.lastName} />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="First Name"
+                    value={newUser.firstName}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item>
+                <TextField id="" label="Email" value={newUser.email} />
+              </Grid>
+            </Grid>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };

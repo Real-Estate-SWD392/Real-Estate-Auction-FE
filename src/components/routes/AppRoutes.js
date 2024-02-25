@@ -5,11 +5,11 @@ import ReportManagement from "../admin/ReportManagement";
 import UserManagement from "../admin/UserManagement";
 import AuctionDetail from "../auction detail/AuctionDetail";
 import AuctionDetail1 from "../auction detail/AuctionDetail1";
-import Forbidden403 from "../forbidden-page/Forbidden403";
 import Home from "../home/Home";
 import AdminLayout from "../layout/AdminLayout";
 import Layout from "../layout/Layout";
 import MyAccountLayout from "../layout/MyAccountLayout";
+import SuccessPayment from "../payment/SuccessPayment";
 import SearchComponent from "../search-auction-list/SearchComponent";
 import MyProfile from "../seller-dashboard/MyProfile";
 import SellerComponent from "../seller-dashboard/SellerComponent";
@@ -96,8 +96,8 @@ const AppRoutes = [
     element: <AdminLogin />,
   },
   {
-    path: "/forbidden",
-    element: <Forbidden403 />,
+    path: "/successful-payment",
+    element: <SuccessPayment />,
   },
 ];
 
