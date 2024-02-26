@@ -21,7 +21,7 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useid, useNavigate, useParams } from "react-router-dom";
-import { styled } from "@mui/system";
+import { styled, width } from "@mui/system";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import money_icon from "../../assets/img/detail_money_icon.png";
@@ -220,13 +220,27 @@ const AuctionDetail1 = () => {
   //   }
   // }
 
-  const { user, accessToken, setUser } = useContext(AuthContext);
+  const { user, accessToken, setUser, setIsOpenLogin } =
+    useContext(AuthContext);
 
   const { setWinner, addToJoinList } = useContext(AuctionContext);
 
   const [checkAlreadyBid, setAlreadyBid] = useState(false);
 
-  const { bidList, updateNewBid, setBidList } = useContext(BidContext);
+  const [payNowBill, setPayNowBil] = useState({
+    userID: user?._id,
+    total: 100,
+    auctionID: id,
+  });
+
+  const [bill, setBill] = useState({
+    userID: user?._id,
+    total: bidPrice,
+    auctionID: id,
+  });
+
+  const { bidList, updateNewBid, setBidList, createBill } =
+    useContext(BidContext);
 
   const propertyList = useSelector((state) => state.auction.properties);
 
@@ -368,28 +382,40 @@ const AuctionDetail1 = () => {
 
   const handleAddToJoinList = async () => {
     try {
-      const res = await addToJoinList(id);
-      console.log(res);
-      if (res.success) {
-        dispatch(setDetail(res.response));
-        setJoinList(res.response.joinList);
-        toast.success("Join List successfully !!!");
-        handleClosePay();
+      const dataPost = {
+        auctionID: id,
+        total: payNowBill.total * 24000,
+        bankCode: "",
+        language: "vn",
+        payment: "VNPay",
+      };
 
-        const indexToUpdate = propertyList.findIndex(
-          (item) => item._id === res.response._id
-        );
+      const response = await createBill(dataPost);
 
-        // If the index is found, update the auctionList
-        if (indexToUpdate !== -1) {
-          console.log(res);
-          const updatedAuctionList = [...propertyList];
-          updatedAuctionList[indexToUpdate] = res.response;
-          dispatch(setProperties(updatedAuctionList));
-        }
-      } else {
-        toast.error("Join List Fail failed !!!");
-      }
+      window.location.href = response.url;
+
+      // const res = await addToJoinList(id);
+      // console.log(res);
+      // if (res.success) {
+      //   dispatch(setDetail(res.response));
+      //   setJoinList(res.response.joinList);
+      //   toast.success("Join List successfully !!!");
+      //   handleClosePay();
+
+      //   const indexToUpdate = propertyList.findIndex(
+      //     (item) => item._id === res.response._id
+      //   );
+
+      //   // If the index is found, update the auctionList
+      //   if (indexToUpdate !== -1) {
+      //     console.log(res);
+      //     const updatedAuctionList = [...propertyList];
+      //     updatedAuctionList[indexToUpdate] = res.response;
+      //     dispatch(setProperties(updatedAuctionList));
+      //   }
+      // } else {
+      //   toast.error("Join List Fail failed !!!");
+      // }
     } catch (error) {
       console.error("Error placing bid:", error);
       toast.error("Error placing bid. Please try again later.");
@@ -413,7 +439,7 @@ const AuctionDetail1 = () => {
     checkFavorite();
   }, [id]);
 
-  console.log(user, id);
+  console.log(user);
 
   return (
     <Box sx={{ background: "white" }}>
@@ -942,8 +968,8 @@ const AuctionDetail1 = () => {
                     spacing={2}
                     justifyContent="center"
                   >
-                    <Grid item>
-                      {joinList.includes(user._id) ? (
+                    {!user && (
+                      <Grid item>
                         <Button
                           sx={{
                             background: "#F25D49",
@@ -960,73 +986,108 @@ const AuctionDetail1 = () => {
                               color: "white",
                             },
                           }}
-                          onClick={() => handleOpen()}
+                          disabled={true}
+                          onClick={() => setIsOpenLogin(true)}
                         >
-                          Place Bid
+                          Login To Start Bidding
                         </Button>
-                      ) : (
-                        <Button
-                          sx={{
-                            background: "#F25D49",
-                            textTransform: "none",
-                            color: "white",
-                            fontWeight: 600,
-                            py: "19px",
-                            px: "50px",
-                            borderRadius: "8px",
-                            fontSize: "15px",
-                            "&:hover": {
-                              background: "#F25D49",
-                              textTransform: "none",
-                              color: "white",
-                            },
-                          }}
-                          onClick={() => handleOpenPay()}
-                        >
-                          Pay {formattedValue(100)} To Start Bidding
-                        </Button>
-                      )}
-                    </Grid>
-                    <Grid item>
-                      <Checkbox
-                        sx={{
-                          borderRadius: "8px",
-                          border: "1px solid #F25D49",
-                          py: "17px",
-                          px: "20px",
-                        }}
-                        icon={
-                          <FavoriteBorderIcon
+                      </Grid>
+                    )}
+
+                    {user && (
+                      <>
+                        <Grid item>
+                          {joinList.includes(user?._id) ? (
+                            <Button
+                              sx={{
+                                background: "#F25D49",
+                                textTransform: "none",
+                                color: "white",
+                                fontWeight: 600,
+                                py: "19px",
+                                px: "110px",
+                                borderRadius: "8px",
+                                fontSize: "15px",
+                                "&:hover": {
+                                  background: "#F25D49",
+                                  textTransform: "none",
+                                  color: "white",
+                                },
+                              }}
+                              onClick={() => handleOpen()}
+                            >
+                              Place Bid
+                            </Button>
+                          ) : (
+                            <Button
+                              sx={{
+                                background: "#F25D49",
+                                textTransform: "none",
+                                color: "white",
+                                fontWeight: 600,
+                                py: "19px",
+                                px: "50px",
+                                borderRadius: "8px",
+                                fontSize: "15px",
+                                "&:hover": {
+                                  background: "#F25D49",
+                                  textTransform: "none",
+                                  color: "white",
+                                },
+                              }}
+                              onClick={() => handleOpenPay()}
+                            >
+                              Pay {formattedValue(100)} To Start Bidding
+                            </Button>
+                          )}
+                        </Grid>
+
+                        <Grid item>
+                          <Checkbox
                             sx={{
-                              color: "#EF272C",
-                              width: "30px",
-                              height: "30px",
+                              borderRadius: "8px",
+                              border: "1px solid #F25D49",
+                              py: "17px",
+                              px: "20px",
+                              width: "100%",
+                            }}
+                            icon={
+                              <FavoriteBorderIcon
+                                sx={{
+                                  color: "#EF272C",
+                                  width: "30px",
+                                  height: "30px",
+                                }}
+                              />
+                            }
+                            checkedIcon={
+                              <FavoriteIcon
+                                sx={{
+                                  color: "#EF272C",
+                                  width: "30px",
+                                  height: "30px",
+                                }}
+                              />
+                            }
+                            checked={
+                              user &&
+                              user.favoriteList.find((item) => item._id === id)
+                            }
+                            onClick={() => {
+                              if (
+                                user.favoriteList.find(
+                                  (item) => item._id === id
+                                )
+                              ) {
+                                handleRemoveFromFavList();
+                              } else {
+                                handleAddAuctionToFavList();
+                              }
                             }}
                           />
-                        }
-                        checkedIcon={
-                          <FavoriteIcon
-                            sx={{
-                              color: "#EF272C",
-                              width: "30px",
-                              height: "30px",
-                            }}
-                          />
-                        }
-                        checked={user.favoriteList.find(
-                          (item) => item._id === id
-                        )}
-                        onClick={() => {
-                          if (
-                            user.favoriteList.find((item) => item._id === id)
-                          ) {
-                            handleRemoveFromFavList();
-                          } else {
-                            handleAddAuctionToFavList();
-                          }
-                        }}
-                      />
-                    </Grid>
+                        </Grid>
+                      </>
+                    )}
                   </Grid>
                   <div
                     className="divider"
@@ -1872,7 +1933,7 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <TextField
                       label="Price"
-                      value={formattedValue(100)}
+                      value={payNowBill.total}
                       sx={{ width: "495px" }}
                       InputProps={{
                         readOnly: "true",
@@ -1885,7 +1946,9 @@ const AuctionDetail1 = () => {
                           textAlign: "center",
                         },
                       }}
-                    />
+                    >
+                      {formattedValue(payNowBill.total)}
+                    </TextField>
                   </Grid>
                 </Grid>
                 <FormControl sx={{ width: "498px", mt: "20px" }}>

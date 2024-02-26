@@ -128,6 +128,91 @@ export const UserContextProvider = ({ children }) => {
       toast.error("Remove From Favorite List fail");
     }
   };
+
+  const getAllAccount = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/account/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true, // Include cookies in the request
+      });
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Get successfully", data);
+        return data;
+      } else {
+        console.error("Get failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error during update", error);
+    }
+  };
+
+  const banAccount = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/account/ban/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Ban Account Successfully", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        console.error("Ban Account Failed", response.data);
+        toast.error(response.data.message);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Ban Account Fail", error);
+    }
+  };
+
+  const removeAccount = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/account/remove/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Remove Account Successfully", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        console.error("Remove Account Failed", response.data);
+        toast.error(response.data.message);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Ban Account Fail", error);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -135,6 +220,9 @@ export const UserContextProvider = ({ children }) => {
         changePassword,
         getMemberInfoById,
         removeFromFavList,
+        getAllAccount,
+        banAccount,
+        removeAccount,
       }}
     >
       {children}

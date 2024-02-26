@@ -10,10 +10,9 @@ const SearchComponent = () => {
   const searchTerm = useSelector((state) => state.search.searchTerm);
   const searchResults = useSelector((state) => state.search.searchResults);
 
-  console.log(searchTerm);
   useEffect(() => {
     window.scrollTo(0, 0);
-  });
+  }, []);
   return (
     <SearchBody
       searchTerm={searchTerm}

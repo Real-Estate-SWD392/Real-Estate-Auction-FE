@@ -13,6 +13,8 @@ export const AuthContextProvider = ({ children }) => {
 
   const [isLoginGoogle, setIsLoginGoogle] = useState(false);
 
+  const [isOpenLogin, setIsOpenLogin] = useState(false);
+
   const [accessToken, setAccessToken] = useState(
     JSON.parse(localStorage.getItem("accessToken")) || null
   );
@@ -149,8 +151,10 @@ export const AuthContextProvider = ({ children }) => {
         localStorage.removeItem("user");
         localStorage.removeItem("accessToken");
         Cookies.remove("refreshToken");
+        toast.success("Logout Successfully!!!");
         console.log("Logout successfully", response.data);
       } else {
+        toast.success("Logout Failed!!!");
         console.error("Logout failed", response.data);
       }
     } catch (error) {
@@ -168,6 +172,8 @@ export const AuthContextProvider = ({ children }) => {
         setUser,
         setIsLoginGoogle,
         accessToken,
+        isOpenLogin,
+        setIsOpenLogin,
       }}
     >
       {children}

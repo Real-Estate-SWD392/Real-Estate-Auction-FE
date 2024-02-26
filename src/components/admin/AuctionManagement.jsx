@@ -45,6 +45,8 @@ import { AuthContext } from "../../context/auth.context";
 import { AuctionContext } from "../../context/auction.context";
 import { useDispatch, useSelector } from "react-redux";
 import { setProperties } from "../../redux/reducers/auctionSlice";
+import { users } from "./userData";
+import Loading from "../loading/Loading";
 
 const count = 1;
 
@@ -65,7 +67,7 @@ const statusColor = {
     background: "rgb(182, 43, 41, 0.1)",
     color: "rgb(182, 43, 41)",
   },
-  Ended: {
+  End: {
     background: "rgb(105, 120, 133, 0.1)",
     color: "rgb(105, 120, 133)",
   },
@@ -73,6 +75,8 @@ const statusColor = {
 
 const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const [auctionsInfor, setAuctionsInfo] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const { user, accessToken } = useContext(AuthContext);
 
@@ -106,8 +110,8 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
 
   const [statusCount, setStatusCount] = useState({
     all: auctionData.length,
-    active: countStatus(auctionsInfor, "Active"),
-    pending: countStatus(auctionsInfor, "Pending"),
+    active: countStatus(auctionsInfor, "In Auction"),
+    pending: countStatus(auctionsInfor, "Wait For Approval"),
     rejected: countStatus(auctionsInfor, "Cancel"),
     ended: countStatus(auctionsInfor, "End"),
   });
@@ -322,12 +326,16 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       color: "rgb(182, 43, 41)",
     },
     {
-      name: "Ended",
+      name: "End",
       amount: statusCount.ended,
       background: "rgb(105, 120, 133, 0.1)",
       color: "rgb(105, 120, 133)",
     },
   ];
+
+  if (isLoading) {
+    return <Loading setIsLoading={setIsLoading} />;
+  }
 
   return (
     <div style={{ marginLeft: "50px" }}>
@@ -341,7 +349,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       </Typography>
       <div
         className="box"
-        style={{ marginTop: "50px", width: "calc(100% - 50px)" }}
+        style={{ marginTop: "50px", width: "calc(100% - 20px)" }}
       >
         <Box
           sx={{

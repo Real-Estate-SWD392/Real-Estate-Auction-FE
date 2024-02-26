@@ -6,7 +6,7 @@ const Loading = ({ setIsLoading }) => {
     // Set a timeout to delay the execution of the effect
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
-    }, 2200);
+    }, 2000);
 
     return () => {
       clearTimeout(timeoutId);
