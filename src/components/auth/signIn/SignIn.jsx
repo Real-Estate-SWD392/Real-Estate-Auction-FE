@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useFormik } from "formik";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./SignIn.scss";
 import Button from "@mui/material/Button";
 
@@ -28,6 +28,8 @@ const SignIn = (props) => {
   // });
 
   const { login, loginGoogle } = useContext(AuthContext);
+
+  const nav = useNavigate();
 
   const formik = useFormik({
     initialValues: {
@@ -58,10 +60,16 @@ const SignIn = (props) => {
     e.preventDefault();
 
     try {
-      await login({
+      const res = await login({
         email: formik.values.email,
         password: formik.values.password,
       });
+
+      if (res.response.role === "staff") {
+        nav("/accommondation-staff");
+      } else if (res.response.role === "admin") {
+        nav("/accommondation-admin");
+      }
       props.setModalShow(false);
     } catch (error) {
       console.log(error);

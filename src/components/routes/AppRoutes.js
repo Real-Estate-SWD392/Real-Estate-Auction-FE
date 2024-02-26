@@ -5,11 +5,11 @@ import ReportManagement from "../admin/ReportManagement";
 import UserManagement from "../admin/UserManagement";
 import AuctionDetail from "../auction detail/AuctionDetail";
 import AuctionDetail1 from "../auction detail/AuctionDetail1";
-import Forbidden403 from "../forbidden-page/Forbidden403";
 import Home from "../home/Home";
 import AdminLayout from "../layout/AdminLayout";
 import Layout from "../layout/Layout";
 import MyAccountLayout from "../layout/MyAccountLayout";
+import SuccessPayment from "../payment/SuccessPayment";
 import SearchComponent from "../search-auction-list/SearchComponent";
 import MyBids from "../user-settings/MyBids/MyBids";
 import AddProperties from "../seller-dashboard/AddProperties";
@@ -21,6 +21,8 @@ import UpdatePropertyList from "../seller-dashboard/UpdateProperty/UpdatePropert
 import ProfileComponent from "../user-settings/ProfileComponent";
 import SavedAuctions from "../user-settings/SavedAuctions/SavedAuctions";
 import WinningBids from "../user-settings/WinningBids/WinningBids";
+import Forbidden403 from "../forbidden-page/Forbidden403";
+import StaffLayout from "../layout/StaffLayout";
 
 const AppRoutes = [
   {
@@ -101,23 +103,32 @@ const AppRoutes = [
     element: <AdminLayout />,
     children: [
       {
-        path: "/accommondation-admin",
+        path: "/accommondation-admin/dashboard",
         element: <AdminDashboard />,
       },
-      {
-        path: "/accommondation-admin/auction-management",
-        element: <AuctionManagement />,
-      },
+
       {
         path: "/accommondation-admin/user-management",
         element: <UserManagement />,
       },
+    ],
+  },
+
+  {
+    path: "/accommondation-staff",
+    element: <StaffLayout />,
+    children: [
       {
-        path: "/accommondation-admin/reports",
+        path: "/accommondation-staff/auction-management",
+        element: <AuctionManagement />,
+      },
+      {
+        path: "/accommondation-staff/reports",
         element: <ReportManagement />,
       },
     ],
   },
+
   {
     path: "/accommondation-admin/login",
     element: <AdminLogin />,
@@ -126,6 +137,8 @@ const AppRoutes = [
     path: "/forbidden",
     element: <Forbidden403 />,
   },
+
+  { path: "/bill/:id", element: <SuccessPayment /> },
 ];
 
 export default AppRoutes;

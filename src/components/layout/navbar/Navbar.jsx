@@ -57,13 +57,13 @@ export const userSettings = [
   },
 
   {
-    name: "Staff Dashboard",
-    url: "/accommondation-admin/auction-management",
+    name: "For Staff",
+    url: "/accommondation-staff/",
     role: ["staff"],
   },
 
   {
-    name: "Admin Dashboard",
+    name: "For Admin",
     url: "/accommondation-admin",
     role: ["admin"],
   },
@@ -84,6 +84,8 @@ function ResponsiveAppBar({ userName }) {
   const currentLocation = location.pathname;
 
   const { user } = useContext(AuthContext);
+
+  console.log(user);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -224,45 +226,25 @@ function ResponsiveAppBar({ userName }) {
                     onClose={handleClose}
                     sx={{}}
                   >
-                    {user.role === "staff" || user.role === "admin"
-                      ? userSettings
-                          .filter((item) => item.role.includes(user.role))
-                          .map((setting, index) => (
-                            <div key={index}>
-                              <MenuItem
-                                sx={{
-                                  py: "16px",
-                                  fontSize: "17px",
-                                  pl: "20px",
-                                  pr: "80px",
-                                  fontWeight: 600,
-                                }}
-                                onClick={() => handleNavigate(setting.url)}
-                              >
-                                {setting.name}
-                              </MenuItem>
-                              <CustomDivider />
-                            </div>
-                          ))
-                      : userSettings
-                          .filter((item) => item.name !== "Staff Dashboard")
-                          .map((setting, index) => (
-                            <div key={index}>
-                              <MenuItem
-                                sx={{
-                                  py: "16px",
-                                  fontSize: "17px",
-                                  pl: "20px",
-                                  pr: "80px",
-                                  fontWeight: 600,
-                                }}
-                                onClick={() => handleNavigate(setting.url)}
-                              >
-                                {setting.name}
-                              </MenuItem>
-                              <CustomDivider />
-                            </div>
-                          ))}
+                    {userSettings
+                      .filter((item) => item.role.includes(user.role))
+                      .map((setting, index) => (
+                        <div key={index}>
+                          <MenuItem
+                            sx={{
+                              py: "16px",
+                              fontSize: "17px",
+                              pl: "20px",
+                              pr: "80px",
+                              fontWeight: 600,
+                            }}
+                            onClick={() => handleNavigate(setting.url)}
+                          >
+                            {setting.name}
+                          </MenuItem>
+                          <CustomDivider />
+                        </div>
+                      ))}
                     <MenuItem
                       sx={{
                         py: "16px",
@@ -284,7 +266,7 @@ function ResponsiveAppBar({ userName }) {
                 <display
                   className="button-login-container"
                   onClick={() => {
-                    setAnchorEl(null);
+                    setAnchorEl(false);
                     setIsOpenLogin(true);
                   }}
                 >

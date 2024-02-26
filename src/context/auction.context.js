@@ -258,7 +258,7 @@ export const AuctionContextProvider = ({ children }) => {
         return errorData;
       }
     } catch (error) {
-      toast.error("Add To Join List Fail!!");
+      // toast.error("Add To Join List Fail!!");
       console.log(error);
     }
   };

@@ -55,10 +55,12 @@ export const AuthContextProvider = ({ children }) => {
           secure: true,
           sameSite: "None",
         });
+        return data;
       } else {
         const errorData = response.data;
         console.error("Login failed", errorData);
         console.log("Response: ", response);
+        return errorData;
       }
     } catch (error) {
       console.error("Error during login", error);

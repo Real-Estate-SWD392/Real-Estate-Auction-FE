@@ -30,10 +30,10 @@ const AdminHeader = ({ role, email }) => {
           fontWeight={600}
           sx={{ marginLeft: "10px" }}
         >
-          {user.email}
+          {user?.email}
         </Typography>
         <Avatar
-          src={user.image}
+          src={user?.image}
           sx={{ width: "50px", height: "50px", marginLeft: "50px" }}
         />
         <IconButton sx={{ marginLeft: "10px" }}>

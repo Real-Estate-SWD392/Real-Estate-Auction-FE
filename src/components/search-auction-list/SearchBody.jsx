@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AuctionPropCard from "../home/related-prop/AuctionPropCard";
 import { AuctionContext } from "../../context/auction.context";
 import { setProperties } from "../../redux/reducers/auctionSlice";
-import { setSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
+import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
 import { textAlign } from "@mui/system";
 
@@ -80,7 +80,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         console.log("Fileeee", res.response);
 
         if (res.response) {
-          dispatch(setSearchResutlts(res.response));
+          dispatch(setSearchResults(res.response));
         }
       } catch (error) {
         console.error(error);

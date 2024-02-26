@@ -3,7 +3,7 @@ import "./Forbidden403.scss";
 
 const Forbidden403 = () => {
   return (
-    <div className="body">
+    <div className="body-forbidden">
       <div class="ghost">
         <div class="ghost--columns">
           <div class="ghost--column">

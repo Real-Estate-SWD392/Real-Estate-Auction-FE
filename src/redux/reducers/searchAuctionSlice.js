@@ -19,7 +19,7 @@ const searchAuctionSlice = createSlice({
       state.searchTerm = action.payload;
     },
 
-    setSearchResutlts: (state, action) => {
+    setSearchResults: (state, action) => {
       state.searchResults = action.payload;
     },
 
@@ -50,7 +50,7 @@ const searchAuctionSlice = createSlice({
   },
 });
 
-export const { getSearchQuery, setSearchResutlts, updateSearchTimers } =
+export const { getSearchQuery, setSearchResults, updateSearchTimers } =
   searchAuctionSlice.actions;
 
 export default searchAuctionSlice.reducer;

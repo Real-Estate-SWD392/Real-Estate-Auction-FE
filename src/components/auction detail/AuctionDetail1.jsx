@@ -45,6 +45,7 @@ import { BidContext } from "../../context/bid.context";
 import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AuctionContext } from "../../context/auction.context";
+import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 
 const specStyle = {
   textAlign: "center",
@@ -274,6 +275,7 @@ const AuctionDetail1 = () => {
   useEffect(() => {
     if (Array.isArray(bidList)) {
       const check = bidList.find((item) => item?.auctionID?._id === id);
+      console.log(!!check);
       setAlreadyBid(!!check); // Convert check result to a boolean value
     }
   }, [bidList, id]);
@@ -324,12 +326,13 @@ const AuctionDetail1 = () => {
   };
 
   const handlePlaceBid = async () => {
+    console.log(checkAlreadyBid);
     try {
       if (checkAlreadyBid) {
         const res = await updateNewBid(bidData);
         if (res.success) {
           dispatch(setDetail(res.response.auctionID));
-          setBidList(res.response);
+          setBidList([...bidList, res.response]);
           toast.success("Bid completed successfully !!!");
           handleClose();
 
@@ -343,6 +346,7 @@ const AuctionDetail1 = () => {
             const updatedAuctionList = [...propertyList];
             updatedAuctionList[indexToUpdate] = res.response.auctionID;
             dispatch(setProperties(updatedAuctionList));
+            dispatch(setSearchResults(updatedAuctionList));
           }
         } else {
           console.log("Bid failed");
@@ -380,6 +384,8 @@ const AuctionDetail1 = () => {
     }
   };
 
+  console.log(bidList);
+
   const handleAddToJoinList = async () => {
     try {
       const dataPost = {
@@ -388,6 +394,7 @@ const AuctionDetail1 = () => {
         bankCode: "",
         language: "vn",
         payment: "VNPay",
+        type: "Pay Auction Fee",
       };
 
       const response = await createBill(dataPost);
@@ -418,16 +425,19 @@ const AuctionDetail1 = () => {
       // }
     } catch (error) {
       console.error("Error placing bid:", error);
-      toast.error("Error placing bid. Please try again later.");
+      toast.error("Error pay fee. Please try again later.");
     }
   };
 
   const handleSetWinner = async (type) => {
     try {
       await setWinner(id, user._id);
+
       if (type === "Buy Now") {
         toast.success("Buy Auction Successfully");
         handleCloseBuy();
+      } else if (type === "Bid") {
+        // code more
       }
     } catch (error) {
       console.error("Set Winner Fail:", error);
@@ -438,8 +448,6 @@ const AuctionDetail1 = () => {
     getAuctionInfoById();
     checkFavorite();
   }, [id]);
-
-  console.log(user);
 
   return (
     <Box sx={{ background: "white" }}>
@@ -1106,7 +1114,7 @@ const AuctionDetail1 = () => {
                       color: "white",
                       fontWeight: 600,
                       py: "17px",
-                      px: "75px",
+                      px: "60px",
                       borderRadius: "8px",
                       fontSize: "15px",
                       width: "100%",
