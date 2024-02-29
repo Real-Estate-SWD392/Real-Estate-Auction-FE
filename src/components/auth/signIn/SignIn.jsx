@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useFormik } from "formik";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./SignIn.scss";
 import Button from "@mui/material/Button";
 
@@ -27,7 +27,7 @@ const SignIn = (props) => {
   //   password: "",
   // });
 
-  const { login, loginGoogle } = useContext(AuthContext);
+  const { login, loginGoogle, user } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
@@ -54,15 +54,28 @@ const SignIn = (props) => {
     window.open("http://localhost:8080/auth/google", "_self");
   };
 
+  const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    
 
     try {
-      await login({
+      const res = await login({
         email: formik.values.email,
         password: formik.values.password,
       });
-      props.setModalShow(false);
+
+      console.log("Logonnn", res);
+
+      if (res.role === "staff") {
+        navigate("/accommondation-admin/auction-management")
+      } else if (res.role === "member") {
+        navigate("/");
+        props.setModalShow(false);
+      }
+      
+      
     } catch (error) {
       console.log(error);
     }

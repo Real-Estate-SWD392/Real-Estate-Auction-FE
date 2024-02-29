@@ -45,6 +45,7 @@ import { BidContext } from "../../context/bid.context";
 import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AuctionContext } from "../../context/auction.context";
+import { setSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
 
 const specStyle = {
   textAlign: "center",
@@ -382,40 +383,41 @@ const AuctionDetail1 = () => {
 
   const handleAddToJoinList = async () => {
     try {
-      const dataPost = {
-        auctionID: id,
-        total: payNowBill.total * 24000,
-        bankCode: "",
-        language: "vn",
-        payment: "VNPay",
-      };
+      // const dataPost = {
+      //   auctionID: id,
+      //   total: payNowBill.total * 24000,
+      //   bankCode: "",
+      //   language: "vn",
+      //   payment: "VNPay",
+      // };
 
-      const response = await createBill(dataPost);
+      // const response = await createBill(dataPost);
 
-      window.location.href = response.url;
+      // window.location.href = response.url;
 
-      // const res = await addToJoinList(id);
-      // console.log(res);
-      // if (res.success) {
-      //   dispatch(setDetail(res.response));
-      //   setJoinList(res.response.joinList);
-      //   toast.success("Join List successfully !!!");
-      //   handleClosePay();
+      const res = await addToJoinList(id);
+      console.log(res);
+      if (res.success) {
+        dispatch(setDetail(res.response));
+        setJoinList(res.response.joinList);
+        toast.success("Join List successfully !!!");
+        handleClosePay();
 
-      //   const indexToUpdate = propertyList.findIndex(
-      //     (item) => item._id === res.response._id
-      //   );
+        const indexToUpdate = propertyList.findIndex(
+          (item) => item._id === res.response._id
+        );
 
-      //   // If the index is found, update the auctionList
-      //   if (indexToUpdate !== -1) {
-      //     console.log(res);
-      //     const updatedAuctionList = [...propertyList];
-      //     updatedAuctionList[indexToUpdate] = res.response;
-      //     dispatch(setProperties(updatedAuctionList));
-      //   }
-      // } else {
-      //   toast.error("Join List Fail failed !!!");
-      // }
+        // If the index is found, update the auctionList
+        if (indexToUpdate !== -1) {
+          console.log(res);
+          const updatedAuctionList = [...propertyList];
+          updatedAuctionList[indexToUpdate] = res.response;
+          dispatch(setProperties(updatedAuctionList));
+          dispatch(setSearchResutlts(updatedAuctionList));
+        }
+      } else {
+        toast.error("Join List Fail failed !!!");
+      }
     } catch (error) {
       console.error("Error placing bid:", error);
       toast.error("Error placing bid. Please try again later.");

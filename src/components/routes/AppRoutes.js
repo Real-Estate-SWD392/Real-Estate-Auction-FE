@@ -21,6 +21,7 @@ import UpdatePropertyList from "../seller-dashboard/UpdateProperty/UpdatePropert
 import ProfileComponent from "../user-settings/ProfileComponent";
 import SavedAuctions from "../user-settings/SavedAuctions/SavedAuctions";
 import WinningBids from "../user-settings/WinningBids/WinningBids";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 const AppRoutes = [
   {
@@ -42,10 +43,12 @@ const AppRoutes = [
       {
         path: "/sell",
         element: (
+          <ProtectedRoutes name={"sell"}>
           <SellerComponent
             userName={"Anh Anhidaiowudoiauwdiouaw"}
             userEmail={"phucanhdodang1211@gmail.com"}
           />
+          </ProtectedRoutes>
         ),
         children: [
           {

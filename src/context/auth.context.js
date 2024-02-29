@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 
 import Cookies from "js-cookie";
 import axios from "axios";
+import { redirect, useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
@@ -20,6 +21,7 @@ export const AuthContextProvider = ({ children }) => {
   );
 
   const [refreshToken, setRefreshToken] = useState(Cookies.get("refreshToken"));
+
 
   useEffect(() => {
     const token = Cookies.get("refreshToken");
@@ -47,7 +49,7 @@ export const AuthContextProvider = ({ children }) => {
         toast.success("Login successfully");
         const data = response.data;
         // Handle successful login, e.g., save token to local storage, redirect, etc.
-        console.log("Logged in successfully", data);
+        console.log("Logged in successfully", data.response.role);
         setUser(data.response);
         setAccessToken(data.accessToken);
         setRefreshToken(data.refreshToken);
@@ -55,6 +57,9 @@ export const AuthContextProvider = ({ children }) => {
           secure: true,
           sameSite: "None",
         });
+        return data.response;
+
+        
       } else {
         const errorData = response.data;
         console.error("Login failed", errorData);
@@ -180,3 +185,5 @@ export const AuthContextProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthContextProvider;
