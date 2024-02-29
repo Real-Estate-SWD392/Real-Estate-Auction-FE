@@ -11,6 +11,9 @@ import { auctionProp } from "../listProp";
 import MyBidCard from "./MyBidCard";
 import { BidContext } from "../../../context/bid.context";
 import Loading from "../../loading/Loading";
+import { useDispatch, useSelector } from "react-redux";
+import { setSavedList } from "../../../redux/reducers/savedAuctionSlice";
+import { setBidList } from "../../../redux/reducers/myBidSlice";
 
 const Divider = styled("div")({
   width: "100%",
@@ -21,6 +24,15 @@ const Divider = styled("div")({
 const MyBids = () => {
   const [isLoading, setIsloading] = useState(true);
   const { bidList } = useContext(BidContext);
+  const list = useSelector((state) => state.bid.bidList);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setBidList(bidList));
+  }, []);
+
+  console.log(list);
 
   return (
     <Card
@@ -58,8 +70,8 @@ const MyBids = () => {
       ) : (
         <div className="listing" style={{ marginTop: "30px" }}>
           <Grid container spacing={3} justifyContent="flex-start">
-            {bidList.length > 0 ? (
-              bidList.map((prop, index) => (
+            {list?.length > 0 ? (
+              list?.map((prop, index) => (
                 <Grid item key={index}>
                   <MyBidCard
                     propID={prop?.auctionID?._id}

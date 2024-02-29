@@ -5,8 +5,9 @@ import { payment } from "./paymentData";
 import { BidContext } from "../../context/bid.context";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AuctionContext } from "../../context/auction.context";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
+import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 
 export const style = {
   position: "absolute",
@@ -38,7 +39,9 @@ const SuccessPayment = () => {
 
   const { getBill } = useContext(BidContext);
 
-  const { addToJoinList } = useContext(AuctionContext);
+  const { addToJoinList, setWinner } = useContext(AuctionContext);
+
+  const auctionList = useSelector((state) => state.auction.properties);
 
   const dispatch = useDispatch();
 
@@ -48,6 +51,8 @@ const SuccessPayment = () => {
     const fetchBillData = async () => {
       try {
         const getBillRes = await getBill(id, location.search);
+
+        console.log(getBillRes);
 
         if (getBillRes?.success) {
           setBill(getBillRes.response);
@@ -63,6 +68,30 @@ const SuccessPayment = () => {
             }
 
             case "Buy Now": {
+              const res = await setWinner(
+                getBillRes.response.auctionID,
+                getBillRes.response.memberID._id
+              );
+
+              console.log(res);
+
+              if (res.success) {
+                const indexToUpdate = auctionList.findIndex(
+                  (item) => item._id === res.response._id
+                );
+
+                // If the index is found, update the auctionList
+                if (indexToUpdate !== -1) {
+                  console.log(res);
+                  const updatedAuctionList = [...auctionList];
+                  updatedAuctionList[indexToUpdate] = res.response;
+                  dispatch(setProperties(updatedAuctionList));
+                  dispatch(setSearchResults(updatedAuctionList));
+                }
+
+                dispatch(setDetail(res.response));
+              }
+
               break;
             }
             default: {
@@ -83,6 +112,8 @@ const SuccessPayment = () => {
     const formattedAmount = Number(amount).toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     });
 
     return (
@@ -199,7 +230,7 @@ const SuccessPayment = () => {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <CurrencyFormatter amount={bill?.total} />
+                  <CurrencyFormatter amount={bill?.total / 24000} />
                 </Grid>
                 <Grid item>
                   <Typography

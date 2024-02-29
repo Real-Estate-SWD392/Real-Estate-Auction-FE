@@ -281,12 +281,47 @@ export const AuctionContextProvider = ({ children }) => {
         const data = await response.data;
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Set Winner Sucess: ", data);
+        return data;
       } else {
         const errorData = await response.data;
         console.error("Set Winner failed", errorData);
+        return errorData;
       }
     } catch (error) {
       toast.error("Set Winner Auction Fail!!");
+      console.log(error);
+    }
+  };
+
+  const startAuction = async (auctionList) => {
+    console.log(auctionList);
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/auction/startAuction`,
+        { auctionList },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Start Sucess: ", data);
+        // toast.success(data.message);
+        return data;
+      } else {
+        const errorData = await response.data;
+        // toast.error(errorData.message);
+        console.error("Start failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      // toast.error("Close Auction Fail!!");
       console.log(error);
     }
   };
@@ -350,6 +385,7 @@ export const AuctionContextProvider = ({ children }) => {
         closeAuction,
         setWinner,
         addToJoinList,
+        startAuction,
       }}
     >
       {children}

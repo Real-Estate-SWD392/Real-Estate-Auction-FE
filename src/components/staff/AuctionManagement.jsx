@@ -13,6 +13,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Modal,
   Paper,
   Popper,
   Table,
@@ -24,10 +25,9 @@ import {
   TextField,
   tableCellClasses,
 } from "@mui/material";
-import { NearMe } from "@mui/icons-material";
+import { Close, NearMe } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/system";
-import { auctionData } from "./auctionData";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useNavigate } from "react-router-dom";
 import GridViewIcon from "@mui/icons-material/GridView";
@@ -44,9 +44,14 @@ import { toast } from "react-toastify";
 import { AuthContext } from "../../context/auth.context";
 import { AuctionContext } from "../../context/auction.context";
 import { useDispatch, useSelector } from "react-redux";
-import { setProperties } from "../../redux/reducers/auctionSlice";
-import { users } from "./userData";
+import {
+  setNotStartAuction,
+  setProperties,
+} from "../../redux/reducers/auctionSlice";
 import Loading from "../loading/Loading";
+import dayjs, { Dayjs } from "dayjs";
+import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const count = 1;
 
@@ -78,21 +83,26 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [chooseID, setChooseID] = useState("");
+
   const { user, accessToken } = useContext(AuthContext);
 
   const { closeAuction } = useContext(AuctionContext);
 
+  const [calenderValue, setCalenderValue] = useState(null);
+
+  const [isOpenCalender, setIsOpenCalender] = useState(false);
+
   const auctionList = useSelector((state) => state.auction.properties);
 
-  const dispatch = useDispatch();
+  const notStartList = useSelector((state) => state.auction.notStartAuction);
 
-  console.log(auctionList);
+  const dispatch = useDispatch();
 
   const countStatus = useMemo(() => {
     return (listAuction, status) => {
       if (listAuction.length > 0) {
         const count = listAuction.reduce((acc, auction) => {
-          console.log(auction.status, status);
           if (auction.status.toLowerCase() === status.toLowerCase()) {
             return acc + 1;
           }
@@ -109,9 +119,10 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [statusCount, setStatusCount] = useState({
-    all: auctionData.length,
+    all: auctionsInfor.length,
     active: countStatus(auctionsInfor, "In Auction"),
     pending: countStatus(auctionsInfor, "Wait For Approval"),
+    notstart: countStatus(auctionsInfor, "Not Start"),
     rejected: countStatus(auctionsInfor, "Cancel"),
     ended: countStatus(auctionsInfor, "End"),
   });
@@ -124,6 +135,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       active: countStatus(auctionsInfor, "In Auction"),
       pending: countStatus(auctionsInfor, "Wait For Approval"),
       rejected: countStatus(auctionsInfor, "Cancel"),
+      notstart: countStatus(auctionsInfor, "Not Start"),
       ended: countStatus(auctionsInfor, "End"),
     }));
   }, [auctionsInfor]);
@@ -141,6 +153,10 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
 
     fetchAllAuction();
   }, []);
+
+  // useEffect(() => {
+  //   setIsLoading(true);
+  // }, [selectedFilter]);
 
   const handleOpenPopover = (event, index) => {
     setAnchorEl(event.currentTarget);
@@ -202,6 +218,8 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const handleAuctionRequest = async (id, data) => {
     try {
       const res = await handleAuctionRequestByAdmin(id, data, headers);
+
+      console.log(res);
       if (res.data.success) {
         if (data.checkedStatus === "Accepted") {
           let updatedList = [...auctionList];
@@ -261,21 +279,23 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     }
   };
 
-  console.log(filteredAuctionData);
-
   const actions = [
     {
       name: "View Detail",
-      forStatus: ["In Auction"],
+      forStatus: ["In Auction", "Wait For Approval", "End", "Not Start"],
       onClick: (id) => {
-        navigate(`/auction_detail/${id}`);
+        // navigate(`/auction_detail/${id}`);
       },
       icon: <GridViewIcon />,
     },
     {
       name: "Approve Auction",
       forStatus: ["Wait For Approval"],
-      onClick: (id) => handleAuctionRequest(id, { checkedStatus: "Accepted" }),
+      onClick: (auction) => {
+        setIsOpenCalender(true);
+        setAnchorEl(null);
+        setChooseID(auction);
+      },
       icon: <ChecklistRtlIcon />,
     },
     {
@@ -294,7 +314,13 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     },
     {
       name: "Delete Auction",
-      forStatus: ["In Auction", "End", "Wait For Approval", "Cancel"],
+      forStatus: [
+        "In Auction",
+        "End",
+        "Wait For Approval",
+        "Cancel",
+        "Not Start",
+      ],
       onClick: () => {},
       icon: <DeleteIcon />,
     },
@@ -319,6 +345,14 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       background: "rgb(249, 168, 29, 0.1)",
       color: "rgb(249, 168, 29)",
     },
+
+    {
+      name: "Not Start",
+      amount: statusCount.notstart,
+      background: "#F6F193",
+      color: "#ECB159",
+    },
+
     {
       name: "Cancel",
       amount: statusCount.rejected,
@@ -457,7 +491,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
             result(s)
           </Typography>
         </div>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ mb: "20px" }}>
           <Table sx={{ width: "100%" }} aria-label="customized table">
             <TableHead sx={{ background: "#F4F6F8" }}>
               <TableRow>
@@ -596,7 +630,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                               >
                                 <Button
                                   startIcon={action.icon}
-                                  onClick={() => action.onClick(row._id)}
+                                  onClick={() => action.onClick(row)}
                                   sx={{
                                     textTransform: "none",
                                     fontWeight: 600,
@@ -616,6 +650,87 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
           </Table>
         </TableContainer>
       </div>
+
+      {isOpenCalender ? (
+        <Modal
+          open={isOpenCalender}
+          onClose={() => setIsOpenCalender(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <div
+            className="calender-component"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <div
+              className="calender-wrapper"
+              style={{
+                backgroundColor: "white",
+                padding: "10px 20px",
+                width: "450px",
+              }}
+            >
+              <div
+                className="wrapper-header"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <h5>Choose Start Date: </h5>
+                <IconButton onClick={() => setIsOpenCalender(false)}>
+                  <Close />
+                </IconButton>
+              </div>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateCalendar
+                  value={calenderValue}
+                  onChange={(newValue) => setCalenderValue(newValue)}
+                />
+              </LocalizationProvider>
+
+              <div className="calender-button" style={{ float: "right" }}>
+                <Button
+                  onClick={() => {
+                    const date = new Date(calenderValue).toLocaleString(
+                      "en-US",
+                      {
+                        timeZone: "Asia/Ho_Chi_Minh",
+                      }
+                    );
+
+                    handleAuctionRequest(chooseID._id, {
+                      checkedStatus: "Accepted",
+                      startDate: date,
+                    });
+
+                    const newList = [...notStartList];
+
+                    newList.push(chooseID);
+
+                    dispatch(setNotStartAuction(newList));
+
+                    setIsOpenCalender(false);
+
+                    setCalenderValue("");
+                  }}
+                >
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      ) : (
+        ""
+      )}
     </div>
   );
 };

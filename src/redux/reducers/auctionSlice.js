@@ -8,6 +8,8 @@ const initialState = {
     minute: 0,
     second: 0,
   },
+
+  notStartAuction: [],
 };
 
 const auctionSlice = createSlice({
@@ -17,6 +19,10 @@ const auctionSlice = createSlice({
     setProperties: (state, action) => {
       state.properties = action.payload;
     },
+    setNotStartAuction: (state, action) => {
+      state.notStartAuction = action.payload;
+    },
+
     updateTimers: (state) => {
       state.properties.forEach((property) => {
         // Update the timer for each property
@@ -71,8 +77,13 @@ const auctionSlice = createSlice({
   },
 });
 
-export const { setProperties, updateTimers, setDetail, updateDetailTimers } =
-  auctionSlice.actions;
+export const {
+  setProperties,
+  updateTimers,
+  setDetail,
+  setNotStartAuction,
+  updateDetailTimers,
+} = auctionSlice.actions;
 export default auctionSlice.reducer;
 
 // You can use the following function to start the timer updates

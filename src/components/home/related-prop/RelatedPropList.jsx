@@ -59,7 +59,7 @@ const RelatedPropList = ({}) => {
           </IconButton>
         </div>
       </div>
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3} sx={{ width: "90%", margin: "0 auto" }}>
         {auctionList.map((prop, index) => (
           <Grid item key={index}>
             <AuctionPropCard

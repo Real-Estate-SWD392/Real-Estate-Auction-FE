@@ -65,11 +65,16 @@ const SignIn = (props) => {
         password: formik.values.password,
       });
 
-      if (res.response.role === "staff") {
-        nav("/accommondation-staff");
-      } else if (res.response.role === "admin") {
-        nav("/accommondation-admin");
+      if (res.response.status === "Banned") {
+        console.log("Banned");
+      } else {
+        if (res.response.role === "staff") {
+          nav("/accommondation-staff");
+        } else if (res.response.role === "admin") {
+          nav("/accommondation-admin");
+        }
       }
+
       props.setModalShow(false);
     } catch (error) {
       console.log(error);

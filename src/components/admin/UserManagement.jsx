@@ -79,11 +79,6 @@ const statusColor = {
     background: "rgb(182, 43, 41, 0.1)",
     color: "rgb(182, 43, 41)",
   },
-
-  New: {
-    background: "rgb(139,139,139, 0.1)",
-    color: "rgb(139,139,139)",
-  },
 };
 
 const userStatus = {
@@ -271,10 +266,10 @@ const UserManagement = ({}) => {
       color: "rgb(182, 43, 41)",
     },
     {
-      name: "New",
-      amount: statusCount.new,
-      background: "rgb(139,139,139, 0.1)",
-      color: "rgb(139,139,139)",
+      name: "Pending",
+      amount: statusCount.pending,
+      background: "rgb(249, 168, 29, 0.1)",
+      color: "rgb(249, 168, 29)",
     },
   ];
 

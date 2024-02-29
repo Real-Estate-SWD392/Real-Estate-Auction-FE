@@ -1,6 +1,5 @@
 import AdminDashboard from "../admin/AdminDashboard";
 import AdminLogin from "../admin/AdminLogin";
-import AuctionManagement from "../admin/AuctionManagement";
 import ReportManagement from "../admin/ReportManagement";
 import UserManagement from "../admin/UserManagement";
 import AuctionDetail from "../auction detail/AuctionDetail";
@@ -23,6 +22,7 @@ import SavedAuctions from "../user-settings/SavedAuctions/SavedAuctions";
 import WinningBids from "../user-settings/WinningBids/WinningBids";
 import Forbidden403 from "../forbidden-page/Forbidden403";
 import StaffLayout from "../layout/StaffLayout";
+import AuctionManagement from "../staff/AuctionManagement";
 
 const AppRoutes = [
   {

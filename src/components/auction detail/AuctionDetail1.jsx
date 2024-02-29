@@ -146,8 +146,6 @@ const AuctionDetail1 = () => {
       img: selectedMethod.img,
       balance: selectedMethod.balance,
     });
-
-    console.log(paymentMethod);
   };
 
   const navigate = useNavigate();
@@ -228,6 +226,8 @@ const AuctionDetail1 = () => {
 
   const [checkAlreadyBid, setAlreadyBid] = useState(false);
 
+  const [checkIsOwner, setCheckIsOwner] = useState(false);
+
   const [payNowBill, setPayNowBil] = useState({
     userID: user?._id,
     total: 100,
@@ -284,6 +284,12 @@ const AuctionDetail1 = () => {
     try {
       let res = null;
       res = await getAuctionById(id);
+
+      console.log(res.data.response);
+
+      if (res.data.response._id === user._id) {
+        setCheckIsOwner(true);
+      }
       dispatch(setDetail(res.data.response));
       setBidPrice(res.data.response.currentPrice);
       setJoinList(res.data.response.joinList);
@@ -384,8 +390,6 @@ const AuctionDetail1 = () => {
     }
   };
 
-  console.log(bidList);
-
   const handleAddToJoinList = async () => {
     try {
       const dataPost = {
@@ -431,14 +435,26 @@ const AuctionDetail1 = () => {
 
   const handleSetWinner = async (type) => {
     try {
-      await setWinner(id, user._id);
+      const dataPost = {
+        auctionID: id,
+        total: property.buyNowPrice * 24000,
+        bankCode: "",
+        language: "vn",
+        payment: "VNPay",
+        type: "Buy Now",
+      };
 
-      if (type === "Buy Now") {
-        toast.success("Buy Auction Successfully");
-        handleCloseBuy();
-      } else if (type === "Bid") {
-        // code more
-      }
+      const response = await createBill(dataPost);
+
+      window.location.href = response.url;
+
+      // await setWinner(id, user._id);
+      // if (type === "Buy Now") {
+      //   toast.success("Buy Auction Successfully");
+      //   handleCloseBuy();
+      // } else if (type === "Bid") {
+      //   // code more
+      // }
     } catch (error) {
       console.error("Set Winner Fail:", error);
     }
@@ -647,7 +663,7 @@ const AuctionDetail1 = () => {
               </Typography>
               <div className="document-dsiplay" style={contentMarginStyle}>
                 <Grid container spacing={4} rowSpacing={3}>
-                  {property?.pdf?.map((doc) => (
+                  {property?.realEstateID?.pdf?.map((doc) => (
                     <Grid item sx={{ display: "flex" }}>
                       <PictureAsPdfIcon sx={{ color: "#F25D49" }} />
                       <Typography
@@ -976,7 +992,7 @@ const AuctionDetail1 = () => {
                     spacing={2}
                     justifyContent="center"
                   >
-                    {!user && (
+                    {property.status === "End" && (
                       <Grid item>
                         <Button
                           sx={{
@@ -995,14 +1011,38 @@ const AuctionDetail1 = () => {
                             },
                           }}
                           disabled={true}
-                          onClick={() => setIsOpenLogin(true)}
+                        >
+                          This Auction Is Ended
+                        </Button>
+                      </Grid>
+                    )}
+
+                    {!user && property.status !== "End" && (
+                      <Grid item>
+                        <Button
+                          sx={{
+                            background: "#F25D49",
+                            textTransform: "none",
+                            color: "white",
+                            fontWeight: 600,
+                            py: "19px",
+                            px: "110px",
+                            borderRadius: "8px",
+                            fontSize: "15px",
+                            "&:hover": {
+                              background: "#F25D49",
+                              textTransform: "none",
+                              color: "white",
+                            },
+                          }}
+                          disabled={true}
                         >
                           Login To Start Bidding
                         </Button>
                       </Grid>
                     )}
 
-                    {user && (
+                    {user && property.status !== "End" && (
                       <>
                         <Grid item>
                           {joinList.includes(user?._id) ? (
@@ -1097,59 +1137,67 @@ const AuctionDetail1 = () => {
                       </>
                     )}
                   </Grid>
-                  <div
-                    className="divider"
-                    style={{ marginTop: "10px", marginBottom: "10px" }}
-                  >
-                    <Divider>
-                      <Typography variant="body1" color="#607178" fontSize={13}>
-                        or
-                      </Typography>
-                    </Divider>
-                  </div>
-                  <Button
-                    sx={{
-                      background: "#F25D49",
-                      textTransform: "none",
-                      color: "white",
-                      fontWeight: 600,
-                      py: "17px",
-                      px: "60px",
-                      borderRadius: "8px",
-                      fontSize: "15px",
-                      width: "100%",
-                      "&:hover": {
-                        background: "#F25D49",
-                        textTransform: "none",
-                        color: "white",
-                      },
-                    }}
-                    onClick={() => handleOpenBuy()}
-                  >
-                    Buy this property with{" "}
-                    {formattedValue(property.buyNowPrice)}
-                  </Button>
-                  <Button
-                    sx={{
-                      background: "#44A9FF",
-                      textTransform: "none",
-                      color: "white",
-                      fontWeight: 600,
-                      py: "17px",
-                      px: "96px",
-                      borderRadius: "8px",
-                      fontSize: "15px",
-                      width: "100%",
-                      "&:hover": {
-                        background: "#44A9FF",
-                        textTransform: "none",
-                        color: "white",
-                      },
-                      marginTop: "15px",
-                    }}
-                  >
-                    Chat with Property Owner
-                  </Button>
+                  {property.status !== "End" && (
+                    <>
+                      <div
+                        className="divider"
+                        style={{ marginTop: "10px", marginBottom: "10px" }}
+                      >
+                        <Divider>
+                          <Typography
+                            variant="body1"
+                            color="#607178"
+                            fontSize={13}
+                          >
+                            or
+                          </Typography>
+                        </Divider>
+                      </div>
+                      <Button
+                        sx={{
+                          background: "#F25D49",
+                          textTransform: "none",
+                          color: "white",
+                          fontWeight: 600,
+                          py: "17px",
+                          px: "60px",
+                          borderRadius: "8px",
+                          fontSize: "15px",
+                          width: "100%",
+                          "&:hover": {
+                            background: "#F25D49",
+                            textTransform: "none",
+                            color: "white",
+                          },
+                        }}
+                        onClick={() => handleOpenBuy()}
+                      >
+                        Buy this property with{" "}
+                        {formattedValue(property.buyNowPrice)}
+                      </Button>
+                      <Button
+                        sx={{
+                          background: "#44A9FF",
+                          textTransform: "none",
+                          color: "white",
+                          fontWeight: 600,
+                          py: "17px",
+                          px: "96px",
+                          borderRadius: "8px",
+                          fontSize: "15px",
+                          width: "100%",
+                          "&:hover": {
+                            background: "#44A9FF",
+                            textTransform: "none",
+                            color: "white",
+                          },
+                          marginTop: "15px",
+                        }}
+                      >
+                        Chat with Property Owner
+                      </Button>
+                    </>
+                  )}
                 </div>
               </Card>
               <Card

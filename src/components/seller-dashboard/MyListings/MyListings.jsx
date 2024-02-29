@@ -179,7 +179,7 @@ const MyListings = () => {
                     propID={prop._id}
                     propImg={prop.image}
                     propType={prop.type}
-                    desc={prop.desc}
+                    desc={prop.description}
                     propAddress={prop.propAddress}
                     beds={prop.bedRoom}
                     baths={prop.bathRoom}

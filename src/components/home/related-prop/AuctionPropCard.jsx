@@ -27,7 +27,7 @@ const colorBall = {
 };
 
 const imgCard = {
-  width: "320px",
+  width: "100%",
   height: "180px",
 };
 
@@ -56,10 +56,12 @@ const CurrencyFormatter = ({ amount }) => {
   const formattedAmount = Number(amount).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
   return (
-    <Typography variant="body1" color="initial" fontWeight={600} fontSize={20}>
+    <Typography variant="body1" color="initial" fontWeight={600} fontSize={18}>
       {formattedAmount}
     </Typography>
   );
