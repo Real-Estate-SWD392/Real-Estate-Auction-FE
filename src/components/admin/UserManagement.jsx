@@ -115,7 +115,7 @@ const UserManagement = ({}) => {
     lastName: "",
     phoneNumber: "",
     address: "",
-    email: "",
+    email: "phucanhdodang1211@gmail.com",
   });
 
   useEffect(() => {
@@ -227,7 +227,7 @@ const UserManagement = ({}) => {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 550,
+    width: 650,
     bgcolor: "background.paper",
     borderRadius: "20px",
   };
@@ -509,101 +509,6 @@ const UserManagement = ({}) => {
           </Table>
         </TableContainer>
       </div>
-      <Modal
-        open={openModal}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <div
-            className="header"
-            style={{
-              width: "100%",
-              borderTopLeftRadius: "10px",
-              borderTopRightRadius: "10px",
-              background: "rgb(17,139,244)",
-              padding: "10px 0",
-              marginTop: "-1px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              variant="body1"
-              color="white"
-              fontWeight={600}
-              sx={{ marginLeft: "150px" }}
-            >
-              Add New User
-            </Typography>
-            <IconButton
-              aria-label=""
-              onClick={() => handleCloseModal()}
-              sx={{ ml: "50px" }}
-            >
-              <HighlightOffIcon sx={{ color: "white" }} />
-            </IconButton>
-          </div>
-          <div
-            className="body"
-            style={{
-              marginTop: "30px",
-              width: "100%",
-            }}
-          >
-            <Grid container sx={{ width: "100%" }} rowSpacing={3}>
-              <Grid
-                item
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <FormControl sx={{ width: "calc(100% - 90px)" }}>
-                  <InputLabel id="demo-simple-select-label">
-                    User Role
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={newUser.role}
-                    label="User Role"
-                    // sx={{ width: "calc(100% - 50px)" }}
-                    // onChange={handleChange}
-                  >
-                    <MenuItem value={"Admin"}>Admin</MenuItem>
-                    <MenuItem value={"Staff"}>Staff</MenuItem>
-                    <MenuItem value={"Activated Member"}>
-                      Activated Member
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid
-                container
-                item
-                sx={{ display: "flex", justifyContent: "center" }}
-                spacing={2}
-              >
-                <Grid item>
-                  <TextField id="" label="Last Name" value={newUser.lastName} />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    id=""
-                    label="First Name"
-                    value={newUser.firstName}
-                  />
-                </Grid>
-              </Grid>
-              <Grid item>
-                <TextField id="" label="Email" value={newUser.email} />
-              </Grid>
-            </Grid>
-          </div>
-        </Box>
-      </Modal>
     </div>
   );
 };

@@ -1,7 +1,10 @@
 export const detailProp = {
   propID: 1,
-  propImg:
+  propImg: [
     "https://i.pinimg.com/564x/29/06/66/2906662076e6deca9cfecee295099cff.jpg",
+    "https://i.pinimg.com/564x/0f/8b/a5/0f8ba5b8d78ed7c43ababd190aafb282.jpghttps://i.pinimg.com/564x/0f/8b/a5/0f8ba5b8d78ed7c43ababd190aafb282.jpg",
+    "https://i.pinimg.com/236x/f8/b8/fb/f8b8fb2a3a93ea8844530d26928f19b7.jpg",
+  ],
   imgList: 5,
   propType: "villa",
   name: "Nguyen Duy Tan Hung",

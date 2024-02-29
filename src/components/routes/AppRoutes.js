@@ -1,3 +1,4 @@
+import TestComponent from "../TestComponent";
 import AdminDashboard from "../admin/AdminDashboard";
 import AdminLogin from "../admin/AdminLogin";
 import AuctionManagement from "../admin/AuctionManagement";
@@ -98,6 +99,10 @@ const AppRoutes = [
   {
     path: "/successful-payment",
     element: <SuccessPayment />,
+  },
+  {
+    path: "/test",
+    element: <TestComponent />,
   },
 ];
 
