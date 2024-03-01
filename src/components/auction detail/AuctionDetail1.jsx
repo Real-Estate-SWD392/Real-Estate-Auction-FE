@@ -17,6 +17,8 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { detailProp } from "./detailProp";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -46,6 +48,7 @@ import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AuctionContext } from "../../context/auction.context";
 import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
+import ReactSimpleImageViewer from "react-simple-image-viewer";
 
 const specStyle = {
   textAlign: "center",
@@ -114,6 +117,14 @@ export const methodList = [
   },
 ];
 
+export const propImg = [
+  "https://i.pinimg.com/564x/29/06/66/2906662076e6deca9cfecee295099cff.jpg",
+  "https://i.pinimg.com/564x/9c/08/91/9c0891ec3c2c3868af77c9966f27d3c6.jpg",
+  "https://i.pinimg.com/236x/f8/b8/fb/f8b8fb2a3a93ea8844530d26928f19b7.jpg",
+  "https://i.pinimg.com/236x/6d/11/f2/6d11f2506b6c7abdbb24c877032f22a2.jpg",
+  "https://i.pinimg.com/236x/6c/d6/6a/6cd66a92785870aff6e34e28d2e806ad.jpg",
+];
+
 const AuctionDetail1 = () => {
   const dispatch = useDispatch();
 
@@ -132,6 +143,25 @@ const AuctionDetail1 = () => {
     img: "",
     balance: 0,
   });
+  const [documentList, setDocumentList] = useState(detailProp.docs);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [imageList, setImageList] = useState([]);
+
+  //fetch img list here
+  useEffect(() => {
+    setImageList(propImg);
+  }, []);
+
+  const openImageViewer = useCallback((index) => {
+    setCurrentImage(index);
+    setIsViewerOpen(true);
+  }, []);
+
+  const closeImageViewer = () => {
+    setCurrentImage(0);
+    setIsViewerOpen(false);
+  };
 
   const { removeFromFavList } = useContext(UserContext);
 
@@ -471,6 +501,7 @@ const AuctionDetail1 = () => {
   console.log(property);
   console.log(checkIsOwner);
 
+  console.log(imageList.length);
   return (
     <Box sx={{ background: "white" }}>
       <div
@@ -515,9 +546,8 @@ const AuctionDetail1 = () => {
                   height: "450px",
                   borderRadius: "15px",
                   display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  background: "#DDDDDD",
+                  justifyContent: "flex-start",
+                  backgroundColor: "rgb(0,0,0, 0.1)",
                   position: "relative",
                 }}
               >
@@ -526,30 +556,43 @@ const AuctionDetail1 = () => {
                   src={property?.realEstateID?.image[0]}
                   sx={{
                     height: "100%",
-                    width: "calc(100% - 70px)",
+                    width: "calc(100% - 100px)",
                     borderRadius: "5px",
                   }}
                 />
-                <Button
-                  startIcon={<AppsIcon />}
-                  sx={{
+                <div
+                  className=""
+                  style={{
                     position: "absolute",
-                    bottom: 20,
-                    right: 20,
-                    background: "rgb(0,0,0,0.6)",
-                    textTransform: "none",
-                    color: "white",
-                    px: "15px",
-                    py: "10px",
-                    fontSize: "15px",
-                    "&:hover": {
-                      background: "rgb(0,0,0,0.6)",
-                      color: "white",
-                    },
+                    top: 10,
+                    right: 10,
                   }}
                 >
-                  View {property?.realEstateID?.image.length} photo(s)
-                </Button>
+                  <Grid container spacing={2} flexDirection="column">
+                    {imageList.map((img, index) => (
+                      <Grid item key={index}>
+                        <img
+                          src={img}
+                          alt=""
+                          onClick={() => openImageViewer(index)}
+                          width="80px"
+                          height="73px"
+                          style={{ borderRadius: "5px", cursor: "pointer" }}
+                        />
+                      </Grid>
+                    ))}
+
+                    {isViewerOpen && (
+                      <ReactSimpleImageViewer
+                        src={imageList}
+                        currentIndex={currentImage}
+                        disableScroll={false}
+                        closeOnClickOutside={true}
+                        onClose={closeImageViewer}
+                      />
+                    )}
+                  </Grid>
+                </div>
               </Card>
             </div>
             <div

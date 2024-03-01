@@ -1,3 +1,4 @@
+import TestComponent from "../TestComponent";
 import AdminDashboard from "../admin/AdminDashboard";
 import AdminLogin from "../admin/AdminLogin";
 import ReportManagement from "../admin/ReportManagement";
@@ -142,6 +143,10 @@ const AppRoutes = [
   },
 
   { path: "/bill/:id", element: <SuccessPayment /> },
+  {
+    path: "/test",
+    element: <TestComponent />,
+  },
 ];
 
 export default AppRoutes;
