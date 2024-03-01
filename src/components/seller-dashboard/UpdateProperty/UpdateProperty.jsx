@@ -26,6 +26,8 @@ import { AuthContext } from "../../../context/auth.context";
 import { RealEstateContext } from "../../../context/real-estate.context";
 import { useParams } from "react-router-dom";
 import Loading from "../../loading/Loading";
+import { validationProperty } from "../propertyValidate";
+import { useFormik } from "formik";
 
 const REQUIRED_COUNT = 180;
 
@@ -110,6 +112,29 @@ const UpdateProperty = () => {
     provinces: [],
     districts: [],
     wards: [],
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      propID: "",
+      ownerID: user._id,
+      street: "",
+      city: "",
+      district: "",
+      ward: "",
+      image: [],
+      type: "",
+      size: "",
+      bedRoom: 1,
+      bathRoom: 1,
+      description: "",
+      pdf: [],
+    },
+
+    validationSchema: validationProperty,
+    onSubmit: (values) => {
+      console.log("Form Data", values);
+    },
   });
 
   const handleSelectLocation = async (fieldName, selectedValue) => {

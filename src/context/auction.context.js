@@ -234,6 +234,41 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const updateAuction = async (id, values) => {
+    try {
+      console.log(id, values);
+
+      const response = await axios.put(
+        `http://localhost:8080/auction/update/${id}`,
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Update Sucess: ", data);
+        toast.success("Update Auction Success");
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Update failed", errorData);
+        toast.error("Update Auction Fail");
+
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Create Auction Fail!!");
+      console.log(error);
+    }
+  };
+
   const addToJoinList = async (id) => {
     try {
       const response = await axios.put(
@@ -381,6 +416,7 @@ export const AuctionContextProvider = ({ children }) => {
         sortByTime,
         sortByPopular,
         createAuction,
+        updateAuction,
         getAuctionByRealEstateID,
         closeAuction,
         setWinner,

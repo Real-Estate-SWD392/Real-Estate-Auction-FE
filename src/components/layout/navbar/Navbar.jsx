@@ -85,7 +85,7 @@ function ResponsiveAppBar({ userName }) {
 
   const { user } = useContext(AuthContext);
 
-  console.log(user);
+  // console.log(user);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -110,9 +110,9 @@ function ResponsiveAppBar({ userName }) {
 
   const [modalShow, setModalShow] = React.useState(false);
 
-  console.log(anchorEl);
+  // console.log(anchorEl);
 
-  console.log(Boolean(anchorEl));
+  // console.log(Boolean(anchorEl));
 
   return (
     <div className="navbar-container">

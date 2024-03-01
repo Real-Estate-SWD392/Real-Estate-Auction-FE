@@ -21,7 +21,7 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useid, useNavigate, useParams } from "react-router-dom";
-import { styled, width } from "@mui/system";
+import { display, styled, width } from "@mui/system";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import money_icon from "../../assets/img/detail_money_icon.png";
@@ -230,7 +230,7 @@ const AuctionDetail1 = () => {
 
   const [payNowBill, setPayNowBil] = useState({
     userID: user?._id,
-    total: 100,
+    total: property?.buyNowPrice * (10 / 100),
     auctionID: id,
   });
 
@@ -266,7 +266,7 @@ const AuctionDetail1 = () => {
 
   const checkFavorite = async () => {
     try {
-      setIsFavorite(user.favoriteList.some((item) => item._id === id));
+      setIsFavorite(user?.favoriteList.some((item) => item._id === id));
     } catch (error) {
       console.error("Error checking favorite:", error);
     }
@@ -287,10 +287,14 @@ const AuctionDetail1 = () => {
 
       console.log(res.data.response);
 
-      if (res.data.response._id === user._id) {
+      if (res?.data?.response?.realEstateID?.ownerID?._id === user?._id) {
         setCheckIsOwner(true);
       }
       dispatch(setDetail(res.data.response));
+      setPayNowBil((prev) => ({
+        ...prev,
+        total: res.data.response.buyNowPrice * (10 / 100),
+      }));
       setBidPrice(res.data.response.currentPrice);
       setJoinList(res.data.response.joinList);
     } catch (error) {
@@ -394,7 +398,7 @@ const AuctionDetail1 = () => {
     try {
       const dataPost = {
         auctionID: id,
-        total: payNowBill.total * 24000,
+        total: payNowBill.total,
         bankCode: "",
         language: "vn",
         payment: "VNPay",
@@ -464,6 +468,8 @@ const AuctionDetail1 = () => {
     getAuctionInfoById();
     checkFavorite();
   }, [id]);
+  console.log(property);
+  console.log(checkIsOwner);
 
   return (
     <Box sx={{ background: "white" }}>
@@ -781,7 +787,6 @@ const AuctionDetail1 = () => {
                 elevation={0}
                 sx={{
                   width: "432px",
-                  maxHeight: "791px",
                   border: "1px solid #D1DEEA",
                   borderRadius: "16px",
                   px: "20px",
@@ -979,73 +984,25 @@ const AuctionDetail1 = () => {
                     </Typography>
                   </Box>
                 </div>
-                <div className="note" style={{ marginTop: "40px" }}>
-                  <Typography variant="body1" color="#607178">
-                    Note: The seller may choose to negotiate with bidders even
-                    if the reserve price isn't met.
-                  </Typography>
-                </div>
-                <div className="button-action" style={{ marginTop: "30px" }}>
-                  <Grid
-                    container
-                    alignItems="center"
-                    spacing={2}
-                    justifyContent="center"
-                  >
-                    {property.status === "End" && (
-                      <Grid item>
-                        <Button
-                          sx={{
-                            background: "#F25D49",
-                            textTransform: "none",
-                            color: "white",
-                            fontWeight: 600,
-                            py: "19px",
-                            px: "110px",
-                            borderRadius: "8px",
-                            fontSize: "15px",
-                            "&:hover": {
-                              background: "#F25D49",
-                              textTransform: "none",
-                              color: "white",
-                            },
-                          }}
-                          disabled={true}
-                        >
-                          This Auction Is Ended
-                        </Button>
-                      </Grid>
-                    )}
-
-                    {!user && property.status !== "End" && (
-                      <Grid item>
-                        <Button
-                          sx={{
-                            background: "#F25D49",
-                            textTransform: "none",
-                            color: "white",
-                            fontWeight: 600,
-                            py: "19px",
-                            px: "110px",
-                            borderRadius: "8px",
-                            fontSize: "15px",
-                            "&:hover": {
-                              background: "#F25D49",
-                              textTransform: "none",
-                              color: "white",
-                            },
-                          }}
-                          disabled={true}
-                        >
-                          Login To Start Bidding
-                        </Button>
-                      </Grid>
-                    )}
-
-                    {user && property.status !== "End" && (
-                      <>
-                        <Grid item>
-                          {joinList.includes(user?._id) ? (
+                {!checkIsOwner ? (
+                  <>
+                    <div className="note" style={{ marginTop: "40px" }}>
+                      <Typography variant="body1" color="#607178">
+                        Note: The seller may choose to negotiate with bidders
+                        even if the reserve price isn't met.
+                      </Typography>
+                    </div>
+                    <div
+                      className="button-action"
+                      style={{ marginTop: "30px" }}
+                    >
+                      <Grid
+                        container
+                        alignItems="center"
+                        justifyContent="space-between"
+                      >
+                        {property.status === "End" && (
+                          <Grid item>
                             <Button
                               sx={{
                                 background: "#F25D49",
@@ -1062,11 +1019,15 @@ const AuctionDetail1 = () => {
                                   color: "white",
                                 },
                               }}
-                              onClick={() => handleOpen()}
+                              disabled={true}
                             >
-                              Place Bid
+                              This Auction Is Ended
                             </Button>
-                          ) : (
+                          </Grid>
+                        )}
+
+                        {!user && property.status !== "End" && (
+                          <Grid item>
                             <Button
                               sx={{
                                 background: "#F25D49",
@@ -1074,7 +1035,7 @@ const AuctionDetail1 = () => {
                                 color: "white",
                                 fontWeight: 600,
                                 py: "19px",
-                                px: "50px",
+                                px: "110px",
                                 borderRadius: "8px",
                                 fontSize: "15px",
                                 "&:hover": {
@@ -1083,122 +1044,177 @@ const AuctionDetail1 = () => {
                                   color: "white",
                                 },
                               }}
-                              onClick={() => handleOpenPay()}
+                              disabled={true}
                             >
-                              Pay {formattedValue(100)} To Start Bidding
+                              Login To Start Bidding
                             </Button>
-                          )}
-                        </Grid>
+                          </Grid>
+                        )}
 
-                        <Grid item>
-                          <Checkbox
-                            sx={{
-                              borderRadius: "8px",
-                              border: "1px solid #F25D49",
-                              py: "17px",
-                              px: "20px",
-                              width: "100%",
-                            }}
-                            icon={
-                              <FavoriteBorderIcon
+                        {user && property.status !== "End" && (
+                          <>
+                            <Grid item>
+                              {joinList.includes(user?._id) ? (
+                                <Button
+                                  sx={{
+                                    background: "#F25D49",
+                                    textTransform: "none",
+                                    color: "white",
+                                    fontWeight: 600,
+                                    py: "19px",
+                                    px: "110px",
+                                    borderRadius: "8px",
+                                    fontSize: "15px",
+                                    "&:hover": {
+                                      background: "#F25D49",
+                                      textTransform: "none",
+                                      color: "white",
+                                    },
+                                  }}
+                                  onClick={() => handleOpen()}
+                                >
+                                  Place Bid
+                                </Button>
+                              ) : (
+                                <Button
+                                  sx={{
+                                    background: "#F25D49",
+                                    textTransform: "none",
+                                    color: "white",
+                                    fontWeight: 600,
+                                    py: "19px",
+                                    px: "40px",
+                                    borderRadius: "8px",
+                                    fontSize: "14px",
+                                    "&:hover": {
+                                      background: "#F25D49",
+                                      textTransform: "none",
+                                      color: "white",
+                                    },
+                                  }}
+                                  onClick={() => handleOpenPay()}
+                                >
+                                  Pay {formattedValue(payNowBill?.total)} To
+                                  Start Bidding
+                                </Button>
+                              )}
+                            </Grid>
+
+                            <Grid item>
+                              <Checkbox
                                 sx={{
-                                  color: "#EF272C",
-                                  width: "30px",
-                                  height: "30px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #F25D49",
+                                  py: "17px",
+                                  px: "20px",
+                                  width: "100%",
+                                }}
+                                icon={
+                                  <FavoriteBorderIcon
+                                    sx={{
+                                      color: "#EF272C",
+                                      width: "30px",
+                                      height: "30px",
+                                    }}
+                                  />
+                                }
+                                checkedIcon={
+                                  <FavoriteIcon
+                                    sx={{
+                                      color: "#EF272C",
+                                      width: "30px",
+                                      height: "30px",
+                                    }}
+                                  />
+                                }
+                                checked={
+                                  user &&
+                                  user.favoriteList.find(
+                                    (item) => item._id === id
+                                  )
+                                }
+                                onClick={() => {
+                                  if (
+                                    user.favoriteList.find(
+                                      (item) => item._id === id
+                                    )
+                                  ) {
+                                    handleRemoveFromFavList();
+                                  } else {
+                                    handleAddAuctionToFavList();
+                                  }
                                 }}
                               />
-                            }
-                            checkedIcon={
-                              <FavoriteIcon
-                                sx={{
-                                  color: "#EF272C",
-                                  width: "30px",
-                                  height: "30px",
-                                }}
-                              />
-                            }
-                            checked={
-                              user &&
-                              user.favoriteList.find((item) => item._id === id)
-                            }
-                            onClick={() => {
-                              if (
-                                user.favoriteList.find(
-                                  (item) => item._id === id
-                                )
-                              ) {
-                                handleRemoveFromFavList();
-                              } else {
-                                handleAddAuctionToFavList();
-                              }
-                            }}
-                          />
-                        </Grid>
-                      </>
-                    )}
-                  </Grid>
-                  {property.status !== "End" && (
-                    <>
-                      <div
-                        className="divider"
-                        style={{ marginTop: "10px", marginBottom: "10px" }}
-                      >
-                        <Divider>
-                          <Typography
-                            variant="body1"
-                            color="#607178"
-                            fontSize={13}
+                            </Grid>
+                          </>
+                        )}
+                      </Grid>
+                      {property.status !== "End" && (
+                        <>
+                          <div
+                            className="divider"
+                            style={{ marginTop: "10px", marginBottom: "10px" }}
                           >
-                            or
-                          </Typography>
-                        </Divider>
-                      </div>
-                      <Button
-                        sx={{
-                          background: "#F25D49",
-                          textTransform: "none",
-                          color: "white",
-                          fontWeight: 600,
-                          py: "17px",
-                          px: "60px",
-                          borderRadius: "8px",
-                          fontSize: "15px",
-                          width: "100%",
-                          "&:hover": {
-                            background: "#F25D49",
-                            textTransform: "none",
-                            color: "white",
-                          },
-                        }}
-                        onClick={() => handleOpenBuy()}
-                      >
-                        Buy this property with{" "}
-                        {formattedValue(property.buyNowPrice)}
-                      </Button>
-                      <Button
-                        sx={{
-                          background: "#44A9FF",
-                          textTransform: "none",
-                          color: "white",
-                          fontWeight: 600,
-                          py: "17px",
-                          px: "96px",
-                          borderRadius: "8px",
-                          fontSize: "15px",
-                          width: "100%",
-                          "&:hover": {
-                            background: "#44A9FF",
-                            textTransform: "none",
-                            color: "white",
-                          },
-                          marginTop: "15px",
-                        }}
-                      >
-                        Chat with Property Owner
-                      </Button>
-                    </>
-                  )}
-                </div>
+                            <Divider>
+                              <Typography
+                                variant="body1"
+                                color="#607178"
+                                fontSize={13}
+                              >
+                                or
+                              </Typography>
+                            </Divider>
+                          </div>
+                          <Button
+                            sx={{
+                              background: "#F25D49",
+                              textTransform: "none",
+                              color: "white",
+                              fontWeight: 600,
+                              py: "17px",
+                              px: "60px",
+                              borderRadius: "8px",
+                              fontSize: "15px",
+                              width: "100%",
+                              "&:hover": {
+                                background: "#F25D49",
+                                textTransform: "none",
+                                color: "white",
+                              },
+                            }}
+                            onClick={() => handleOpenBuy()}
+                          >
+                            Buy this property with{" "}
+                            {formattedValue(property.buyNowPrice)}
+                          </Button>
+                          <Button
+                            sx={{
+                              background: "#44A9FF",
+                              textTransform: "none",
+                              color: "white",
+                              fontWeight: 600,
+                              py: "17px",
+                              px: "96px",
+                              borderRadius: "8px",
+                              fontSize: "15px",
+                              width: "100%",
+                              "&:hover": {
+                                background: "#44A9FF",
+                                textTransform: "none",
+                                color: "white",
+                              },
+                              marginTop: "15px",
+                            }}
+                          >
+                            Chat with Property Owner
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  ""
+                )}
               </Card>
               <Card
                 elevation={0}

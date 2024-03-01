@@ -23,6 +23,7 @@ import WinningBids from "../user-settings/WinningBids/WinningBids";
 import Forbidden403 from "../forbidden-page/Forbidden403";
 import StaffLayout from "../layout/StaffLayout";
 import AuctionManagement from "../staff/AuctionManagement";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 const AppRoutes = [
   {
@@ -44,10 +45,12 @@ const AppRoutes = [
       {
         path: "/sell",
         element: (
-          <SellerComponent
-            userName={"Anh Anhidaiowudoiauwdiouaw"}
-            userEmail={"phucanhdodang1211@gmail.com"}
-          />
+          <ProtectedRoutes name={"sell"}>
+            <SellerComponent
+              userName={"Anh Anhidaiowudoiauwdiouaw"}
+              userEmail={"phucanhdodang1211@gmail.com"}
+            />
+          </ProtectedRoutes>
         ),
         children: [
           {

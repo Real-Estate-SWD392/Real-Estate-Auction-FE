@@ -13,6 +13,7 @@ import { RealEstateContextProvider } from "./context/real-estate.context";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { BidContextProvider } from "./context/bid.context";
+import { BrowserRouter } from "react-router-dom";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
@@ -27,18 +28,17 @@ root.render(
       draggable
       pauseOnHover
     />
-
-    <AuthContextProvider>
-      <UserContextProvider>
-        <AuctionContextProvider>
-          <RealEstateContextProvider>
-            <BidContextProvider>
-              <App />
-            </BidContextProvider>
-          </RealEstateContextProvider>
-        </AuctionContextProvider>
-      </UserContextProvider>
-    </AuthContextProvider>
+      <AuthContextProvider>
+        <UserContextProvider>
+          <AuctionContextProvider>
+            <RealEstateContextProvider>
+              <BidContextProvider>
+                <App />
+              </BidContextProvider>
+            </RealEstateContextProvider>
+          </AuctionContextProvider>
+        </UserContextProvider>
+      </AuthContextProvider>
   </Provider>
 );
 

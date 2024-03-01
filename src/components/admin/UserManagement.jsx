@@ -165,7 +165,7 @@ const UserManagement = ({}) => {
     fetchUserList();
   }, []);
 
-  console.log(userList);
+  // console.log(userList);
 
   const handleOpenPopover = (event, index) => {
     setAnchorEl(event.currentTarget);
@@ -290,7 +290,7 @@ const UserManagement = ({}) => {
               const updatedAuctionList = [...userList];
               updatedAuctionList[indexToUpdate] = res.response;
 
-              console.log("updatedAuctionList", updatedAuctionList);
+              // console.log("updatedAuctionList", updatedAuctionList);
               setUserList(updatedAuctionList);
             }
           }

@@ -127,7 +127,7 @@ const MyListingCard = ({
     realEstateID: propID,
   });
 
-  const { createAuction, auctionList, setAuctionList } =
+  const { createAuction, auctionList, setAuctionList, updateAuction } =
     useContext(AuctionContext);
 
   const nav = useNavigate();
@@ -171,23 +171,44 @@ const MyListingCard = ({
   console.log(property);
 
   const handleSubmit = async () => {
-    const res = await createAuction(auction);
-    console.log(res);
+    const checkExistAuction = auctionLists.filter(
+      (item) => item._id === propID
+    );
 
-    if (res.result) {
-      // Find the index of the item with the same _id in the auctionList array
-      const indexToUpdate = auctionLists.findIndex(
-        (item) => item._id === res.result.realEstateID
-      );
+    console.log(checkExistAuction);
 
-      // If the index is found, update the auctionList
-      if (indexToUpdate !== -1) {
-        const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
-        updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
-        setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
+    if (checkExistAuction.length > 0) {
+      // const res = await updateAuction(propID, auction);
+      // console.log(res);
+      // if (res.response) {
+      //   const indexToUpdate = auctionLists.findIndex(
+      //     (item) => item._id === res.response.realEstateID
+      //   );
+      //   if (indexToUpdate !== -1) {
+      //     const updatedAuctionList = [...auctionLists];
+      //     updatedAuctionList[indexToUpdate].status = "Pending";
+      //     setAuctionLists(updatedAuctionList);
+      //   }
+      // }
+    } else {
+      const res = await createAuction(auction);
+      console.log(res);
+
+      if (res.result) {
+        // Find the index of the item with the same _id in the auctionList array
+        const indexToUpdate = auctionLists.findIndex(
+          (item) => item._id === res.result.realEstateID
+        );
+
+        // If the index is found, update the auctionList
+        if (indexToUpdate !== -1) {
+          const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
+          updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
+          setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
+        }
       }
+      handleClose();
     }
-    handleClose();
   };
 
   const handleNavigate = async () => {
@@ -376,14 +397,19 @@ const MyListingCard = ({
                     break;
                   }
 
+                  case "Pending": {
+                    handleOpen();
+                    break;
+                  }
+
                   default: {
                     break;
                   }
                 }
               }}
             >
-              {status === "Pending" || status === "Sold"
-                ? "View Detail"
+              {status === "Pending"
+                ? "Update Auction"
                 : status === "In Auction"
                 ? "View Auction"
                 : "Open Auction"}

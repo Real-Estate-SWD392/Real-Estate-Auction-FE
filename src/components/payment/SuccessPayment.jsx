@@ -230,7 +230,7 @@ const SuccessPayment = () => {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <CurrencyFormatter amount={bill?.total / 24000} />
+                  <CurrencyFormatter amount={bill?.total} />
                 </Grid>
                 <Grid item>
                   <Typography

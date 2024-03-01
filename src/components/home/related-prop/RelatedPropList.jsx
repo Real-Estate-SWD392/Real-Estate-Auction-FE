@@ -31,23 +31,22 @@ const RelatedPropList = ({}) => {
     <>
       <div
         className="header-rcm-prop"
-        style={{ display: "flex", justifyContent: "space-between" }}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "0 80px",
+        }}
       >
         <Typography
           variant="body1"
           color="initial"
           fontSize={28}
           fontWeight={500}
-          sx={{ marginLeft: "85px", mb: "15px" }}
         >
           Recommended Properties
         </Typography>
-        <div className="navigate-next" style={{ marginRight: "85px" }}>
-          <IconButton
-            style={buttonStyle}
-            sx={{ mr: "20px" }}
-            onClick={handleNavigate}
-          >
+        <div className="navigate-next">
+          <IconButton style={buttonStyle} onClick={handleNavigate}>
             <ChevronRightIcon
               sx={{
                 transform: "rotate(180deg)",
@@ -60,8 +59,9 @@ const RelatedPropList = ({}) => {
         </div>
       </div>
       <Grid container spacing={3} sx={{ width: "90%", margin: "0 auto" }}>
+        {/* <Grid container spacing={3} justifyContent="flex-start" style={{padding: "0 85px", marginTop:"20px"}}> */}
         {auctionList.map((prop, index) => (
-          <Grid item key={index}>
+          <Grid item key={index} xs={3} md={3}>
             <AuctionPropCard
               id={prop._id}
               propImg={prop.realEstateID.image[0]}

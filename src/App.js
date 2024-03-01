@@ -24,9 +24,9 @@ function App() {
     updatedList.push(res.response[0]);
 
     dispatch(setProperties(updatedList));
-
-    console.log(res);
   };
+
+  console.log(auctionList);
 
   useEffect(() => {
     if (notStartList.length > 0) {
@@ -37,7 +37,6 @@ function App() {
 
         // Filter the list of not started auctions to find auctions that start today
         const auctionsToOpen = notStartList?.filter((auction) => {
-          console.log(auction?.startDate);
           const startDay = new Date(auction?.startDate);
 
           startDay.setDate(startDay.getDate() - 1);

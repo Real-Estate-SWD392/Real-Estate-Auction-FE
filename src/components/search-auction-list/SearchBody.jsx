@@ -18,7 +18,7 @@ import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
 import { textAlign } from "@mui/system";
 
-export const listPropType = ["Condo", "Villa", "Aparment"];
+export const listPropType = ["Condominium", "Villa","Penthouse","Ground","House"];
 export const listCity = ["Thủ Đức", "Hồ Chí Minh"];
 export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];

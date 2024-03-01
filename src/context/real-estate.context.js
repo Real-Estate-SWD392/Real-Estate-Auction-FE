@@ -61,15 +61,15 @@ export const RealEstateContextProvider = ({ children }) => {
   };
 
   const createNewRealEstate = async (values) => {
-    values.property.image = values.image;
-    values.property.pdf = values.pdf;
+    values.formValues.image = values.image;
+    values.formValues.pdf = values.pdf;
 
-    console.log(values);
+    console.log("Hu hon chua 1",values);
 
     try {
       const response = await axios.post(
         "http://localhost:8080/real-estate/",
-        values.property,
+        values.formValues,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
