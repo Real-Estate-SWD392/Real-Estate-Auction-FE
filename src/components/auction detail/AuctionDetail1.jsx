@@ -2061,6 +2061,14 @@ const AuctionDetail1 = () => {
           </Box>
         </Modal>
       </div>
+
+      <div className="image-modal">
+        <Modal>
+          <Box>
+            
+          </Box>
+        </Modal>
+      </div>
     </Box>
   );
 };

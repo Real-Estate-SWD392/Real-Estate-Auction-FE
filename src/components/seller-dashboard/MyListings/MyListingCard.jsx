@@ -1,5 +1,6 @@
 import {
   Card,
+  FormHelperText,
   Icon,
   IconButton,
   InputAdornment,
@@ -29,6 +30,8 @@ import { useEffect } from "react";
 import { AuctionContext } from "../../../context/auction.context";
 import { AuthContext } from "../../../context/auth.context";
 import { useNavigate } from "react-router";
+import { useFormik } from "formik";
+import { validationCreateAuction } from "./validateCreateAuction";
 
 const imgCard = {
   width: "320px",
@@ -132,6 +135,30 @@ const MyListingCard = ({
 
   const nav = useNavigate();
 
+  const formik = useFormik({
+    initialValues: {
+      id: "",
+      name: `${user.firstName} ${user.lastName}`,
+      day: 0,
+      hour: 0,
+      minute: 3,
+      second: 0,
+      startPrice: 1,
+      priceStep: 1,
+      buyNowPrice: 1,
+      realEstateID: propID,
+    },
+
+    validationSchema: validationCreateAuction,
+    onSubmit: (values) => {
+      console.log("hahaha");
+      console.log("Auction create data", values);
+      handleSubmitAuction();
+    },
+  });
+
+  console.log("Value of formik", formik.values);
+
   const handleOpen = () => setOpen(true);
 
   const handleClose = () => setOpen(false);
@@ -168,26 +195,30 @@ const MyListingCard = ({
     }));
   };
 
-  console.log(property);
+  console.log("real data1", auction);
+  console.log("real data2", formik.values);
+  const handleSubmitAuction = async () => {
+    try {
+      const res = await createAuction(formik.values);
+      console.log(res);
 
-  const handleSubmit = async () => {
-    const res = await createAuction(auction);
-    console.log(res);
+      if (res.result) {
+        // Find the index of the item with the same _id in the auctionList array
+        const indexToUpdate = auctionLists.findIndex(
+          (item) => item._id === res.result.realEstateID
+        );
 
-    if (res.result) {
-      // Find the index of the item with the same _id in the auctionList array
-      const indexToUpdate = auctionLists.findIndex(
-        (item) => item._id === res.result.realEstateID
-      );
-
-      // If the index is found, update the auctionList
-      if (indexToUpdate !== -1) {
-        const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
-        updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
-        setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
+        // If the index is found, update the auctionList
+        if (indexToUpdate !== -1) {
+          const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
+          updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
+          setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
+        }
       }
+      handleClose();
+    } catch (error) {
+      console.log("Cannot create", error);
     }
-    handleClose();
   };
 
   const handleNavigate = async () => {
@@ -389,6 +420,7 @@ const MyListingCard = ({
           </Box>
         </div>
       </Card>
+
       <Modal
         open={open}
         onClose={handleClose}
@@ -445,10 +477,13 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.day}
-                    onChange={(e) =>
-                      handleDurationChange("day", e.target.value, 999)
-                    }
+                    name="day"
+                    // value={auction.day}
+                    value={formik.values.day}
+                    onChange={formik.handleChange}
+                    // onChange={(e) =>
+                    //   handleDurationChange("day", e.target.value, 999)
+                    // }
                     inputProps={{
                       inputMode: "numeric",
                       pattern: "[0-9]*",
@@ -473,10 +508,13 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.hour}
-                    onChange={(e) =>
-                      handleDurationChange("hour", e.target.value, 24)
-                    }
+                    // value={auction.hour}
+                    // onChange={(e) =>
+                    //   handleDurationChange("hour", e.target.value, 24)
+                    // }
+                    name="hour"
+                    value={formik.values.hour}
+                    onChange={formik.handleChange}
                     inputProps={{
                       inputMode: "numeric",
                       pattern: "[0-9]*",
@@ -501,10 +539,13 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.minute}
-                    onChange={(e) =>
-                      handleDurationChange("minute", e.target.value, 59)
-                    }
+                    // value={auction.minute}
+                    // onChange={(e) =>
+                    //   handleDurationChange("minute", e.target.value, 59)
+                    // }
+                    name="minute"
+                    value={formik.values.minute}
+                    onChange={formik.handleChange}
                     inputProps={{
                       inputMode: "numeric",
                       pattern: "[0-9]*",
@@ -529,10 +570,13 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     sx={fieldWidth}
-                    value={auction.second}
-                    onChange={(e) =>
-                      handleDurationChange("second", e.target.value, 59)
-                    }
+                    // value={auction.second}
+                    // onChange={(e) =>
+                    //   handleDurationChange("second", e.target.value, 59)
+                    // }
+                    name="second"
+                    value={formik.values.second}
+                    onChange={formik.handleChange}
                     inputProps={{
                       style: durationText,
                       inputMode: "numeric",
@@ -561,11 +605,14 @@ const MyListingCard = ({
                 <Grid item>
                   <TextField
                     label="Starting price"
-                    value={auction.startPrice}
+                    // value={auction.startPrice}
                     sx={{ width: "318px" }}
-                    onChange={(e) => {
-                      handlePriceChange("startPrice", e.target.value);
-                    }}
+                    // onChange={(e) => {
+                    //   handlePriceChange("startPrice", e.target.value);
+                    // }}
+                    name="startPrice"
+                    value={formik.values.startPrice}
+                    onChange={formik.handleChange}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>
@@ -575,12 +622,15 @@ const MyListingCard = ({
                 </Grid>
                 <Grid item>
                   <TextField
-                    label="Price step"
-                    value={auction.priceStep}
+                    label="Price step *"
+                    // value={auction.priceStep}
                     sx={{ width: "165px" }}
-                    onChange={(e) => {
-                      handlePriceChange("priceStep", e.target.value);
-                    }}
+                    // onChange={(e) => {
+                    //   handlePriceChange("priceStep", e.target.value);
+                    // }}
+                    name="priceStep"
+                    value={formik.values.priceStep}
+                    onChange={formik.handleChange}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>
@@ -591,11 +641,14 @@ const MyListingCard = ({
               </Grid>
               <TextField
                 label="Buy-now price"
-                value={auction.buyNowPrice}
+                // value={auction.buyNowPrice}
                 sx={{ width: "500px", mt: "30px" }}
-                onChange={(e) => {
-                  handlePriceChange("buyNowPrice", e.target.value);
-                }}
+                // onChange={(e) => {
+                //   handlePriceChange("buyNowPrice", e.target.value);
+                // }}
+                name="buyNowPrice"
+                value={formik.values.buyNowPrice}
+                onChange={formik.handleChange}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">$</InputAdornment>
@@ -603,7 +656,35 @@ const MyListingCard = ({
                 }}
               />
             </div>
+            <div className="error-info" style={{ float: "left" }}>
+              {formik.touched.day && formik.errors.day && (
+                <FormHelperText error>{formik.errors.day}</FormHelperText>
+              )}
+              {formik.touched.hour && formik.errors.hour && (
+                <FormHelperText error>{formik.errors.hour}</FormHelperText>
+              )}
+              {formik.touched.minute && formik.errors.minute && (
+                <FormHelperText error>{formik.errors.minute}</FormHelperText>
+              )}
+              {formik.touched.second && formik.errors.second && (
+                <FormHelperText error>{formik.errors.second}</FormHelperText>
+              )}
+              {formik.touched.startPrice && formik.errors.startPrice && (
+                <FormHelperText error>
+                  {formik.errors.startPrice}
+                </FormHelperText>
+              )}
+              {formik.touched.priceStep && formik.errors.priceStep && (
+                <FormHelperText error>{formik.errors.priceStep}</FormHelperText>
+              )}
+              {formik.touched.buyNowPrice && formik.errors.buyNowPrice && (
+                <FormHelperText error>
+                  {formik.errors.buyNowPrice}
+                </FormHelperText>
+              )}
+            </div>
             <Button
+              // onClick={formik.handleSubmit}
               variant="contained"
               sx={{
                 mt: "40px",
@@ -617,7 +698,7 @@ const MyListingCard = ({
                 fontWeight: 600,
                 borderRadius: "8px",
               }}
-              onClick={handleSubmit}
+              onClick={formik.handleSubmit}
             >
               Set Auction
             </Button>
