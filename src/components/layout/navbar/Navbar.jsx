@@ -35,7 +35,7 @@ const pageNames = [
   },
   {
     name: "Sell",
-    url: "/sell",
+    url: "/sell/profile",
   },
   {
     name: "Alert",

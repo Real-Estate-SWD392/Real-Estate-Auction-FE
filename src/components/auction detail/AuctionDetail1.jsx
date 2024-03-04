@@ -470,7 +470,7 @@ const AuctionDetail1 = () => {
     try {
       const dataPost = {
         auctionID: id,
-        total: property.buyNowPrice * 24000,
+        total: property.buyNowPrice,
         bankCode: "",
         language: "vn",
         payment: "VNPay",

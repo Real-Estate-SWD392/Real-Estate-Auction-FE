@@ -60,7 +60,7 @@ const RelatedPropList = ({}) => {
       </div>
       <Grid container spacing={3} sx={{ width: "90%", margin: "0 auto" }}>
         {/* <Grid container spacing={3} justifyContent="flex-start" style={{padding: "0 85px", marginTop:"20px"}}> */}
-        {auctionList.map((prop, index) => (
+        {[...auctionList]?.splice(0, 4).map((prop, index) => (
           <Grid item key={index} xs={3} md={3}>
             <AuctionPropCard
               id={prop._id}
