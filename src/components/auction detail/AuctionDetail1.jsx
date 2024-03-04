@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -13,6 +14,7 @@ import {
   MenuItem,
   Modal,
   Select,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -501,6 +503,59 @@ const AuctionDetail1 = () => {
   console.log(checkIsOwner);
 
   console.log(imageList.length);
+
+  const getFileName = (url) => {
+    // Split the URL by '/'
+    const parts = url.split("/");
+
+    // Decode the URL-encoded component (e.g., %2F becomes '/')
+    const decodedFileName = decodeURIComponent(parts[parts.length - 1]);
+
+    // Split the decoded file name by '?'
+    const fileNameParts = decodedFileName.split("?");
+
+    // The first part should be the actual file name
+    const fileNameWithPrefix = fileNameParts[0];
+
+    const prefixRegex = /pdf\/\d+-/;
+
+    const fileNameWithoutPrefix = fileNameWithPrefix.replace(prefixRegex, "");
+
+    return fileNameWithoutPrefix;
+  };
+
+  const openFileInNewPage = (url) => {
+    const downloadWindow = window.open(url, "_blank");
+
+    if (!downloadWindow) {
+      // If the new window failed to open (due to pop-up blockers), provide a message or handle it as needed
+      console.error(
+        "Unable to open a new window. Please check your pop-up blocker settings."
+      );
+    }
+  };
+
+  const downloadFile = (url, fileName) => {
+    // const anchor = document.createElement("a");
+    // anchor.download = fileName;
+    // anchor.href = url;
+
+    // // Create a new blank window and set its location to the download link
+    // const downloadWindow = window.open("", "_blank");
+    // if (downloadWindow) {
+    //   downloadWindow.location.href = anchor.href;
+    // } else {
+    //   // If the new window failed to open (due to pop-up blockers), fallback to the current window
+    //   window.location.href = url;
+    // }
+
+    // // Clean up the anchor element
+    // document.body.appendChild(anchor);
+    // anchor.click();
+    // document.body.removeChild(anchor);
+    openFileInNewPage(url);
+  };
+
   return (
     <Box sx={{ background: "white" }}>
       <div
@@ -712,14 +767,19 @@ const AuctionDetail1 = () => {
               <div className="document-dsiplay" style={contentMarginStyle}>
                 <Grid container spacing={4} rowSpacing={3}>
                   {property?.realEstateID?.pdf?.map((doc) => (
-                    <Grid item sx={{ display: "flex" }}>
+                    <Grid
+                      item
+                      key={doc}
+                      sx={{ display: "flex" }}
+                      onClick={() => downloadFile(doc, getFileName(doc))}
+                    >
                       <PictureAsPdfIcon sx={{ color: "#F25D49" }} />
                       <Typography
                         variant="body1"
                         color="initial"
-                        sx={{ marginLeft: "10px" }}
+                        sx={{ marginLeft: "10px", cursor: "pointer" }}
                       >
-                        {doc}
+                        {getFileName(doc)}
                       </Typography>
                     </Grid>
                   ))}
@@ -1070,26 +1130,9 @@ const AuctionDetail1 = () => {
 
                         {!user && property.status !== "End" && (
                           <Grid item>
-                            <Button
-                              sx={{
-                                background: "#F25D49",
-                                textTransform: "none",
-                                color: "white",
-                                fontWeight: 600,
-                                py: "19px",
-                                px: "110px",
-                                borderRadius: "8px",
-                                fontSize: "15px",
-                                "&:hover": {
-                                  background: "#F25D49",
-                                  textTransform: "none",
-                                  color: "white",
-                                },
-                              }}
-                              disabled={true}
-                            >
-                              Login To Start Bidding
-                            </Button>
+                            <Alert severity="warning" sx={{ px: "65px" }}>
+                              Please login to begin your bidding
+                            </Alert>
                           </Grid>
                         )}
 
@@ -1125,7 +1168,7 @@ const AuctionDetail1 = () => {
                                     color: "white",
                                     fontWeight: 600,
                                     py: "19px",
-                                    px: "40px",
+                                    px: "65px",
                                     borderRadius: "8px",
                                     fontSize: "14px",
                                     "&:hover": {
@@ -1191,7 +1234,7 @@ const AuctionDetail1 = () => {
                           </>
                         )}
                       </Grid>
-                      {property.status !== "End" && (
+                      {user && property.status !== "End" && (
                         <>
                           <div
                             className="divider"
