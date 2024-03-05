@@ -1135,18 +1135,18 @@ const AuctionDetail1 = () => {
                         alignItems="center"
                         justifyContent="space-between"
                       >
-                        {property.status === "End" && (
+                        {!user && (
                           <Grid item>
                             <Alert severity="warning" sx={{ px: "65px" }}>
-                              This auction has ended
+                              Please login to begin your bidding
                             </Alert>
                           </Grid>
                         )}
 
-                        {!user && property.status !== "End" && (
+                        {property.status === "End" && (
                           <Grid item>
                             <Alert severity="warning" sx={{ px: "65px" }}>
-                              Please login to begin your bidding
+                              This auction has ended
                             </Alert>
                           </Grid>
                         )}
