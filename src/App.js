@@ -6,6 +6,8 @@ import {
   setNotStartAuction,
   setProperties,
 } from "./redux/reducers/auctionSlice";
+import { useLocation } from "react-router-dom";
+import { setSearchResults } from "./redux/reducers/searchAuctionSlice";
 
 function App() {
   const notStartList = useSelector((state) => state.auction.notStartAuction);
@@ -21,38 +23,45 @@ function App() {
 
     const updatedList = [...auctionList];
 
+    console.log(auctionList);
+
+    console.log(updatedList);
+
     updatedList.push(res.response[0]);
 
     dispatch(setProperties(updatedList));
+    dispatch(setSearchResults(updatedList));
   };
-
-  console.log(auctionList);
 
   useEffect(() => {
     if (notStartList.length > 0) {
       const interval = setInterval(() => {
-        const currentDate = new Date(Date.now()).toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-        });
+        // const currentDate = new Date(Date.now()).toLocaleString("en-US", {
+        //   timeZone: "Asia/Ho_Chi_Minh",
+        // });
 
         // Filter the list of not started auctions to find auctions that start today
         const auctionsToOpen = notStartList?.filter((auction) => {
+          const now = new Date();
+
           const startDay = new Date(auction?.startDate);
+          startDay.setHours(startDay.getHours() - 7); // Add 7 hours
+          console.log(startDay, "-", now);
 
-          startDay.setDate(startDay.getDate() - 1);
+          // startDay.setDate(startDay.getDate() - 1);
 
-          const vietnamStartDate = new Date(startDay).toLocaleString("en-US", {
-            timeZone: "Asia/Ho_Chi_Minh",
-          });
+          // const vietnamStartDate = new Date(startDay).toLocaleString("en-US", {
+          //   timeZone: "Asia/Ho_Chi_Minh",
+          // });
 
-          console.log(
-            vietnamStartDate,
-            currentDate,
-            " - ",
-            vietnamStartDate < currentDate
-          );
+          // console.log(
+          //   vietnamStartDate,
+          //   currentDate,
+          //   " - ",
+          //   vietnamStartDate < currentDate
+          // );
 
-          if (vietnamStartDate <= currentDate) {
+          if (startDay <= now) {
             return auction;
           }
 
@@ -71,7 +80,13 @@ function App() {
 
         if (auctionsToOpen?.length > 0) {
           startAuctionFuction(auctionsToOpen);
-          dispatch(setNotStartAuction([]));
+          const updatedNotStartAuction = notStartList.filter(
+            (item) => !auctionsToOpen.includes(item)
+          );
+
+          console.log(updatedNotStartAuction);
+
+          dispatch(setNotStartAuction(updatedNotStartAuction));
         }
 
         // Set the open state for the found auctions
@@ -84,6 +99,8 @@ function App() {
       return () => clearInterval(interval);
     }
   }, [notStartList]);
+
+  console.log(notStartList);
 
   return (
     <div className="App">

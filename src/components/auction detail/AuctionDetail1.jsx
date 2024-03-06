@@ -208,11 +208,11 @@ const AuctionDetail1 = () => {
   };
 
   const handleDecrement = () => {
-    setBidPrice(bidPrice - property.priceStep);
+    setBidPrice(bidPrice - property?.priceStep);
   };
 
   const handleIncrement = () => {
-    setBidPrice(bidPrice + property.priceStep);
+    setBidPrice(bidPrice + property?.priceStep);
   };
 
   const formattedValue = (value) => {
@@ -268,6 +268,8 @@ const AuctionDetail1 = () => {
     total: bidPrice,
     auctionID: id,
   });
+
+  const [isClosed, setIsClosed] = useState(false);
 
   const { bidList, updateNewBid, setBidList, createBill } =
     useContext(BidContext);
@@ -365,61 +367,35 @@ const AuctionDetail1 = () => {
   };
 
   const handlePlaceBid = async () => {
-    console.log(checkAlreadyBid);
     try {
-      if (checkAlreadyBid) {
-        const res = await updateNewBid(bidData);
-        if (res.success) {
-          dispatch(setDetail(res.response.auctionID));
-          setBidList([...bidList, res.response]);
-          toast.success("Bid completed successfully !!!");
-          handleClose();
+      const res = await createBid(bidData, headers);
+      console.log(res);
+      if (res && res.data && res.data.success) {
+        dispatch(setDetail(res.data.response.auctionID));
+        setBidList([...bidList, res.data.response]);
+        setAlreadyBid(true);
+        toast.success(res.data.message);
+        handleClose();
 
-          const indexToUpdate = propertyList.findIndex(
-            (item) => item._id === res.response.auctionID._id
-          );
+        const indexToUpdate = propertyList.findIndex(
+          (item) => item._id === res.data.response.auctionID._id
+        );
 
-          // If the index is found, update the auctionList
-          if (indexToUpdate !== -1) {
-            console.log(res);
-            const updatedAuctionList = [...propertyList];
-            updatedAuctionList[indexToUpdate] = res.response.auctionID;
-            dispatch(setProperties(updatedAuctionList));
-            dispatch(setSearchResults(updatedAuctionList));
-          }
-        } else {
-          console.log("Bid failed");
-          toast.error("Bid failed !!!");
+        // If the index is found, update the auctionList
+        if (indexToUpdate !== -1) {
+          console.log(res);
+          const updatedAuctionList = [...propertyList];
+          updatedAuctionList[indexToUpdate] = res.data.response.auctionID;
+          dispatch(setProperties(updatedAuctionList));
         }
       } else {
-        const res = await createBid(bidData, headers);
-        console.log(res);
-        if (res && res.data && res.data.success) {
-          dispatch(setDetail(res.data.response.auctionID));
-          setBidList([...bidList, res.data.response]);
-          setAlreadyBid(true);
-          toast.success("Bid completed successfully !!!");
-          handleClose();
-
-          const indexToUpdate = propertyList.findIndex(
-            (item) => item._id === res.data.response.auctionID._id
-          );
-
-          // If the index is found, update the auctionList
-          if (indexToUpdate !== -1) {
-            console.log(res);
-            const updatedAuctionList = [...propertyList];
-            updatedAuctionList[indexToUpdate] = res.data.response.auctionID;
-            dispatch(setProperties(updatedAuctionList));
-          }
-        } else {
-          console.log("Bid failed");
-          toast.error("Bid failed !!!");
-        }
+        console.log("Bid failed");
       }
     } catch (error) {
       console.error("Error placing bid:", error);
-      toast.error("Error placing bid. Please try again later.");
+      toast.error(error.response.data.message);
+
+      // toast.error("Error placing bid. Please try again later.");
     }
   };
 
@@ -470,7 +446,7 @@ const AuctionDetail1 = () => {
     try {
       const dataPost = {
         auctionID: id,
-        total: property.buyNowPrice,
+        total: property?.buyNowPrice,
         bankCode: "",
         language: "vn",
         payment: "VNPay",
@@ -496,11 +472,43 @@ const AuctionDetail1 = () => {
   useEffect(() => {
     getAuctionInfoById();
     checkFavorite();
-  }, [id]);
-  console.log(property);
-  console.log(checkIsOwner);
+  }, [id]); // Assuming 'id' is a dependency for fetching auction info
 
-  console.log(imageList.length);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(property);
+      if (
+        property?.day === 0 &&
+        property?.hour === 0 &&
+        property?.minute === 0 &&
+        property?.second === 0 &&
+        property?.status !== "End"
+      ) {
+        // getAuctionInfoById();
+        // setIsClosed(true);
+        getAuctionInfoById();
+        clearInterval(interval); // Stop the interval
+      }
+
+      if (property?.status === "End") {
+        const indexToUpdate = propertyList.findIndex(
+          (item) => item._id === property._id
+        );
+
+        if (indexToUpdate !== -1) {
+          const updatedAuctionList = [...propertyList];
+          updatedAuctionList.splice(indexToUpdate, 1); // Remove one item at indexToUpdate
+          dispatch(setProperties(updatedAuctionList));
+          dispatch(setSearchResults(updatedAuctionList));
+        }
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    // Cleanup function to clear the interval when the component unmounts or when property changes
+    return () => clearInterval(interval);
+  }, [property]); // Include property in the dependency array
+
   return (
     <Box sx={{ background: "white" }}>
       <div
@@ -619,8 +627,8 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
                       {property &&
-                        property.realEstateID &&
-                        property.realEstateID.bedRoom}
+                        property?.realEstateID &&
+                        property?.realEstateID.bedRoom}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Beds
@@ -629,8 +637,8 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
                       {property &&
-                        property.realEstateID &&
-                        property.realEstateID.bathRoom}
+                        property?.realEstateID &&
+                        property?.realEstateID.bathRoom}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Baths
@@ -639,8 +647,8 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <Typography variant="body1" color="initial" sx={specStyle}>
                       {property &&
-                        property.realEstateID &&
-                        property.realEstateID.size}
+                        property?.realEstateID &&
+                        property?.realEstateID.size}
                     </Typography>
                     <Typography variant="body1" color="initial">
                       Square meter
@@ -737,8 +745,8 @@ const AuctionDetail1 = () => {
                   </Typography>
                   <Typography variant="body1" color="initial">
                     {property &&
-                      property.realEstateID &&
-                      property.realEstateID.bedRoom}{" "}
+                      property?.realEstateID &&
+                      property?.realEstateID.bedRoom}{" "}
                     Beds
                   </Typography>
                 </Grid>
@@ -748,8 +756,8 @@ const AuctionDetail1 = () => {
                   </Typography>
                   <Typography variant="body1" color="initial">
                     {property &&
-                      property.realEstateID &&
-                      property.realEstateID.bathRoom}{" "}
+                      property?.realEstateID &&
+                      property?.realEstateID.bathRoom}{" "}
                     Baths
                   </Typography>
                 </Grid>
@@ -759,8 +767,8 @@ const AuctionDetail1 = () => {
                   </Typography>
                   <Typography variant="body1" color="initial">
                     {property &&
-                      property.realEstateID &&
-                      property.realEstateID.size}{" "}
+                      property?.realEstateID &&
+                      property?.realEstateID.size}{" "}
                     Sq. Meter
                   </Typography>
                 </Grid>
@@ -769,7 +777,7 @@ const AuctionDetail1 = () => {
                     Property ID
                   </Typography>
                   <Typography variant="body1" color="initial">
-                    {property.propID}
+                    {property?.propID}
                   </Typography>
                 </Grid> */}
               </Grid>
@@ -845,7 +853,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {property.day < 10 ? "0" + property.day : property.day}
+                        {property?.day < 10
+                          ? "0" + property?.day
+                          : property?.day}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Days
@@ -869,9 +879,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {property.hour < 10
-                          ? "0" + property.hour
-                          : property.hour}
+                        {property?.hour < 10
+                          ? "0" + property?.hour
+                          : property?.hour}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Hours
@@ -895,9 +905,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {property.minute < 10
-                          ? "0" + property.minute
-                          : property.minute}
+                        {property?.minute < 10
+                          ? "0" + property?.minute
+                          : property?.minute}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Mins
@@ -921,9 +931,9 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         textAlign="center"
                       >
-                        {property.second < 10
-                          ? "0" + property.second
-                          : property.second}
+                        {property?.second < 10
+                          ? "0" + property?.second
+                          : property?.second}
                       </Typography>
                       <Typography variant="body1" color="#48525B" fontSize={18}>
                         Secs
@@ -945,12 +955,12 @@ const AuctionDetail1 = () => {
                         fontSize={45}
                         fontWeight={600}
                       >
-                        {property.startPrice > property.currentPrice
-                          ? formattedValue(property.startPrice)
-                          : formattedValue(property.currentPrice)}
+                        {property?.startPrice > property?.currentPrice
+                          ? formattedValue(property?.startPrice)
+                          : formattedValue(property?.currentPrice)}
                       </Typography>
                       <Typography variant="body1" color="initial" fontSize={20}>
-                        {property.startPrice > property.currentPrice
+                        {property?.startPrice > property?.currentPrice
                           ? "Starting Bid"
                           : "Current Bid"}
                       </Typography>
@@ -965,7 +975,7 @@ const AuctionDetail1 = () => {
                         fontSize={30}
                         fontWeight={600}
                       >
-                        {property && property.numberOfBidder}
+                        {property && property?.numberOfBidder}
                       </Typography>
                       <Typography variant="body1" color="initial" fontSize={12}>
                         Bidders
@@ -1001,7 +1011,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       fontWeight={600}
                     >
-                      {formattedValue(property.startPrice)}
+                      {formattedValue(property?.startPrice)}
                     </Typography>
                   </Box>
                   <Box
@@ -1043,7 +1053,7 @@ const AuctionDetail1 = () => {
                         alignItems="center"
                         justifyContent="space-between"
                       >
-                        {property.status === "End" && (
+                        {property?.status === "End" && (
                           <Grid item>
                             <Button
                               sx={{
@@ -1068,7 +1078,7 @@ const AuctionDetail1 = () => {
                           </Grid>
                         )}
 
-                        {!user && property.status !== "End" && (
+                        {!user && property?.status !== "End" && (
                           <Grid item>
                             <Button
                               sx={{
@@ -1093,7 +1103,7 @@ const AuctionDetail1 = () => {
                           </Grid>
                         )}
 
-                        {user && property.status !== "End" && (
+                        {user && property?.status !== "End" && (
                           <>
                             <Grid item>
                               {joinList.includes(user?._id) ? (
@@ -1191,7 +1201,7 @@ const AuctionDetail1 = () => {
                           </>
                         )}
                       </Grid>
-                      {property.status !== "End" && (
+                      {property?.status !== "End" && (
                         <>
                           <div
                             className="divider"
@@ -1227,7 +1237,7 @@ const AuctionDetail1 = () => {
                             onClick={() => handleOpenBuy()}
                           >
                             Buy this property with{" "}
-                            {formattedValue(property.buyNowPrice)}
+                            {formattedValue(property?.buyNowPrice)}
                           </Button>
                           <Button
                             sx={{
@@ -1440,7 +1450,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.day < 10 ? "0" + property.day : property.day}
+                      {property?.day < 10 ? "0" + property?.day : property?.day}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1467,7 +1477,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.hour < 10 ? "0" + property.hour : property.hour}
+                      {property?.hour < 10
+                        ? "0" + property?.hour
+                        : property?.hour}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1494,9 +1506,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.minute < 10
-                        ? "0" + property.minute
-                        : property.minute}
+                      {property?.minute < 10
+                        ? "0" + property?.minute
+                        : property?.minute}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1523,9 +1535,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.second < 10
-                        ? "0" + property.second
-                        : property.second}
+                      {property?.second < 10
+                        ? "0" + property?.second
+                        : property?.second}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1579,7 +1591,7 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <TextField
                       label="Price step"
-                      value={formattedValue(property.priceStep)}
+                      value={formattedValue(property?.priceStep)}
                       sx={{ width: "165px" }}
                       InputProps={{
                         readOnly: "true",
@@ -1761,7 +1773,7 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.day < 10 ? "0" + property.day : property.day}
+                      {property?.day < 10 ? "0" + property?.day : property?.day}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1788,7 +1800,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.hour < 10 ? "0" + property.hour : property.hour}
+                      {property?.hour < 10
+                        ? "0" + property?.hour
+                        : property?.hour}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1815,9 +1829,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.minute < 10
-                        ? "0" + property.minute
-                        : property.minute}
+                      {property?.minute < 10
+                        ? "0" + property?.minute
+                        : property?.minute}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1844,9 +1858,9 @@ const AuctionDetail1 = () => {
                       color="initial"
                       style={durationStyle}
                     >
-                      {property.second < 10
-                        ? "0" + property.second
-                        : property.second}
+                      {property?.second < 10
+                        ? "0" + property?.second
+                        : property?.second}
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1865,7 +1879,7 @@ const AuctionDetail1 = () => {
                   <Grid item>
                     <TextField
                       label="Buy Price"
-                      value={formattedValue(property.buyNowPrice)}
+                      value={formattedValue(property?.buyNowPrice)}
                       sx={{ width: "495px" }}
                       InputProps={{
                         readOnly: "true",
@@ -1896,7 +1910,7 @@ const AuctionDetail1 = () => {
                     {methodList.map((method, index) => (
                       <MenuItem
                         key={index}
-                        disabled={method.balance < property.buyPrice}
+                        disabled={method.balance < property?.buyPrice}
                         value={method.value}
                       >
                         <Box
@@ -2080,7 +2094,7 @@ const AuctionDetail1 = () => {
                     {methodList.map((method, index) => (
                       <MenuItem
                         key={index}
-                        disabled={method.balance < property.buyPrice}
+                        disabled={method.balance < property?.buyPrice}
                         value={method.value}
                       >
                         <Box
@@ -2171,6 +2185,12 @@ const AuctionDetail1 = () => {
               </Button>
             </div>
           </Box>
+        </Modal>
+      </div>
+
+      <div className="image-modal">
+        <Modal>
+          <Box></Box>
         </Modal>
       </div>
     </Box>

@@ -234,6 +234,39 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const updateAuctionTime = async (id, values) => {
+    try {
+      console.log(id, values);
+
+      const response = await axios.put(
+        `http://localhost:8080/auction/update-time/`,
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Update Sucess: ", data);
+        toast.success("Update Auction Success");
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Update failed", errorData);
+        toast.error("Update Auction Fail");
+
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Create Auction Fail!!");
+      console.log(error);
+    }
+  };
+
   const updateAuction = async (id, values) => {
     try {
       console.log(id, values);
@@ -323,7 +356,6 @@ export const AuctionContextProvider = ({ children }) => {
         return errorData;
       }
     } catch (error) {
-      toast.error("Set Winner Auction Fail!!");
       console.log(error);
     }
   };
@@ -422,6 +454,7 @@ export const AuctionContextProvider = ({ children }) => {
         setWinner,
         addToJoinList,
         startAuction,
+        updateAuctionTime,
       }}
     >
       {children}

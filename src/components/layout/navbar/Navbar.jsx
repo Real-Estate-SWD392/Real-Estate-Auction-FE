@@ -58,13 +58,13 @@ export const userSettings = [
 
   {
     name: "For Staff",
-    url: "/accommondation-staff/",
+    url: "/accommondation-staff/auction-management",
     role: ["staff"],
   },
 
   {
     name: "For Admin",
-    url: "/accommondation-admin",
+    url: "/accommondation-admin/user-management",
     role: ["admin"],
   },
 ];

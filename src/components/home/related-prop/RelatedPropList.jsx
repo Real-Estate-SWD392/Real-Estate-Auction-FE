@@ -1,5 +1,5 @@
 // RelatedPropList.js
-import React from "react";
+import React, { useEffect } from "react";
 import { connect, useSelector } from "react-redux";
 import { Grid, IconButton, Typography } from "@mui/material";
 import AuctionPropCard from "./AuctionPropCard";
@@ -8,6 +8,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuctionContext } from "../../../context/auction.context";
+import axios from "axios";
 
 const buttonStyle = {
   background: "#F4F7FA",
@@ -26,6 +27,21 @@ const RelatedPropList = ({}) => {
   const handleNavigate = () => {
     navigate("/auctions");
   };
+
+  useEffect(() => {
+    async function fetchAuctions() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/auction/status/In Auction"
+        );
+        console.log(response);
+      } catch (error) {
+        console.error("Error fetching auctions:", error);
+      }
+    }
+
+    fetchAuctions();
+  }, []);
 
   return (
     <>

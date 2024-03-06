@@ -18,7 +18,13 @@ import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
 import { textAlign } from "@mui/system";
 
-export const listPropType = ["Condominium", "Villa","Penthouse","Ground","House"];
+export const listPropType = [
+  "Condominium",
+  "Villa",
+  "Penthouse",
+  "Ground",
+  "House",
+];
 export const listCity = ["Thủ Đức", "Hồ Chí Minh"];
 export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];
@@ -255,7 +261,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
             </FormControl>
           </Typography>
         </div>
-        <Grid container spacing={3} justifyContent="center">
+        <Grid container spacing={3} sx={{ width: "90%", margin: "0 auto" }}>
           {properties?.length > 0 ? (
             properties.map((prop, index) => (
               <Grid item key={index}>

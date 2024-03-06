@@ -27,6 +27,7 @@ import { RealEstateContext } from "../../context/real-estate.context";
 import { AuthContext } from "../../context/auth.context";
 import { useFormik } from "formik";
 import { validationProperty } from "./propertyValidate";
+import { useNavigate } from "react-router-dom";
 
 const REQUIRED_COUNT = 180;
 
@@ -128,6 +129,7 @@ const AddProperties = () => {
     onSubmit: (values) => {
       console.log("Form Data", values);
       handleCreateProperty();
+      navigate("/sell/property-list");
     },
   });
 
@@ -217,6 +219,8 @@ const AddProperties = () => {
       }
     }
   };
+
+  const navigate = useNavigate();
 
   const handleOpenImg = () => {
     setOpenImageList(true);
@@ -376,8 +380,9 @@ const AddProperties = () => {
       if (formik.values.image) imgUrl = await uploadImagesFile();
 
       if (formik.values.pdf) pdfUrl = await uploadPDFsFile();
-
+      
       await createNewRealEstate({ formValues, image: imgUrl, pdf: pdfUrl });
+      
     } catch (error) {
       console.log(error);
     }

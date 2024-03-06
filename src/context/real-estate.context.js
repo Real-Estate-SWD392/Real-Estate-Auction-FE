@@ -64,7 +64,7 @@ export const RealEstateContextProvider = ({ children }) => {
     values.formValues.image = values.image;
     values.formValues.pdf = values.pdf;
 
-    console.log("Hu hon chua 1",values);
+    console.log("Hu hon chua 1", values);
 
     try {
       const response = await axios.post(

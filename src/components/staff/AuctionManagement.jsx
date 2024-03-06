@@ -50,7 +50,11 @@ import {
 } from "../../redux/reducers/auctionSlice";
 import Loading from "../loading/Loading";
 import dayjs, { Dayjs } from "dayjs";
-import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
+import {
+  DateCalendar,
+  DateTimePicker,
+  LocalizationProvider,
+} from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const count = 1;
@@ -254,7 +258,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
 
   const handleCloseAuction = async (id) => {
     try {
-      const res = await closeAuction(id);
+      const res = await closeAuction(id._id);
       console.log(res);
       if (res.success) {
         setAnchorEl(null);
@@ -325,6 +329,8 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       icon: <DeleteIcon />,
     },
   ];
+
+  console.log(calenderValue);
 
   const filterType = [
     {
@@ -689,8 +695,16 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                   <Close />
                 </IconButton>
               </div>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateCalendar
+                  value={calenderValue}
+                  onChange={(newValue) => setCalenderValue(newValue)}
+                />
+              </LocalizationProvider> */}
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  label="Basic date time picker"
                   value={calenderValue}
                   onChange={(newValue) => setCalenderValue(newValue)}
                 />
