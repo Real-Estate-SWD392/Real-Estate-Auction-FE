@@ -22,6 +22,7 @@ import ProfileComponent from "../user-settings/ProfileComponent";
 import SavedAuctions from "../user-settings/SavedAuctions/SavedAuctions";
 import WinningBids from "../user-settings/WinningBids/WinningBids";
 import ProtectedRoutes from "./ProtectedRoutes";
+import PaymentHistory from "../seller-dashboard/PaymentHistory";
 
 const AppRoutes = [
   {
@@ -96,6 +97,10 @@ const AppRoutes = [
       {
         path: "/my-account/winning-bids",
         element: <WinningBids />,
+      },
+      {
+        path: "/my-account/payment-history",
+        element: <PaymentHistory />,
       },
     ],
   },

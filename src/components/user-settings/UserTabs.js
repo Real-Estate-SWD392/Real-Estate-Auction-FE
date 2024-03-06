@@ -15,4 +15,8 @@ export const tabs = [
     tabName: "My Winning Bids",
     url: "/my-account/winning-bids",
   },
+  {
+    tabName: "Payment History",
+    url: "/my-account/payment-history",
+  },
 ];

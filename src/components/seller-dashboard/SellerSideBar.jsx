@@ -21,6 +21,10 @@ export const tabs = [
     tabName: "My Listings",
     component: <Typography>My Listings Content</Typography>,
   },
+  {
+    tabName: "Payment History",
+    component: <Typography>Payment History Content</Typography>,
+  },
 ];
 
 const SellerSideBar = ({
