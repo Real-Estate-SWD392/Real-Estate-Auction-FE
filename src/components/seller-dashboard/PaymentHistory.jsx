@@ -115,6 +115,7 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
     rejected: countStatus(auctionsInfor, "Cancel"),
     ended: countStatus(auctionsInfor, "End"),
   });
+  const { getAuctionByRealEstateID } = useContext(AuctionContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -308,6 +309,21 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
   if (isLoading) {
     return <Loading setIsLoading={setIsLoading} />;
   }
+  const handleNavigate = async (id) => {
+    console.log("ạklaa", id);
+    try {
+      const res = await getAuctionByRealEstateID(id);
+
+      let auctionID = "";
+
+      if (res.response) {
+        auctionID = res.response._id;
+        navigate(`/auction_detail/${auctionID}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div style={{ marginLeft: "50px" }}>
@@ -319,10 +335,7 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
       >
         Payment History
       </Typography>
-      <div
-        className="box"
-        style={{ marginTop: "50px", width: "120%" }}
-      >
+      <div className="box" style={{ marginTop: "50px", width: "130%" }}>
         <TableContainer component={Paper}>
           <Table sx={{ width: "100%" }} aria-label="customized table">
             <TableHead sx={{ background: "#F4F6F8" }}>
@@ -403,7 +416,9 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {row.auctionID}
+                      <Button onClick={() => navigate(`/auction_detail/${row.auctionID}`)}>
+                        View auction
+                      </Button>
                     </TableCell>
                     <TableCell
                       align="center"
