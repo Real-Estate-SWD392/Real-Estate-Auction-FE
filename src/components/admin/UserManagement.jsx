@@ -36,6 +36,9 @@ import {
   FormLabel,
   FormHelperText,
   InputLabel,
+  useTheme,
+  TableFooter,
+  TablePagination,
 } from "@mui/material";
 import { NearMe } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -54,6 +57,11 @@ import { UserContext } from "../../context/user.context";
 import moment from "moment";
 import Loading from "../loading/Loading";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import LastPageIcon from "@mui/icons-material/LastPage";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import AddUserModal from "./AddUserModal";
 
 const count = 1;
 
@@ -96,7 +104,7 @@ const userStatus = {
   },
 };
 
-const UserManagement = ({}) => {
+const UserManagement = () => {
   const countStatus = useMemo(() => {
     return (listUser, status) => {
       const count = listUser.reduce((acc, user) => {
@@ -111,15 +119,23 @@ const UserManagement = ({}) => {
   }, []);
 
   const { getAllAccount, banAccount, removeAccount } = useContext(UserContext);
+
   const [userList, setUserList] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [selectedFilter, setSelectedFilter] = useState("All");
+
   const [search, setSearch] = useState("");
-  const [amount, setAmount] = useState(10);
+
+  const [amount, setAmount] = useState(0);
+
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+
+  const [openAddModal, setOpenAddModal] = useState(false);
+
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+
   const [statusCount, setStatusCount] = useState({
     all: userList.length,
     active: countStatus(userList, "Active"),
@@ -127,14 +143,33 @@ const UserManagement = ({}) => {
     pending: countStatus(userList, "Pending"),
     banned: countStatus(userList, "Banned"),
   });
-  const [newUser, setNewUser] = useState({
-    role: "",
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    address: "",
-    email: "phucanhdodang1211@gmail.com",
-  });
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
+  const paginate = (data, currentPage, itemsPerPage) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  };
+
+  const filterUserData = userList.filter(
+    (row) =>
+      selectedFilter === "All" ||
+      (selectedFilter !== "All" && row.status === selectedFilter)
+  );
+
+  const paginatedData = paginate(filterUserData, currentPage, itemsPerPage);
 
   useEffect(() => {
     setStatusCount((prevCount) => ({
@@ -183,6 +218,10 @@ const UserManagement = ({}) => {
 
   const open = Boolean(anchorEl);
 
+  useEffect(() => {
+    setAmount(filterUserData.length);
+  }, [selectedFilter]);
+
   const handleToggleFilter = (name) => {
     setSelectedFilter(name);
   };
@@ -198,18 +237,13 @@ const UserManagement = ({}) => {
     //call api for search
     //update result amount
   };
-  const filterUserData = userList.filter(
-    (row) =>
-      selectedFilter === "All" ||
-      (selectedFilter !== "All" && row.status === selectedFilter)
-  );
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
+  const handleOpenAddModal = () => {
+    setOpenAddModal(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseAddModal = () => {
+    setOpenAddModal(false);
   };
 
   const actions = [
@@ -368,10 +402,14 @@ const UserManagement = ({}) => {
                   color: "white",
                 },
               }}
-              onClick={() => handleOpenModal()}
+              onClick={() => handleOpenAddModal()}
             >
               Add New User
             </Button>
+            <AddUserModal
+              openModal={openAddModal}
+              handleCloseModal={handleCloseAddModal}
+            />
           </Grid>
         </Grid>
       </div>
@@ -512,7 +550,7 @@ const UserManagement = ({}) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filterUserData.map((row, index) => (
+              {paginatedData.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
                   <TableCell>
@@ -626,9 +664,85 @@ const UserManagement = ({}) => {
             </TableBody>
           </Table>
         </TableContainer>
+        {/* <Box
+          sx={{
+            borderTop: "1px solid #E3E3E3",
+            paddingTop: "10px",
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="body1" color="initial">
+            Showing {paginatedData.length} of {filterUserData.length} results
+          </Typography>
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={Math.ceil(filterUserData.length / itemsPerPage)}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+            itemsPerPage={itemsPerPage}
+          />
+        </Box> */}
       </div>
     </div>
   );
 };
+
+// const PaginationControls = ({
+//   currentPage,
+//   totalPages,
+//   onPageChange,
+//   onItemsPerPageChange,
+//   itemsPerPage,
+// }) => {
+//   return (
+//     <Box sx={{ display: "flex", alignItems: "center" }}>
+//       <div
+//         className="pagination"
+//         style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//         }}
+//       >
+//         <IconButton
+//           variant="outlined"
+//           sx={{}}
+//           onClick={() => onPageChange(currentPage - 1)}
+//           disabled={currentPage === 1}
+//         >
+//           <KeyboardArrowLeftIcon />
+//         </IconButton>
+//         <Typography variant="body1" color="initial" sx={{}}>
+//           Page {currentPage} of {totalPages}
+//         </Typography>
+//         <IconButton
+//           variant="outlined"
+//           onClick={() => onPageChange(currentPage + 1)}
+//           disabled={currentPage === totalPages}
+//         >
+//           <KeyboardArrowRightIcon />
+//         </IconButton>
+//       </div>
+//       <div className="" style={{ width: "150px" }}>
+//         <FormControl sx={{ marginLeft: "20px" }} fullWidth>
+//           <InputLabel id="itemsPerPage">Items per page</InputLabel>
+//           <Select
+//             labelId="itemsPerPage"
+//             value={itemsPerPage}
+//             label="Items per page"
+//             onChange={(e) => onItemsPerPageChange(e.target.value)}
+//           >
+//             <MenuItem value={10}>10</MenuItem>
+//             <MenuItem value={20}>20</MenuItem>
+//             <MenuItem value={30}>30</MenuItem>
+//           </Select>
+//         </FormControl>
+//       </div>
+//     </Box>
+//   );
+// };
 
 export default UserManagement;
