@@ -1,10 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Card, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { auctionProp } from "../listProp";
 import WinningBidCard from "./WinningBidCard";
 import { BidContext } from "../../../context/bid.context";
 import Loading from "../../loading/Loading";
+import { AuctionContext } from "../../../context/auction.context";
 
 const Divider = styled("div")({
   width: "100%",
@@ -13,9 +14,21 @@ const Divider = styled("div")({
 });
 
 const WinningBids = () => {
-  const { winList } = useContext(BidContext);
+  const { winList, setWinList, getWinBid } = useContext(BidContext);
+
+  const { checkAlreadyPay } = useContext(AuctionContext);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getWinBid();
+      setWinList(res.response);
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card
       sx={{
@@ -71,6 +84,7 @@ const WinningBids = () => {
                     baths={prop?.realEstateID?.bathRoom}
                     area={prop?.realEstateID?.size}
                     yourBid={prop?.yourBid}
+                    propID={prop?._id}
                   />
                 </Grid>
               ))

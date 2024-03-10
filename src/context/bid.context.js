@@ -66,6 +66,32 @@ export const BidContextProvider = ({ children }) => {
     }
   };
 
+  const getBidByAuction = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/bid/auction/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Get successfully", data);
+        return response.data;
+      } else {
+        console.error("Get Bid List failed", response.data);
+      }
+    } catch (error) {
+      console.error("Error during get bid list", error);
+    }
+  };
+
   const updateNewBid = async (values) => {
     try {
       const response = await axios.put(`http://localhost:8080/bid/`, values, {
@@ -155,8 +181,6 @@ export const BidContextProvider = ({ children }) => {
     }
   }, []);
 
-  console.log(bidList);
-
   return (
     <BidContext.Provider
       value={{
@@ -169,6 +193,7 @@ export const BidContextProvider = ({ children }) => {
         getWinBid,
         createBill,
         getBill,
+        getBidByAuction,
       }}
     >
       {children}

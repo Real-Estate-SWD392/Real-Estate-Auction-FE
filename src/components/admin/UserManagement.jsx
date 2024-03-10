@@ -110,7 +110,8 @@ const UserManagement = ({}) => {
     };
   }, []);
 
-  const { getAllAccount, banAccount, removeAccount } = useContext(UserContext);
+  const { getAllAccount, banAccount, unbanAccount, removeAccount } =
+    useContext(UserContext);
   const [userList, setUserList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -228,6 +229,17 @@ const UserManagement = ({}) => {
       icon: <BlockIcon />,
       disabled: (status) => (status === "Banned" ? true : false),
     },
+
+    {
+      name: "Unban User",
+      onClick: (id) => {
+        handleChangeAccountStatus(id, "Unban");
+        handleClosePopover();
+      },
+      icon: <BlockIcon />,
+      disabled: (status) => (status === "Banned" ? false : true),
+    },
+
     {
       name: "Delete User",
       onClick: (id) => {
@@ -280,6 +292,25 @@ const UserManagement = ({}) => {
       switch (status) {
         case "Ban": {
           res = await banAccount(id);
+
+          if (res.success) {
+            const indexToUpdate = userList.findIndex(
+              (item) => item._id === res.response._id
+            );
+
+            if (indexToUpdate !== -1) {
+              const updatedAuctionList = [...userList];
+              updatedAuctionList[indexToUpdate] = res.response;
+
+              // console.log("updatedAuctionList", updatedAuctionList);
+              setUserList(updatedAuctionList);
+            }
+          }
+          break;
+        }
+
+        case "Unban": {
+          res = await unbanAccount(id);
 
           if (res.success) {
             const indexToUpdate = userList.findIndex(
@@ -575,9 +606,9 @@ const UserManagement = ({}) => {
                     <Chip
                       label={row.status}
                       style={{
-                        background: statusColor[row.status].background,
+                        background: statusColor[row?.status]?.background,
                         fontWeight: 600,
-                        color: statusColor[row.status].color,
+                        color: statusColor[row?.status]?.color,
                       }}
                     />
                   </TableCell>

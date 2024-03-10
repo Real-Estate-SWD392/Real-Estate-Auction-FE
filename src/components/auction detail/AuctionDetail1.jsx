@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -13,8 +14,10 @@ import {
   MenuItem,
   Modal,
   Select,
+  Snackbar,
   TextField,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { detailProp } from "./detailProp";
@@ -22,7 +25,7 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useid, useNavigate, useParams } from "react-router-dom";
-import { display, styled, width } from "@mui/system";
+import { display, styled, textAlign, width } from "@mui/system";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import money_icon from "../../assets/img/detail_money_icon.png";
@@ -48,6 +51,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AuctionContext } from "../../context/auction.context";
 import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import ReactSimpleImageViewer from "react-simple-image-viewer";
+import BidderList from "./BidderList";
 
 const specStyle = {
   textAlign: "center",
@@ -127,24 +131,36 @@ export const propImg = [
 const AuctionDetail1 = () => {
   const dispatch = useDispatch();
 
+  const [viewBidders, setViewBidders] = useState(false);
+
   const property = useSelector((state) => state.auction.detail);
 
   const [isFavorite, setIsFavorite] = useState(false);
+
   const [joinList, setJoinList] = useState([]);
+
   const [info, setInfo] = useState({});
+
   const { currentPrice } = property;
+
   const [open, setOpen] = useState(false);
+
   const [openBuy, setOpenBuy] = useState(false);
+
   const [openPay, setOpenPay] = useState(false);
+
   const [bidPrice, setBidPrice] = useState(property?.currentPrice);
+
   const [paymentMethod, setPaymentMethod] = useState({
     value: "",
     img: "",
     balance: 0,
   });
-  const [documentList, setDocumentList] = useState(detailProp.docs);
+
   const [currentImage, setCurrentImage] = useState(0);
+
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+
   const [imageList, setImageList] = useState([]);
 
   //fetch img list here
@@ -160,6 +176,14 @@ const AuctionDetail1 = () => {
   const closeImageViewer = () => {
     setCurrentImage(0);
     setIsViewerOpen(false);
+  };
+
+  const handleOpenBidderList = () => {
+    setViewBidders(true);
+  };
+
+  const handleCloseBidderList = () => {
+    setViewBidders(false);
   };
 
   const { removeFromFavList } = useContext(UserContext);
@@ -269,9 +293,9 @@ const AuctionDetail1 = () => {
     auctionID: id,
   });
 
-  const [isClosed, setIsClosed] = useState(false);
+  const [bidderList, setBidderList] = useState([]);
 
-  const { bidList, updateNewBid, setBidList, createBill } =
+  const { bidList, updateNewBid, setBidList, createBill, getBidByAuction } =
     useContext(BidContext);
 
   const propertyList = useSelector((state) => state.auction.properties);
@@ -333,6 +357,12 @@ const AuctionDetail1 = () => {
     }
   };
 
+  const getBidList = async () => {
+    const res = await getBidByAuction(id);
+
+    setBidderList(res?.response);
+  };
+
   const handleAddAuctionToFavList = async () => {
     try {
       const res = await addAuctionToFavList(userID, addToFavListData, headers);
@@ -373,6 +403,17 @@ const AuctionDetail1 = () => {
       if (res && res.data && res.data.success) {
         dispatch(setDetail(res.data.response.auctionID));
         setBidList([...bidList, res.data.response]);
+
+        // update bidder list
+
+        const updatedBidderList = [...bidderList];
+
+        updatedBidderList.unshift(res.data.response);
+
+        setBidderList(updatedBidderList);
+
+        // end update bidder list
+
         setAlreadyBid(true);
         toast.success(res.data.message);
         handleClose();
@@ -471,6 +512,7 @@ const AuctionDetail1 = () => {
 
   useEffect(() => {
     getAuctionInfoById();
+    getBidList();
     checkFavorite();
   }, [id]); // Assuming 'id' is a dependency for fetching auction info
 
@@ -508,6 +550,58 @@ const AuctionDetail1 = () => {
     // Cleanup function to clear the interval when the component unmounts or when property changes
     return () => clearInterval(interval);
   }, [property]); // Include property in the dependency array
+
+  const getFileName = (url) => {
+    // Split the URL by '/'
+    const parts = url.split("/");
+
+    // Decode the URL-encoded component (e.g., %2F becomes '/')
+    const decodedFileName = decodeURIComponent(parts[parts.length - 1]);
+
+    // Split the decoded file name by '?'
+    const fileNameParts = decodedFileName.split("?");
+
+    // The first part should be the actual file name
+    const fileNameWithPrefix = fileNameParts[0];
+
+    const prefixRegex = /pdf\/\d+-/;
+
+    const fileNameWithoutPrefix = fileNameWithPrefix.replace(prefixRegex, "");
+
+    return fileNameWithoutPrefix;
+  };
+
+  const openFileInNewPage = (url) => {
+    const downloadWindow = window.open(url, "_blank");
+
+    if (!downloadWindow) {
+      // If the new window failed to open (due to pop-up blockers), provide a message or handle it as needed
+      console.error(
+        "Unable to open a new window. Please check your pop-up blocker settings."
+      );
+    }
+  };
+
+  const downloadFile = (url, fileName) => {
+    // const anchor = document.createElement("a");
+    // anchor.download = fileName;
+    // anchor.href = url;
+
+    // // Create a new blank window and set its location to the download link
+    // const downloadWindow = window.open("", "_blank");
+    // if (downloadWindow) {
+    //   downloadWindow.location.href = anchor.href;
+    // } else {
+    //   // If the new window failed to open (due to pop-up blockers), fallback to the current window
+    //   window.location.href = url;
+    // }
+
+    // // Clean up the anchor element
+    // document.body.appendChild(anchor);
+    // anchor.click();
+    // document.body.removeChild(anchor);
+    openFileInNewPage(url);
+  };
 
   return (
     <Box sx={{ background: "white" }}>
@@ -576,7 +670,7 @@ const AuctionDetail1 = () => {
                   }}
                 >
                   <Grid container spacing={2} flexDirection="column">
-                    {imageList.map((img, index) => (
+                    {property?.realEstateID?.image.map((img, index) => (
                       <Grid item key={index}>
                         <img
                           src={img}
@@ -591,7 +685,7 @@ const AuctionDetail1 = () => {
 
                     {isViewerOpen && (
                       <ReactSimpleImageViewer
-                        src={imageList}
+                        src={property?.realEstateID?.image}
                         currentIndex={currentImage}
                         disableScroll={false}
                         closeOnClickOutside={true}
@@ -720,14 +814,19 @@ const AuctionDetail1 = () => {
               <div className="document-dsiplay" style={contentMarginStyle}>
                 <Grid container spacing={4} rowSpacing={3}>
                   {property?.realEstateID?.pdf?.map((doc) => (
-                    <Grid item sx={{ display: "flex" }}>
+                    <Grid
+                      item
+                      key={doc}
+                      sx={{ display: "flex" }}
+                      onClick={() => downloadFile(doc, getFileName(doc))}
+                    >
                       <PictureAsPdfIcon sx={{ color: "#F25D49" }} />
                       <Typography
                         variant="body1"
                         color="initial"
-                        sx={{ marginLeft: "10px" }}
+                        sx={{ marginLeft: "10px", cursor: "pointer" }}
                       >
-                        {doc}
+                        {getFileName(doc)}
                       </Typography>
                     </Grid>
                   ))}
@@ -946,7 +1045,7 @@ const AuctionDetail1 = () => {
                     container
                     justifyContent="center"
                     alignItems="center"
-                    spacing={6}
+                    spacing={4}
                   >
                     <Grid item>
                       <Typography
@@ -969,17 +1068,22 @@ const AuctionDetail1 = () => {
                       <CustomDivider />
                     </Grid>
                     <Grid item>
-                      <Typography
+                      <Button
                         variant="body1"
-                        color="initial"
                         fontSize={30}
                         fontWeight={600}
+                        color="initial"
+                        onClick={() => handleOpenBidderList()}
+                        sx={{ cursor: "pointer" }}
                       >
-                        {property && property?.numberOfBidder}
-                      </Typography>
-                      <Typography variant="body1" color="initial" fontSize={12}>
-                        Bidders
-                      </Typography>
+                        Bidders List
+                      </Button>
+                      <BidderList
+                        viewBidders={viewBidders}
+                        auctionID={id}
+                        bidderList={bidderList}
+                        handleCloseBidderList={handleCloseBidderList}
+                      />
                     </Grid>
                   </Grid>
                 </div>
@@ -1053,155 +1157,136 @@ const AuctionDetail1 = () => {
                         alignItems="center"
                         justifyContent="space-between"
                       >
-                        {property?.status === "End" && (
-                          <Grid item>
-                            <Button
+                        {!user && (
+                          <Grid item width={"100%"}>
+                            <Alert
+                              severity="warning"
                               sx={{
-                                background: "#F25D49",
-                                textTransform: "none",
-                                color: "white",
-                                fontWeight: 600,
-                                py: "19px",
-                                px: "110px",
-                                borderRadius: "8px",
-                                fontSize: "15px",
-                                "&:hover": {
-                                  background: "#F25D49",
-                                  textTransform: "none",
-                                  color: "white",
-                                },
+                                width: "100%",
+                                justifyContent: "center",
+                                alignItems: "flex-end",
                               }}
-                              disabled={true}
                             >
-                              This Auction Is Ended
-                            </Button>
+                              Please login to begin your bidding
+                            </Alert>
                           </Grid>
                         )}
 
-                        {!user && property?.status !== "End" && (
-                          <Grid item>
-                            <Button
+                        {property?.status === "End" && (
+                          <Grid item width={"100%"}>
+                            <Alert
+                              severity="warning"
                               sx={{
-                                background: "#F25D49",
-                                textTransform: "none",
-                                color: "white",
-                                fontWeight: 600,
-                                py: "19px",
-                                px: "110px",
-                                borderRadius: "8px",
-                                fontSize: "15px",
-                                "&:hover": {
-                                  background: "#F25D49",
-                                  textTransform: "none",
-                                  color: "white",
-                                },
+                                width: "100%",
+                                justifyContent: "center",
+                                alignItems: "flex-end",
                               }}
-                              disabled={true}
                             >
-                              Login To Start Bidding
-                            </Button>
+                              This auction has ended
+                            </Alert>
                           </Grid>
                         )}
 
                         {user && property?.status !== "End" && (
                           <>
-                            <Grid item>
-                              {joinList.includes(user?._id) ? (
-                                <Button
-                                  sx={{
-                                    background: "#F25D49",
-                                    textTransform: "none",
-                                    color: "white",
-                                    fontWeight: 600,
-                                    py: "19px",
-                                    px: "110px",
-                                    borderRadius: "8px",
-                                    fontSize: "15px",
-                                    "&:hover": {
+                            <Grid container justifyContent="space-between">
+                              <Grid item>
+                                {joinList.includes(user?._id) ? (
+                                  <Button
+                                    sx={{
                                       background: "#F25D49",
                                       textTransform: "none",
                                       color: "white",
-                                    },
-                                  }}
-                                  onClick={() => handleOpen()}
-                                >
-                                  Place Bid
-                                </Button>
-                              ) : (
-                                <Button
-                                  sx={{
-                                    background: "#F25D49",
-                                    textTransform: "none",
-                                    color: "white",
-                                    fontWeight: 600,
-                                    py: "19px",
-                                    px: "40px",
-                                    borderRadius: "8px",
-                                    fontSize: "14px",
-                                    "&:hover": {
+                                      fontWeight: 600,
+                                      py: "19px",
+                                      px: "110px",
+                                      borderRadius: "8px",
+                                      fontSize: "15px",
+                                      "&:hover": {
+                                        background: "#F25D49",
+                                        textTransform: "none",
+                                        color: "white",
+                                      },
+                                    }}
+                                    onClick={() => handleOpen()}
+                                  >
+                                    Place Bid
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    sx={{
                                       background: "#F25D49",
                                       textTransform: "none",
                                       color: "white",
-                                    },
+                                      fontWeight: 600,
+                                      py: "19px",
+                                      px: "40px",
+                                      borderRadius: "8px",
+                                      fontSize: "14px",
+                                      "&:hover": {
+                                        background: "#F25D49",
+                                        textTransform: "none",
+                                        color: "white",
+                                      },
+                                    }}
+                                    onClick={() => handleOpenPay()}
+                                  >
+                                    Pay {formattedValue(payNowBill?.total)} To
+                                    Start Bidding
+                                  </Button>
+                                )}
+                              </Grid>
+                              <Grid item>
+                                <Checkbox
+                                  sx={{
+                                    borderRadius: "8px",
+                                    border: "1px solid #F25D49",
+                                    py: "17px",
+                                    px: "20px",
+                                    width: "100%",
                                   }}
-                                  onClick={() => handleOpenPay()}
-                                >
-                                  Pay {formattedValue(payNowBill?.total)} To
-                                  Start Bidding
-                                </Button>
-                              )}
-                            </Grid>
-
-                            <Grid item>
-                              <Checkbox
-                                sx={{
-                                  borderRadius: "8px",
-                                  border: "1px solid #F25D49",
-                                  py: "17px",
-                                  px: "20px",
-                                  width: "100%",
-                                }}
-                                icon={
-                                  <FavoriteBorderIcon
-                                    sx={{
-                                      color: "#EF272C",
-                                      width: "30px",
-                                      height: "30px",
-                                    }}
-                                  />
-                                }
-                                checkedIcon={
-                                  <FavoriteIcon
-                                    sx={{
-                                      color: "#EF272C",
-                                      width: "30px",
-                                      height: "30px",
-                                    }}
-                                  />
-                                }
-                                checked={
-                                  user &&
-                                  user.favoriteList.find(
-                                    (item) => item._id === id
-                                  )
-                                }
-                                onClick={() => {
-                                  if (
+                                  icon={
+                                    <FavoriteBorderIcon
+                                      sx={{
+                                        color: "#EF272C",
+                                        width: "30px",
+                                        height: "30px",
+                                      }}
+                                    />
+                                  }
+                                  checkedIcon={
+                                    <FavoriteIcon
+                                      sx={{
+                                        color: "#EF272C",
+                                        width: "30px",
+                                        height: "30px",
+                                      }}
+                                    />
+                                  }
+                                  checked={
+                                    user &&
                                     user.favoriteList.find(
                                       (item) => item._id === id
                                     )
-                                  ) {
-                                    handleRemoveFromFavList();
-                                  } else {
-                                    handleAddAuctionToFavList();
                                   }
-                                }}
-                              />
+                                  onClick={() => {
+                                    if (
+                                      user.favoriteList.find(
+                                        (item) => item._id === id
+                                      )
+                                    ) {
+                                      handleRemoveFromFavList();
+                                    } else {
+                                      handleAddAuctionToFavList();
+                                    }
+                                  }}
+                                />
+                              </Grid>
                             </Grid>
                           </>
                         )}
                       </Grid>
-                      {property?.status !== "End" && (
+                      {user && property?.status !== "End" && (
                         <>
                           <div
                             className="divider"

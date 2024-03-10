@@ -14,7 +14,11 @@ import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import StraightenIcon from "@mui/icons-material/Straighten";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuctionContext } from "../../../context/auction.context";
+import { toast } from "react-toastify";
+import { BidContext } from "../../../context/bid.context";
 
 const colorBall = {
   width: "12px",
@@ -80,7 +84,49 @@ const WinningBidCard = ({
   beds,
   baths,
   area,
+  propID,
 }) => {
+  const nav = useNavigate();
+
+  const [checkPay, setCheckPay] = useState(false);
+
+  const { checkAlreadyPay } = useContext(AuctionContext);
+
+  const { createBill } = useContext(BidContext);
+
+  const handlePayWinningAuction = async () => {
+    try {
+      const dataPost = {
+        auctionID: propID,
+        total: currentBid,
+        bankCode: "",
+        language: "vn",
+        payment: "VNPay",
+        type: "Pay Winning Auction",
+      };
+
+      const response = await createBill(dataPost);
+
+      window.location.href = response.url;
+    } catch (error) {
+      console.error("Error placing bid:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const check = await checkAlreadyPay(propID);
+
+      console.log(check);
+
+      setCheckPay(check.response);
+    };
+
+    fetchData();
+  }, []);
+
+  console.log(checkPay);
+
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>
       <Box
@@ -282,24 +328,7 @@ const WinningBidCard = ({
       </div>
       <div className="prop-price" style={{ marginTop: "25px" }}>
         <Box sx={{ p: "10px 15px", borderTop: "1px solid #E2EAF2" }}>
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="center"
-            spacing={4}
-          >
-            <Grid item flexDirection="column">
-              <Typography variant="body1" color="initial" fontSize={15}>
-                {startingBid > currentBid ? "Starting Bid" : "Current Bid"}
-              </Typography>
-              <Typography variant="body1" color="initial">
-                {startingBid > currentBid ? (
-                  <CurrencyFormatter amount={startingBid} />
-                ) : (
-                  <CurrencyFormatter amount={currentBid} />
-                )}
-              </Typography>
-            </Grid>
+          <Grid container justifyContent="space-between">
             <Grid item>
               <Button
                 variant="contained"
@@ -307,12 +336,39 @@ const WinningBidCard = ({
                   textTransform: "none",
                   borderRadius: "8px",
                   background: "#118BF4",
-                  padding: "12px 25px",
+                  padding: "12px 20px",
                   fontWeight: "600",
                 }}
+                onClick={() => nav(`/auction_detail/${propID}`)}
               >
                 View Details
               </Button>
+            </Grid>
+            <Grid item>
+              {checkPay ? (
+                <Typography
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "8px",
+                    padding: "12px 20px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Already Paid
+                </Typography>
+              ) : (
+                <Button
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "8px",
+                    padding: "12px 0",
+                    fontWeight: "600",
+                  }}
+                  onClick={handlePayWinningAuction}
+                >
+                  Pay Winning Auction
+                </Button>
+              )}
             </Grid>
           </Grid>
         </Box>

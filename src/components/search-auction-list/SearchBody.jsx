@@ -30,9 +30,9 @@ export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];
 
 const SearchBody = ({ searchTerm, resultCount }) => {
-  const [itemAuction, setItemAuction] = React.useState([]);
+  // const [itemAuction, setItemAuction] = React.useState([]);
 
-  const [auctions, setAuctions] = useState({});
+  // const [auctions, setAuctions] = useState({});
 
   const properties = useSelector((state) => state.search.searchResults);
 
@@ -40,7 +40,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
 
   const dispatch = useDispatch();
 
-  const { filterAuction, sortByTime, sortByPopular } =
+  const { filterAuction, sortByTime, sortByPopular, getInAuctionRealEstate } =
     useContext(AuctionContext);
 
   const [filterValues, setFilterValues] = useState({
@@ -83,7 +83,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
     const fetchFilteredAuction = async () => {
       try {
         const res = await filterAuction(filterValues);
-        console.log("Fileeee", res.response);
+        // console.log("Fileeee", res.response);
 
         if (res.response) {
           dispatch(setSearchResults(res.response));
@@ -116,6 +116,15 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         setProvinceList(provincesData);
       })
       .catch((err) => console.error("Error fetching data: ", err));
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getInAuctionRealEstate();
+      dispatch(setSearchResults(res.response));
+    };
+
+    fetchData();
   }, []);
 
   return (

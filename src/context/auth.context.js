@@ -118,13 +118,17 @@ export const AuthContextProvider = ({ children }) => {
         const data = await response.json();
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Register successfully", data);
+        toast.success("Register successfully");
+        return data;
       } else {
         const errorData = await response.json();
         console.error("Register failed", errorData);
-        console.log("Response: ", response);
+        toast.error("Register Failed");
+        return errorData;
       }
     } catch (error) {
       console.error("Error during login", error);
+      toast.error("Register Failed");
     }
   };
 

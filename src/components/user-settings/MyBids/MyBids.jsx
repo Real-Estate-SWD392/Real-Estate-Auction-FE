@@ -29,10 +29,29 @@ const MyBids = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setBidList(bidList));
-  }, []);
+    // Create a map to store the highest price bid for each auctionID
+    const highestPriceBidsMap = new Map();
 
-  console.log(list);
+    // Iterate through bidList
+    bidList.forEach((bid) => {
+      console.log(bid);
+      // Check if the auctionID already exists in the map
+      if (highestPriceBidsMap.has(bid.auctionID._id)) {
+        // If it does, compare the price with the existing bid
+        const existingBid = highestPriceBidsMap.get(bid.auctionID._id);
+        if (bid.price > existingBid.price) {
+          // If the new bid has a higher price, update the map
+          highestPriceBidsMap.set(bid.auctionID._id, { ...bid });
+        }
+      } else {
+        // If the auctionID does not exist in the map, add it
+        highestPriceBidsMap.set(bid.auctionID._id, { ...bid });
+      }
+    });
+
+    // Convert the map values to an array to get the final list of highest price bids
+    dispatch(setBidList(Array.from(highestPriceBidsMap.values())));
+  }, [bidList]);
 
   return (
     <Card

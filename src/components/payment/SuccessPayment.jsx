@@ -8,6 +8,7 @@ import { AuctionContext } from "../../context/auction.context";
 import { useDispatch, useSelector } from "react-redux";
 import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
 import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
+import { RealEstateContext } from "../../context/real-estate.context";
 
 export const style = {
   position: "absolute",
@@ -37,9 +38,11 @@ const SuccessPayment = () => {
 
   const [bill, setBill] = useState(null);
 
-  const { getBill } = useContext(BidContext);
+  const { getBill, setWinList } = useContext(BidContext);
 
   const { addToJoinList, setWinner } = useContext(AuctionContext);
+
+  const { closeRealEstate } = useContext(RealEstateContext);
 
   const auctionList = useSelector((state) => state.auction.properties);
 
@@ -59,7 +62,9 @@ const SuccessPayment = () => {
 
           switch (getBillRes.response.type) {
             case "Pay Auction Fee": {
-              const res = await addToJoinList(getBillRes.response.auctionID);
+              const res = await addToJoinList(
+                getBillRes.response.auctionID._id
+              );
               console.log(res);
               if (res.success) {
                 dispatch(setDetail(res.response));
@@ -69,8 +74,35 @@ const SuccessPayment = () => {
 
             case "Buy Now": {
               const res = await setWinner(
-                getBillRes.response.auctionID,
+                getBillRes.response.auctionID._id,
                 getBillRes.response.memberID._id
+              );
+
+              console.log(res);
+
+              if (res.success) {
+                // const indexToUpdate = auctionList.findIndex(
+                //   (item) => item._id === res.response._id
+                // );
+
+                // // If the index is found, update the auctionList
+                // if (indexToUpdate !== -1) {
+                //   console.log(res);
+                //   const updatedAuctionList = [...auctionList];
+                //   updatedAuctionList[indexToUpdate] = res.response;
+                //   dispatch(setProperties(updatedAuctionList));
+                //   dispatch(setSearchResults(updatedAuctionList));
+                // }
+
+                dispatch(setDetail(res.response));
+              }
+
+              break;
+            }
+
+            case "Pay Winning Auction": {
+              const res = await closeRealEstate(
+                getBillRes.response.auctionID.realEstateID
               );
 
               console.log(res);
@@ -263,9 +295,9 @@ const SuccessPayment = () => {
             <Button
               variant="outlined"
               sx={{ textTransform: "none", fontWeight: 600, ml: "20px" }}
-              onClick={() => nav(`/auction_detail/${bill.auctionID}`)}
+              onClick={() => nav(`/`)}
             >
-              Return to auction page
+              Return to home page
             </Button>
           </div>
         </Box>

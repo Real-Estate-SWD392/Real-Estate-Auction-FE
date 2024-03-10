@@ -25,6 +25,7 @@ import Forbidden403 from "../forbidden-page/Forbidden403";
 import StaffLayout from "../layout/StaffLayout";
 import AuctionManagement from "../staff/AuctionManagement";
 import ProtectedRoutes from "./ProtectedRoutes";
+import PaymentHistory from "../seller-dashboard/PaymentHistory";
 
 const AppRoutes = [
   {
@@ -99,6 +100,10 @@ const AppRoutes = [
       {
         path: "/my-account/winning-bids",
         element: <WinningBids />,
+      },
+      {
+        path: "/my-account/payment-history",
+        element: <PaymentHistory />,
       },
     ],
   },

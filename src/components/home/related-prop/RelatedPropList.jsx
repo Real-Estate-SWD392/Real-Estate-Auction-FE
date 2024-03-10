@@ -1,6 +1,6 @@
 // RelatedPropList.js
 import React, { useEffect } from "react";
-import { connect, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { Grid, IconButton, Typography } from "@mui/material";
 import AuctionPropCard from "./AuctionPropCard";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuctionContext } from "../../../context/auction.context";
 import axios from "axios";
+import { setProperties } from "../../../redux/reducers/auctionSlice";
 
 const buttonStyle = {
   background: "#F4F7FA",
@@ -22,6 +23,8 @@ const RelatedPropList = ({}) => {
   const navigate = useNavigate();
   const properties = useSelector((state) => state.auction.properties);
 
+  const dispatch = useDispatch();
+
   setAuctionList(properties);
 
   const handleNavigate = () => {
@@ -34,6 +37,7 @@ const RelatedPropList = ({}) => {
         const response = await axios.get(
           "http://localhost:8080/auction/status/In Auction"
         );
+        dispatch(setProperties(response.data.response));
         console.log(response);
       } catch (error) {
         console.error("Error fetching auctions:", error);

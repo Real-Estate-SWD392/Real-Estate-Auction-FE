@@ -226,9 +226,9 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       console.log(res);
       if (res.data.success) {
         if (data.checkedStatus === "Accepted") {
-          let updatedList = [...auctionList];
+          let updatedList = [...notStartList];
           updatedList.push(res.data.response);
-          dispatch(setProperties(updatedList));
+          dispatch(setNotStartAuction(updatedList));
         }
 
         setAnchorEl(null);

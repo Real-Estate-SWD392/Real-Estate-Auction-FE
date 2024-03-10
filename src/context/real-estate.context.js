@@ -162,6 +162,33 @@ export const RealEstateContextProvider = ({ children }) => {
     }
   };
 
+  const closeRealEstate = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/real-estate/close/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Close successfully", response);
+        return data;
+      } else {
+        console.error("Close failed", response);
+        return response;
+      }
+    } catch (error) {
+      console.error("Error during close", error);
+    }
+  };
+
   const removeRealEstate = async (id) => {
     try {
       const response = await axios.put(
@@ -258,6 +285,7 @@ export const RealEstateContextProvider = ({ children }) => {
         uploadPDFs,
         updateRealEstate,
         getRealEstateByStatus,
+        closeRealEstate,
       }}
     >
       {children}

@@ -16,22 +16,34 @@ function App() {
 
   const dispatch = useDispatch();
 
-  const { startAuction } = useContext(AuctionContext);
+  const { startAuction, getInAuctionRealEstate, getNotStartAuction } =
+    useContext(AuctionContext);
 
   const startAuctionFuction = async (values) => {
     const res = await startAuction(values);
 
-    const updatedList = [...auctionList];
+    const inAuctionList = await getInAuctionRealEstate();
 
-    console.log(auctionList);
+    const updatedList = [...inAuctionList.response];
+
+    console.log(inAuctionList);
 
     console.log(updatedList);
 
-    updatedList.push(res.response[0]);
+    updatedList.unshift(res.response[0]);
 
     dispatch(setProperties(updatedList));
     dispatch(setSearchResults(updatedList));
   };
+
+  useEffect(() => {
+    const fetchNotStartAuction = async () => {
+      const res = await getNotStartAuction();
+      dispatch(setNotStartAuction(res?.response));
+    };
+
+    fetchNotStartAuction();
+  }, []);
 
   useEffect(() => {
     if (notStartList.length > 0) {
@@ -87,6 +99,10 @@ function App() {
           console.log(updatedNotStartAuction);
 
           dispatch(setNotStartAuction(updatedNotStartAuction));
+
+          if (notStartList.length <= 0) {
+            clearInterval(interval);
+          }
         }
 
         // Set the open state for the found auctions
@@ -100,7 +116,7 @@ function App() {
     }
   }, [notStartList]);
 
-  console.log(notStartList);
+  // console.log(auctionList);
 
   return (
     <div className="App">

@@ -158,6 +158,7 @@ const MyListingCard = ({
   });
 
   console.log(checkExist);
+  console.log("Value of formik", formik.values);
 
   const handleOpen = () => setOpen(true);
 

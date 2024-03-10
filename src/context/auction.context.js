@@ -64,6 +64,32 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const getInAuctionRealEstate = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/auction/status/In Auction`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Auction List: ", data);
+        return response.data;
+      } else {
+        const errorData = await response.data;
+        console.error("Load auction failed", errorData);
+        return errorData.data;
+      }
+    } catch (error) {
+      console.error("Error during update", error);
+    }
+  };
+
   const searchAuction = async (value) => {
     try {
       const response = await fetch(
@@ -425,6 +451,58 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const getNotStartAuction = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/auction/status/Not Start`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        console.log("Not Start List: ", data);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("Load not Start auction failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Error during load", error);
+    }
+  };
+
+  const checkAlreadyPay = async (auctionID) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/bill/checkAlreadyPay/${user._id}/${auctionID}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        console.log("already pay?: ", data);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("already pay failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Error during load", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -455,6 +533,9 @@ export const AuctionContextProvider = ({ children }) => {
         addToJoinList,
         startAuction,
         updateAuctionTime,
+        getInAuctionRealEstate,
+        getNotStartAuction,
+        checkAlreadyPay,
       }}
     >
       {children}
