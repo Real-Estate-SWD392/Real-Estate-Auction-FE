@@ -20,12 +20,20 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableFooter,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   tableCellClasses,
+  useTheme,
 } from "@mui/material";
-import { Close, NearMe } from "@mui/icons-material";
+import {
+  Close,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  NearMe,
+} from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/system";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -52,6 +60,78 @@ import Loading from "../loading/Loading";
 import dayjs, { Dayjs } from "dayjs";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import LastPageIcon from "@mui/icons-material/LastPage";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import PropTypes from "prop-types";
+
+function TablePaginationActions(props) {
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onPageChange } = props;
+
+  const handleFirstPageButtonClick = (event) => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = (event) => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = (event) => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (event) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </Box>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
 
 const count = 1;
 
@@ -112,10 +192,15 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       }
     };
   }, [auctionsInfor]);
+
   const [selectedFilter, setSelectedFilter] = useState("All");
+
   const [search, setSearch] = useState("");
+
   const [amount, setAmount] = useState(10);
+
   const [anchorEl, setAnchorEl] = useState(null);
+
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [statusCount, setStatusCount] = useState({
@@ -126,7 +211,32 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     rejected: countStatus(auctionsInfor, "Cancel"),
     ended: countStatus(auctionsInfor, "End"),
   });
+
   const navigate = useNavigate();
+
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const filteredAuctionData = auctionsInfor.filter(
+    (row) =>
+      selectedFilter === "All" ||
+      (selectedFilter !== "All" && row.status === selectedFilter)
+  );
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0
+      ? Math.max(0, (1 + page) * rowsPerPage - filteredAuctionData.length)
+      : 0;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   useEffect(() => {
     setStatusCount((prevCount) => ({
@@ -203,12 +313,6 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       </Typography>
     );
   };
-
-  const filteredAuctionData = auctionsInfor.filter(
-    (row) =>
-      selectedFilter === "All" ||
-      (selectedFilter !== "All" && row.status === selectedFilter)
-  );
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -518,139 +622,169 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredAuctionData &&
-                filteredAuctionData?.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell align="center">{count + index}</TableCell>
-                    <TableCell>
-                      <div className="">
-                        <Grid container alignItems="center" spacing={2}>
-                          <Grid item>
-                            <img
-                              src={row?.realEstateID?.image[0]}
-                              alt=""
-                              width="80px"
-                              height="80px"
-                              style={{ borderRadius: "10px" }}
-                            />
-                          </Grid>
-                          <Grid item>
-                            <Typography
-                              variant="body1"
-                              color="initial"
+              {(rowsPerPage > 0
+                ? filteredAuctionData.slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage
+                  )
+                : filteredAuctionData
+              ).map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell align="center">{count + index}</TableCell>
+                  <TableCell>
+                    <div className="">
+                      <Grid container alignItems="center" spacing={2}>
+                        <Grid item>
+                          <img
+                            src={row?.realEstateID?.image[0]}
+                            alt=""
+                            width="80px"
+                            height="80px"
+                            style={{ borderRadius: "10px" }}
+                          />
+                        </Grid>
+                        <Grid item>
+                          <Typography
+                            variant="body1"
+                            color="initial"
+                            sx={{
+                              width: "220px",
+                              display: "-webkit-box",
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              WebkitLineClamp: 2,
+                            }}
+                          >
+                            {row.realEstateID.street}, {row.realEstateID.ward},
+                            {row.realEstateID.district},{row.realEstateID.city}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            color="initial"
+                            fontWeight={600}
+                            sx={{ marginTop: "10px" }}
+                          >
+                            {row.type}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </div>
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    style={{
+                      maxWidth: "103.7px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {row.name}
+                  </TableCell>
+                  <TableCell align="center">
+                    {moment(row.createdAt).format("DD-MM-YYYY")}
+                  </TableCell>
+                  <TableCell align="center">
+                    <CurrencyFormatter amount={row.startPrice} />
+                  </TableCell>
+                  <TableCell align="center">
+                    <CurrencyFormatter amount={row.buyNowPrice} />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={row.status}
+                      style={{
+                        background: filterType.find(
+                          (item) => item.name === row.status
+                        )?.background,
+
+                        fontWeight: 600,
+                        color: filterType.find(
+                          (item) => item.name === row.status
+                        )?.color,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      onClick={(event) => handleOpenPopover(event, index)}
+                    >
+                      <MoreHorizIcon />
+                    </IconButton>
+                  </TableCell>
+                  <Popper
+                    open={open && selectedRowIndex === index}
+                    anchorEl={anchorEl}
+                    onClose={handleClosePopover}
+                  >
+                    <ClickAwayListener onClickAway={handleClickAway}>
+                      <List
+                        sx={{
+                          background: "white",
+                        }}
+                      >
+                        {actions
+                          ?.filter((item) =>
+                            item.forStatus.includes(row.status)
+                          )
+                          .map((action) => (
+                            <ListItem
                               sx={{
-                                width: "220px",
-                                display: "-webkit-box",
-                                WebkitBoxOrient: "vertical",
-                                overflow: "hidden",
-                                WebkitLineClamp: 2,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "flex-start",
+                                alignItems: "flex-start",
                               }}
                             >
-                              {row.realEstateID.street}, {row.realEstateID.ward}
-                              ,{row.realEstateID.district},
-                              {row.realEstateID.city}
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              color="initial"
-                              fontWeight={600}
-                              sx={{ marginTop: "10px" }}
-                            >
-                              {row.type}
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </div>
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      style={{
-                        maxWidth: "103.7px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="center">
-                      {moment(row.createdAt).format("DD-MM-YYYY")}
-                    </TableCell>
-                    <TableCell align="center">
-                      <CurrencyFormatter amount={row.startPrice} />
-                    </TableCell>
-                    <TableCell align="center">
-                      <CurrencyFormatter amount={row.buyNowPrice} />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Chip
-                        label={row.status}
-                        style={{
-                          background: filterType.find(
-                            (item) => item.name === row.status
-                          )?.background,
-
-                          fontWeight: 600,
-                          color: filterType.find(
-                            (item) => item.name === row.status
-                          )?.color,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        onClick={(event) => handleOpenPopover(event, index)}
-                      >
-                        <MoreHorizIcon />
-                      </IconButton>
-                    </TableCell>
-                    <Popper
-                      open={open && selectedRowIndex === index}
-                      anchorEl={anchorEl}
-                      onClose={handleClosePopover}
-                    >
-                      <ClickAwayListener onClickAway={handleClickAway}>
-                        <List
-                          sx={{
-                            background: "white",
-                          }}
-                        >
-                          {actions
-                            ?.filter((item) =>
-                              item.forStatus.includes(row.status)
-                            )
-                            .map((action) => (
-                              <ListItem
+                              <Button
+                                startIcon={action.icon}
+                                onClick={() => action.onClick(row)}
                                 sx={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  justifyContent: "flex-start",
-                                  alignItems: "flex-start",
+                                  textTransform: "none",
+                                  fontWeight: 600,
+                                  color: "black",
                                 }}
                               >
-                                <Button
-                                  startIcon={action.icon}
-                                  onClick={() => action.onClick(row)}
-                                  sx={{
-                                    textTransform: "none",
-                                    fontWeight: 600,
-                                    color: "black",
-                                  }}
-                                >
-                                  {action.name}
-                                </Button>
-                              </ListItem>
-                            ))}
-                        </List>
-                      </ClickAwayListener>
-                    </Popper>
-                  </TableRow>
-                ))}
+                                {action.name}
+                              </Button>
+                            </ListItem>
+                          ))}
+                      </List>
+                    </ClickAwayListener>
+                  </Popper>
+                </TableRow>
+              ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
             </TableBody>
+            <TableFooter sx={{ width: "100%" }}>
+              <TableRow sx={{ width: "100%" }}>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
+                  colSpan={3}
+                  count={filteredAuctionData.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  slotProps={{
+                    select: {
+                      inputProps: {
+                        "aria-label": "rows per page",
+                      },
+                      native: true,
+                    },
+                  }}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableFooter>
           </Table>
         </TableContainer>
       </div>
-
       {isOpenCalender ? (
         <Modal
           open={isOpenCalender}

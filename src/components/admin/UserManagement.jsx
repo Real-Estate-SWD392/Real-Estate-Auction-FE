@@ -40,7 +40,11 @@ import {
   TableFooter,
   TablePagination,
 } from "@mui/material";
-import { NearMe } from "@mui/icons-material";
+import {
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  NearMe,
+} from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/system";
 import { auctionData } from "./auctionData";
@@ -62,6 +66,76 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import AddUserModal from "./AddUserModal";
+import PropTypes from "prop-types";
+
+function TablePaginationActions(props) {
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onPageChange } = props;
+
+  const handleFirstPageButtonClick = (event) => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = (event) => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = (event) => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (event) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </Box>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
 
 const count = 1;
 
@@ -144,24 +218,8 @@ const UserManagement = () => {
     banned: countStatus(userList, "Banned"),
   });
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [itemsPerPage, setItemsPerPage] = useState(5);
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-  };
-
-  const paginate = (data, currentPage, itemsPerPage) => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return data.slice(startIndex, endIndex);
-  };
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const filterUserData = userList.filter(
     (row) =>
@@ -169,7 +227,20 @@ const UserManagement = () => {
       (selectedFilter !== "All" && row.status === selectedFilter)
   );
 
-  const paginatedData = paginate(filterUserData, currentPage, itemsPerPage);
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0
+      ? Math.max(0, (1 + page) * rowsPerPage - filterUserData.length)
+      : 0;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   useEffect(() => {
     setStatusCount((prevCount) => ({
@@ -218,9 +289,9 @@ const UserManagement = () => {
 
   const open = Boolean(anchorEl);
 
-  useEffect(() => {
-    setAmount(filterUserData.length);
-  }, [selectedFilter]);
+  // useEffect(() => {
+  //   setAmount(filterUserData.length);
+  // }, [selectedFilter]);
 
   const handleToggleFilter = (name) => {
     setSelectedFilter(name);
@@ -550,7 +621,13 @@ const UserManagement = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedData.map((row, index) => (
+              {(rowsPerPage > 0
+                ? filterUserData.slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage
+                  )
+                : filterUserData
+              ).map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
                   <TableCell>
@@ -661,88 +738,39 @@ const UserManagement = () => {
                   </Popper>
                 </TableRow>
               ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
             </TableBody>
+            <TableFooter sx={{ width: "100%" }}>
+              <TableRow sx={{ width: "100%" }}>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
+                  colSpan={3}
+                  count={filterUserData.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  slotProps={{
+                    select: {
+                      inputProps: {
+                        "aria-label": "rows per page",
+                      },
+                      native: true,
+                    },
+                  }}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableFooter>
           </Table>
         </TableContainer>
-        {/* <Box
-          sx={{
-            borderTop: "1px solid #E3E3E3",
-            paddingTop: "10px",
-            marginTop: "10px",
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="body1" color="initial">
-            Showing {paginatedData.length} of {filterUserData.length} results
-          </Typography>
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={Math.ceil(filterUserData.length / itemsPerPage)}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-            itemsPerPage={itemsPerPage}
-          />
-        </Box> */}
       </div>
     </div>
   );
 };
-
-// const PaginationControls = ({
-//   currentPage,
-//   totalPages,
-//   onPageChange,
-//   onItemsPerPageChange,
-//   itemsPerPage,
-// }) => {
-//   return (
-//     <Box sx={{ display: "flex", alignItems: "center" }}>
-//       <div
-//         className="pagination"
-//         style={{
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//         }}
-//       >
-//         <IconButton
-//           variant="outlined"
-//           sx={{}}
-//           onClick={() => onPageChange(currentPage - 1)}
-//           disabled={currentPage === 1}
-//         >
-//           <KeyboardArrowLeftIcon />
-//         </IconButton>
-//         <Typography variant="body1" color="initial" sx={{}}>
-//           Page {currentPage} of {totalPages}
-//         </Typography>
-//         <IconButton
-//           variant="outlined"
-//           onClick={() => onPageChange(currentPage + 1)}
-//           disabled={currentPage === totalPages}
-//         >
-//           <KeyboardArrowRightIcon />
-//         </IconButton>
-//       </div>
-//       <div className="" style={{ width: "150px" }}>
-//         <FormControl sx={{ marginLeft: "20px" }} fullWidth>
-//           <InputLabel id="itemsPerPage">Items per page</InputLabel>
-//           <Select
-//             labelId="itemsPerPage"
-//             value={itemsPerPage}
-//             label="Items per page"
-//             onChange={(e) => onItemsPerPageChange(e.target.value)}
-//           >
-//             <MenuItem value={10}>10</MenuItem>
-//             <MenuItem value={20}>20</MenuItem>
-//             <MenuItem value={30}>30</MenuItem>
-//           </Select>
-//         </FormControl>
-//       </div>
-//     </Box>
-//   );
-// };
 
 export default UserManagement;
