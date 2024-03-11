@@ -17,6 +17,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import ReportIcon from "@mui/icons-material/Report";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { AuthContext } from "../../../context/auth.context";
+import Logo from "../../../assets/img/logo_auction.png";
 
 export const drawerWidth = 300;
 const selectedColor = "rgb(17,139,244)";
@@ -90,7 +91,36 @@ const StaffSideBar = () => {
         variant="permanent"
         anchor="left"
       >
-        <Toolbar />
+        <div
+          className="logo-container"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            padding: "40px 30px",
+          }}
+        >
+          <img
+            className="image-logo"
+            src={Logo}
+            alt=""
+            style={{ width: "45px" }}
+          />
+          <div class="logo-content" style={{ lineHeight: 1 }}>
+            <div
+              className="logo-content-a"
+              style={{ fontSize: "22px", fontWeight: 700 }}
+            >
+              Accommondation
+            </div>
+            <div
+              className="logo-content-b"
+              style={{ fontSize: "14px", fontWeight: 700 }}
+            >
+              A Real Estate Auction
+            </div>
+          </div>
+        </div>
         <Divider />
         <List>
           {sideBar.map((content, index) => (

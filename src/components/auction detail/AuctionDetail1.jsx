@@ -52,6 +52,7 @@ import { AuctionContext } from "../../context/auction.context";
 import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import ReactSimpleImageViewer from "react-simple-image-viewer";
 import BidderList from "./BidderList";
+import ReportModal from "./ReportModal";
 
 const specStyle = {
   textAlign: "center",
@@ -162,6 +163,16 @@ const AuctionDetail1 = () => {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const [imageList, setImageList] = useState([]);
+
+  const [openReport, setOpenReport] = useState(false);
+
+  const handleOpenReport = () => {
+    setOpenReport(true);
+  };
+
+  const handleCloseReport = () => {
+    setOpenReport(false);
+  };
 
   //fetch img list here
   useEffect(() => {
@@ -608,9 +619,14 @@ const AuctionDetail1 = () => {
               textDecoration: "underline",
             },
           }}
+          onClick={() => handleOpenReport()}
         >
           Not legitimate? Report this Auction
         </Button>
+        <ReportModal
+          openReport={openReport}
+          handleCloseReport={handleCloseReport}
+        />
       </div>
       <div className="detail-component" style={{ marginTop: "15px" }}>
         <Grid container justifyContent="center" spacing={6}>

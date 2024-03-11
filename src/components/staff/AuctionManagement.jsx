@@ -647,6 +647,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                           <Typography
                             variant="body1"
                             color="initial"
+                            fontSize={14}
                             sx={{
                               width: "220px",
                               display: "-webkit-box",
@@ -662,9 +663,10 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                             variant="body1"
                             color="initial"
                             fontWeight={600}
+                            fontSize={14}
                             sx={{ marginTop: "10px" }}
                           >
-                            {row.type}
+                            {row.realEstateID.type}
                           </Typography>
                         </Grid>
                       </Grid>
