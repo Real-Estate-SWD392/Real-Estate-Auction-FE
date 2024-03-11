@@ -275,7 +275,7 @@ const AuctionDetail1 = () => {
   const { user, accessToken, setUser, setIsOpenLogin } =
     useContext(AuthContext);
 
-  const { setWinner, addToJoinList } = useContext(AuctionContext);
+  const { setWinner, addToJoinList, socket } = useContext(AuctionContext);
 
   const [checkAlreadyBid, setAlreadyBid] = useState(false);
 
@@ -396,10 +396,31 @@ const AuctionDetail1 = () => {
     }
   };
 
+  useEffect(() => {
+    if (socket === null) return;
+
+    socket.on("currentBid", (res) => {
+      console.log(res);
+      dispatch(setDetail(res.auctionID));
+
+      const updatedBidderList = [...bidderList];
+
+      updatedBidderList.unshift(res);
+
+      setBidderList(updatedBidderList);
+    });
+
+    return () => {
+      socket.off("currentBid");
+    };
+  }, [socket]);
+
   const handlePlaceBid = async () => {
     try {
       const res = await createBid(bidData, headers);
-      console.log(res);
+      // console.log(res);
+      socket.emit("placeBid", res.data.response);
+
       if (res && res.data && res.data.success) {
         dispatch(setDetail(res.data.response.auctionID));
         setBidList([...bidList, res.data.response]);

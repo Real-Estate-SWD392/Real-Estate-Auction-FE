@@ -36,8 +36,15 @@ import {
   FormLabel,
   FormHelperText,
   InputLabel,
+  useTheme,
+  TableFooter,
+  TablePagination,
 } from "@mui/material";
-import { NearMe } from "@mui/icons-material";
+import {
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  NearMe,
+} from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/system";
 import { auctionData } from "./auctionData";
@@ -54,6 +61,81 @@ import { UserContext } from "../../context/user.context";
 import moment from "moment";
 import Loading from "../loading/Loading";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import LastPageIcon from "@mui/icons-material/LastPage";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import AddUserModal from "./AddUserModal";
+import PropTypes from "prop-types";
+
+function TablePaginationActions(props) {
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onPageChange } = props;
+
+  const handleFirstPageButtonClick = (event) => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = (event) => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = (event) => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (event) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </Box>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
 
 const count = 1;
 
@@ -96,7 +178,7 @@ const userStatus = {
   },
 };
 
-const UserManagement = ({}) => {
+const UserManagement = () => {
   const countStatus = useMemo(() => {
     return (listUser, status) => {
       const count = listUser.reduce((acc, user) => {
@@ -110,17 +192,29 @@ const UserManagement = ({}) => {
     };
   }, []);
 
-  const { getAllAccount, banAccount, unbanAccount, removeAccount } =
-    useContext(UserContext);
+  const {
+    getAllAccount,
+    banAccount,
+    unbanAccount,
+    removeAccount,
+    createAccount,
+  } = useContext(UserContext);
   const [userList, setUserList] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [selectedFilter, setSelectedFilter] = useState("All");
+
   const [search, setSearch] = useState("");
-  const [amount, setAmount] = useState(10);
+
+  const [amount, setAmount] = useState(0);
+
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+
+  const [openAddModal, setOpenAddModal] = useState(false);
+
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+
   const [statusCount, setStatusCount] = useState({
     all: userList.length,
     active: countStatus(userList, "Active"),
@@ -128,14 +222,30 @@ const UserManagement = ({}) => {
     pending: countStatus(userList, "Pending"),
     banned: countStatus(userList, "Banned"),
   });
-  const [newUser, setNewUser] = useState({
-    role: "",
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    address: "",
-    email: "phucanhdodang1211@gmail.com",
-  });
+
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const filterUserData = userList.filter(
+    (row) =>
+      selectedFilter === "All" ||
+      (selectedFilter !== "All" && row.status === selectedFilter)
+  );
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0
+      ? Math.max(0, (1 + page) * rowsPerPage - filterUserData.length)
+      : 0;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   useEffect(() => {
     setStatusCount((prevCount) => ({
@@ -184,6 +294,10 @@ const UserManagement = ({}) => {
 
   const open = Boolean(anchorEl);
 
+  // useEffect(() => {
+  //   setAmount(filterUserData.length);
+  // }, [selectedFilter]);
+
   const handleToggleFilter = (name) => {
     setSelectedFilter(name);
   };
@@ -199,18 +313,13 @@ const UserManagement = ({}) => {
     //call api for search
     //update result amount
   };
-  const filterUserData = userList.filter(
-    (row) =>
-      selectedFilter === "All" ||
-      (selectedFilter !== "All" && row.status === selectedFilter)
-  );
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
+  const handleOpenAddModal = () => {
+    setOpenAddModal(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseAddModal = () => {
+    setOpenAddModal(false);
   };
 
   const actions = [
@@ -399,10 +508,14 @@ const UserManagement = ({}) => {
                   color: "white",
                 },
               }}
-              onClick={() => handleOpenModal()}
+              onClick={() => handleOpenAddModal()}
             >
               Add New User
             </Button>
+            <AddUserModal
+              openModal={openAddModal}
+              handleCloseModal={handleCloseAddModal}
+            />
           </Grid>
         </Grid>
       </div>
@@ -543,7 +656,13 @@ const UserManagement = ({}) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filterUserData.map((row, index) => (
+              {(rowsPerPage > 0
+                ? filterUserData.slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage
+                  )
+                : filterUserData
+              ).map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
                   <TableCell>
@@ -587,7 +706,7 @@ const UserManagement = ({}) => {
                       : "Empty"}
                   </TableCell>
                   <TableCell align="center">
-                    {moment(row.createdDate).format("DD-MM-YY")}
+                    {moment(row.createdAt).format("DD-MM-YYYY")}
                   </TableCell>
                   {/* <TableCell align="center">{row.sales}</TableCell> */}
                   <TableCell align="center">
@@ -654,7 +773,34 @@ const UserManagement = ({}) => {
                   </Popper>
                 </TableRow>
               ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
             </TableBody>
+            <TableFooter sx={{ width: "100%" }}>
+              <TableRow sx={{ width: "100%" }}>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
+                  colSpan={3}
+                  count={filterUserData.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  slotProps={{
+                    select: {
+                      inputProps: {
+                        "aria-label": "rows per page",
+                      },
+                      native: true,
+                    },
+                  }}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableFooter>
           </Table>
         </TableContainer>
       </div>

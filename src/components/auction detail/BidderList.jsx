@@ -13,6 +13,7 @@ import {
 import React from "react";
 
 import moment from "moment";
+import { bidders } from "./bidderData";
 
 export const style = {
   position: "absolute",

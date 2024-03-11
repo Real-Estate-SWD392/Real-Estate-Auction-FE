@@ -213,6 +213,36 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
+  const createAccount = async (body) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/account/`,
+        { body },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Create Account Successfully", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        console.error("Create Account Failed", response.data);
+        toast.error(response.data.message);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Ban Account Fail", error);
+    }
+  };
+
   const removeAccount = async (id) => {
     try {
       const response = await axios.put(
@@ -254,6 +284,7 @@ export const UserContextProvider = ({ children }) => {
         banAccount,
         unbanAccount,
         removeAccount,
+        createAccount,
       }}
     >
       {children}

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./auth.context";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { io } from "socket.io-client";
 
 export const AuctionContext = createContext();
 
@@ -9,6 +10,19 @@ export const AuctionContextProvider = ({ children }) => {
   const { user, setUser, accessToken } = useContext(AuthContext);
 
   const [auctionList, setAuctionList] = useState([]);
+
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
+
+    console.log(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [user]);
 
   const getAllAuctions = async () => {
     try {
@@ -536,6 +550,7 @@ export const AuctionContextProvider = ({ children }) => {
         getInAuctionRealEstate,
         getNotStartAuction,
         checkAlreadyPay,
+        socket,
       }}
     >
       {children}
