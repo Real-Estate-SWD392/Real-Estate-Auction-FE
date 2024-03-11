@@ -5,6 +5,7 @@ import {
   Chip,
   Divider,
   FormControl,
+  FormHelperText,
   Grid,
   IconButton,
   Input,
@@ -114,93 +115,27 @@ const UpdateProperty = () => {
     wards: [],
   });
 
-  const formik = useFormik({
-    initialValues: {
-      propID: "",
-      ownerID: user._id,
-      street: "",
-      city: "",
-      district: "",
-      ward: "",
-      image: [],
-      type: "",
-      size: "",
-      bedRoom: 1,
-      bathRoom: 1,
-      description: "",
-      pdf: [],
-    },
-
-    validationSchema: validationProperty,
-    onSubmit: (values) => {
-      console.log("Form Data", values);
-    },
-  });
-
-  const handleSelectLocation = async (fieldName, selectedValue) => {
-    setProperty((prevProp) => ({
-      ...prevProp,
-      [fieldName]: selectedValue,
-    }));
-
-    if (fieldName === "city") {
-      const selectedProvince = location.provinces.find(
-        (province) => province.province_name === selectedValue
-      );
-      // Fetch districts based on the selected province_id
-      const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
-      try {
-        const response = await fetch(getDistricts);
-        const data = await response.json();
-
-        if (data.results) {
-          const districtNames = data.results.map((result) => ({
-            district_id: result.district_id,
-            district_name: result.district_name,
-          }));
-
-          setLocation((prevLocation) => ({
-            ...prevLocation,
-            districts: districtNames,
-          }));
-        }
-      } catch (err) {
-        console.error("Error fetching districts: ", err);
-      }
-    } else if (fieldName === "district") {
-      const selectedDistrict = location.districts.find(
-        (district) => district.district_name === selectedValue
-      );
-
-      // Fetch wards based on the selected district_id
-      const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
-      try {
-        const response = await fetch(getWards);
-        const data = await response.json();
-
-        if (data.results) {
-          const wardNames = data.results.map((result) => ({
-            ward_id: result.ward_id,
-            ward_name: result.ward_name,
-          }));
-
-          setLocation((prevLocation) => ({
-            ...prevLocation,
-            wards: wardNames,
-          }));
-        }
-      } catch (err) {
-        console.error("Error fetching wards: ", err);
-      }
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getRealEstateByID(id);
         console.log(res);
         setProperty(res);
+
+        formik.setValues({
+          propID: res.propID,
+          street: res.street,
+          city: res.city,
+          district: res.district,
+          ward: res.ward,
+          image: res.image || "",
+          type: res.type,
+          size: res.size,
+          bedRoom: res.bedRoom,
+          bathRoom: res.bathRoom,
+          description: res.description,
+          pdf: res.pdf,
+        });
 
         const getProvince = `${provinceURL}/api/province`;
         const response = await fetch(getProvince);
@@ -216,7 +151,7 @@ const UpdateProperty = () => {
           provinces: provincesData,
         }));
 
-        console.log(property.city);
+        console.log("AAAAAA", property.city);
 
         const selectedProvince = provincesData.find(
           (province) => province.province_name === res.city
@@ -272,6 +207,97 @@ const UpdateProperty = () => {
 
     fetchData();
   }, []);
+
+  const formik = useFormik({
+    initialValues: {
+      propID: "",
+      ownerID: user._id,
+      street: "",
+      city: "",
+      district: "",
+      ward: "",
+      image: [],
+      type: "",
+      size: "",
+      bedRoom: "",
+      bathRoom: "",
+      description: "",
+      pdf: [],
+    },
+
+    validationSchema: validationProperty,
+    onSubmit: (values) => {
+      console.log("Form Data", values);
+    },
+  });
+
+  const handleSelectLocation = async (fieldName, selectedValue) => {
+    setProperty((prevProp) => ({
+      ...prevProp,
+      [fieldName]: selectedValue,
+    }));
+
+    formik.setFieldValue(fieldName, selectedValue);
+
+    if (fieldName === "city") {
+      const selectedProvince = location.provinces.find(
+        (province) => province.province_name === selectedValue
+      );
+      // Fetch districts based on the selected province_id
+      const getDistricts = `${provinceURL}/api/province/district/${selectedProvince.province_id}`;
+      try {
+        const response = await fetch(getDistricts);
+        const data = await response.json();
+
+        if (data.results) {
+          const districtNames = data.results.map((result) => ({
+            district_id: result.district_id,
+            district_name: result.district_name,
+          }));
+
+          formik.setFieldValue("district", "");
+          formik.setFieldValue("ward", "");
+          formik.setFieldValue("wards", []);
+          formik.setFieldValue("districts", districtNames);
+
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            districts: districtNames,
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching districts: ", err);
+      }
+    } else if (fieldName === "district") {
+      const selectedDistrict = location.districts.find(
+        (district) => district.district_name === selectedValue
+      );
+
+      // Fetch wards based on the selected district_id
+      const getWards = `${provinceURL}/api/province/ward/${selectedDistrict.district_id}`;
+      try {
+        const response = await fetch(getWards);
+        const data = await response.json();
+
+        if (data.results) {
+          const wardNames = data.results.map((result) => ({
+            ward_id: result.ward_id,
+            ward_name: result.ward_name,
+          }));
+
+          formik.setFieldValue("ward", "");
+          formik.setFieldValue("wards", wardNames);
+
+          setLocation((prevLocation) => ({
+            ...prevLocation,
+            wards: wardNames,
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching wards: ", err);
+      }
+    }
+  };
 
   const handleOpenImg = () => {
     setOpenImageList(true);
@@ -377,18 +403,20 @@ const UpdateProperty = () => {
     }));
   };
 
-  const handleIncrement = (name) => {
-    setProperty((prevProp) => ({
-      ...prevProp,
-      [name]: prevProp[name] + 1,
-    }));
+  const handleIncrement = (fieldName) => {
+    // setProperty((prevProp) => ({
+    //   ...prevProp,
+    //   [name]: prevProp[name] + 1,
+    // }));
+    formik.setFieldValue(fieldName, formik.values[fieldName] + 1);
   };
 
-  const handleDecrement = (name) => {
-    setProperty((prevProp) => ({
-      ...prevProp,
-      [name]: prevProp[name] - 1,
-    }));
+  const handleDecrement = (fieldName) => {
+    // setProperty((prevProp) => ({
+    //   ...prevProp,
+    //   [name]: prevProp[name] - 1,
+    // }));
+    formik.setFieldValue(fieldName, Math.max(formik.values[fieldName] - 1, 0));
   };
 
   const uploadImagesFile = async () => {
@@ -437,7 +465,7 @@ const UpdateProperty = () => {
   };
 
   return (
-    <>
+    <form onSubmit={formik.handleSubmit}>
       <Card
         sx={{
           width: "1100px",
@@ -496,8 +524,12 @@ const UpdateProperty = () => {
                   id=""
                   name="street"
                   label="Street Address *"
-                  onChange={handleInputChange}
-                  value={property.street}
+                  // onChange={handleInputChange}
+                  value={formik.values.street}
+                  error={formik.touched.street && Boolean(formik.errors.street)}
+                  helperText={formik.touched.street && formik.errors.street}
+                  onChange={formik.handleChange}
+                  // value={property.street}
                   sx={{ width: "630px" }}
                   InputProps={{
                     style: inputStyle,
@@ -508,12 +540,13 @@ const UpdateProperty = () => {
                 <Grid item>
                   <FormControl sx={inputSmall}>
                     <InputLabel id="demo-simple-select-label">
-                      Province
+                      Province *
                     </InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      value={property.city}
+                      name="city"
+                      value={formik.values.city}
                       label="Province"
                       onChange={(event) =>
                         handleSelectLocation("city", event.target.value)
@@ -529,17 +562,22 @@ const UpdateProperty = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {formik.touched.city && formik.errors.city && (
+                      <FormHelperText error>
+                        {formik.errors.city}
+                      </FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid item>
                   <FormControl sx={inputSmall}>
                     <InputLabel id="demo-simple-select-label">
-                      District
+                      District *
                     </InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      value={property.district}
+                      value={formik.values.district}
                       label="Province"
                       onChange={(event) =>
                         handleSelectLocation("district", event.target.value)
@@ -555,15 +593,22 @@ const UpdateProperty = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {formik.touched.district && formik.errors.district && (
+                      <FormHelperText error>
+                        {formik.errors.district}
+                      </FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid item>
                   <FormControl sx={inputSmall}>
-                    <InputLabel id="demo-simple-select-label">Ward</InputLabel>
+                    <InputLabel id="demo-simple-select-label">
+                      Ward *
+                    </InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      value={property.ward}
+                      value={formik.values.ward}
                       label="Province"
                       onChange={(event) =>
                         handleSelectLocation("ward", event.target.value)
@@ -576,13 +621,18 @@ const UpdateProperty = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {formik.touched.ward && formik.errors.ward && (
+                      <FormHelperText error>
+                        {formik.errors.ward}
+                      </FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
               </Grid>
               <Grid item>
-                <TextField
+                {/* <TextField
                   id=""
-                  label="Property Image"
+                  label="Property Image *"
                   name="image"
                   onChange={handleInputChange}
                   value={
@@ -645,6 +695,75 @@ const UpdateProperty = () => {
                   style={{ display: "none" }}
                   id="fileInput"
                   onChange={handleImageChange}
+                /> */}
+                <TextField
+                  id=""
+                  label="Property Image *"
+                  name="image"
+                  // onChange={handleInputChange}
+                  // onChange={(event) => {
+                  //   formik.setFieldValue("image", event.currentTarget.files);
+                  //   handleImageChange(event);
+                  // }}
+                  // value={image.length > 0 ? "Image list" : ""}
+                  value={formik.values.image.length > 0 ? "Image list" : ""}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    readOnly: true,
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        {formik.values.image.length > 0 ? (
+                          <Chip
+                            label={`View files (${formik.values.image.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenImg()}
+                          />
+                        ) : (
+                          ""
+                        )}
+                        <label htmlFor="fileInput">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                              borderRadius: "0 20px 20px 0",
+                              background: "#000000",
+                              textTransform: "none",
+                              px: "30px",
+                              py: "16px",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              "&:hover": {
+                                background: "#000000",
+                              },
+                              mr: "-13px",
+                            }}
+                            disabled={image.length > 4}
+                          >
+                            Add Image (.png, .jpg)
+                          </Button>
+                        </label>
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={formik.touched.image && !!formik.errors.image}
+                  helperText={formik.touched.image && formik.errors.image}
+                  onBlur={formik.handleBlur}
+                />
+                <input
+                  type="file"
+                  name="image"
+                  multiple
+                  accept=".png, .jpg"
+                  style={{ display: "none" }}
+                  id="fileInput"
+                  onChange={(event) => {
+                    const files = Array.from(event.currentTarget.files);
+                    formik.setFieldValue("image", files); // Set files as an array
+                    // formik.setFieldValue("image", event.currentTarget.files);
+                    handleImageChange(event);
+                  }}
                 />
               </Grid>
             </Grid>
@@ -665,33 +784,45 @@ const UpdateProperty = () => {
                 <Grid item>
                   <FormControl sx={inputWidth}>
                     <InputLabel id="demo-simple-select-label">
-                      Property Type
+                      Property Type *
                     </InputLabel>
                     <Select
                       sx={inputStyle}
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      value={property.type}
+                      // value={property.type}'
+                      value={formik.values.type}
+                      name="type"
                       label="Property Type"
-                      onChange={handleSelectChange}
+                      // onChange={handleSelectChange}
+                      onChange={formik.handleChange}
                     >
                       {propertyTypes.map((type) => (
                         <MenuItem value={type}>{type}</MenuItem>
                       ))}
                     </Select>
+                    {formik.touched.type && formik.errors.type && (
+                      <FormHelperText error>
+                        {formik.errors.type}
+                      </FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid item>
                   <TextField
                     id=""
-                    label="Property Size (m2)"
+                    label="Property Size *  (m2)"
                     name="size"
-                    value={property.size}
+                    // value={property.size}
+                    value={formik.values.size}
+                    error={formik.touched.size && Boolean(formik.errors.size)}
+                    helperText={formik.touched.size && formik.errors.size}
                     sx={inputWidth}
                     InputProps={{
                       style: inputStyle,
                     }}
-                    onChange={handleInputChange}
+                    // onChange={handleInputChange}
+                    onChange={formik.handleChange}
                   />
                 </Grid>
               </Grid>
@@ -699,8 +830,14 @@ const UpdateProperty = () => {
                 <Grid item>
                   <TextField
                     id=""
-                    label="Bedrooms"
-                    value={property.bedRoom}
+                    label="Bedrooms *"
+                    // value={property.bedRoom}
+                    value={formik.values.bedRoom}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.bedRoom && Boolean(formik.errors.bedRoom)
+                    }
+                    helperText={formik.touched.bedRoom && formik.errors.bedRoom}
                     sx={inputWidth}
                     InputProps={{
                       style: {
@@ -730,13 +867,23 @@ const UpdateProperty = () => {
                         textAlign: "center",
                       },
                     }}
+                    onBlur={formik.handleBlur}
                   />
                 </Grid>
                 <Grid item>
                   <TextField
                     id=""
-                    label="Bathrooms"
-                    value={property.bathRoom}
+                    label="Bathrooms *"
+                    name="bathRoom"
+                    // value={property.bathRoom}
+                    value={formik.values.bathRoom}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.bathRoom && Boolean(formik.errors.bathRoom)
+                    }
+                    helperText={
+                      formik.touched.bathRoom && formik.errors.bathRoom
+                    }
                     sx={inputWidth}
                     InputProps={{
                       style: {
@@ -766,6 +913,7 @@ const UpdateProperty = () => {
                         textAlign: "center",
                       },
                     }}
+                    onBlur={formik.handleBlur}
                   />
                 </Grid>
               </Grid>
@@ -774,8 +922,17 @@ const UpdateProperty = () => {
                   id=""
                   label="Description"
                   name="description"
-                  value={property.description}
-                  onChange={handleInputChange}
+                  // value={property.description}
+                  value={formik.values.description}
+                  error={
+                    formik.touched.description &&
+                    Boolean(formik.errors.description)
+                  }
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  onChange={formik.handleChange}
+                  // onChange={handleInputChange}
                   sx={{ width: "630px" }}
                   InputProps={{
                     style: inputStyle,
@@ -872,7 +1029,8 @@ const UpdateProperty = () => {
                 mt: "50px",
                 fontSize: "16px",
               }}
-              onClick={() => handleUpdateProperty()}
+              type="submit"
+              // onClick={() => handleUpdateProperty()}
             >
               Save
             </Button>
@@ -1003,7 +1161,7 @@ const UpdateProperty = () => {
           </Box>
         </Modal>
       </div>
-    </>
+    </form>
   );
 };
 

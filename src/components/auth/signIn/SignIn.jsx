@@ -35,6 +35,11 @@ const SignIn = (props) => {
       email: "",
     },
     validationSchema: validationPassword,
+    onSubmit: (values) => {
+
+      console.log("Data login ", values);
+      handleLogin(values);
+    }
   });
 
   const tooglePassword = (input) => {
@@ -56,14 +61,14 @@ const SignIn = (props) => {
 
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (values) => {
+   
     
 
     try {
       const res = await login({
-        email: formik.values.email,
-        password: formik.values.password,
+        email: values.email,
+        password: values.password,
       });
 
       console.log("Logonnn", res);
@@ -88,10 +93,10 @@ const SignIn = (props) => {
         messages and more.
       </p>
 
-      <form className="form-container">
+      <form onSubmit={formik.handleSubmit} className="form-container">
         <FormControl variant="outlined">
           <InputLabel htmlFor="email" color="primary">
-            Email Address
+            Email Address *
           </InputLabel>
           <OutlinedInput
             color="primary"
@@ -114,7 +119,7 @@ const SignIn = (props) => {
 
         <FormControl variant="outlined">
           <InputLabel htmlFor="current-password" color="primary">
-            Password
+            Password *
           </InputLabel>
           <OutlinedInput
             color="primary"
@@ -149,7 +154,7 @@ const SignIn = (props) => {
             type="submit"
             // disabled={formik.isSubmitting}
             style={{ color: "white" }}
-            onClick={(e) => handleLogin(e)}
+            // onClick={(e) => handleLogin(e)}
           >
             Sign In
           </Button>
