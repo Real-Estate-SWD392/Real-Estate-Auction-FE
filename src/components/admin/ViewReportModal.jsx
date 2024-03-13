@@ -100,7 +100,7 @@ const ViewReportModal = ({
                 maxHeight: 500,
                 overflowY: "scroll",
                 textAlign: "center",
-                width: 850,
+                width: 950,
               }}
             >
               <Table
