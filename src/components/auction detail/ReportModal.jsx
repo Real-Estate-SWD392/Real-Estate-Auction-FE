@@ -107,6 +107,8 @@ const ReportModal = ({ openReport, handleCloseReport }) => {
   const handleSubmit = () => {
     validateForm();
     console.log(report);
+    //toastify notification
+    handleCloseReport();
   };
 
   return (

@@ -7,12 +7,8 @@ import {
   ClickAwayListener,
   Grid,
   IconButton,
-  InputAdornment,
   List,
   ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Modal,
   Paper,
   Popper,
@@ -24,46 +20,24 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField,
-  tableCellClasses,
   useTheme,
 } from "@mui/material";
-import {
-  Close,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
-  NearMe,
-} from "@mui/icons-material";
-import SearchIcon from "@mui/icons-material/Search";
-import { styled } from "@mui/system";
+import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { useNavigate } from "react-router-dom";
-import GridViewIcon from "@mui/icons-material/GridView";
-import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
-import DoDisturbIcon from "@mui/icons-material/DoDisturb";
+
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  handleAuctionRequestByAdmin,
-  listAuctions,
-} from "../../service/auctionService";
+
 import moment from "moment";
-import { toast } from "react-toastify";
-import { AuthContext } from "../../context/auth.context";
-import { AuctionContext } from "../../context/auction.context";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setNotStartAuction,
-  setProperties,
-} from "../../redux/reducers/auctionSlice";
+
 import Loading from "../loading/Loading";
-import dayjs, { Dayjs } from "dayjs";
-import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
 import LastPageIcon from "@mui/icons-material/LastPage";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import PropTypes from "prop-types";
 import { reports } from "./reportList";
+import ViewReportModal from "./ViewReportModal";
 
 const tableHeader = {
   fontWeight: 600,
@@ -140,8 +114,19 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  bgcolor: "background.paper",
+  outline: "none",
+};
+
 const ReportManagement = () => {
-  // const [reportsInfo, setReportsInfo] = useState([]);
+  const [openReasons, setOpenReasons] = useState(false);
+
+  const [selectedReasonList, setSelectedReasonList] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -241,19 +226,20 @@ const ReportManagement = () => {
     //update result amount
   };
 
-  const CurrencyFormatter = ({ amount }) => {
-    // Ensure amount is a number
-    const formattedAmount = Number(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    return (
-      <Typography variant="body1" color="initial" fontWeight={500}>
-        {formattedAmount}
-      </Typography>
-    );
+  const handleOpenReasonList = (reasonList) => {
+    setOpenReasons(true);
+    setSelectedReasonList(reasonList);
+    // console.log(selectedRowData.reasons);
   };
+
+  const handleCloseReasonList = () => {
+    setOpenReasons(false);
+    setSelectedReasonList([]);
+  };
+
+  useEffect(() => {
+    console.log(selectedReasonList);
+  }, [selectedReasonList]);
 
   const actions = [
     {
@@ -437,18 +423,17 @@ const ReportManagement = () => {
                 <TableCell align="center" style={tableHeader}>
                   No.
                 </TableCell>
-                <TableCell style={tableHeader}>Property Overview</TableCell>
+                <TableCell style={{ ...tableHeader, width: "350px" }}>
+                  Property Overview
+                </TableCell>
                 <TableCell align="center" style={tableHeader}>
-                  Reporter
+                  Owner
                 </TableCell>
                 <TableCell align="center" style={tableHeader}>
                   Date
                 </TableCell>
                 <TableCell align="center" style={tableHeader}>
-                  Reason
-                </TableCell>
-                <TableCell align="center" style={tableHeader}>
-                  Description
+                  Report Reason
                 </TableCell>
                 <TableCell align="center" style={tableHeader}>
                   Status
@@ -466,7 +451,7 @@ const ReportManagement = () => {
               ).map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ width: "350px" }}>
                     <div className="">
                       <Grid
                         container
@@ -507,15 +492,6 @@ const ReportManagement = () => {
                           >
                             {row.type}
                           </Typography>
-                          <Typography
-                            variant="body1"
-                            color="initial"
-                            fontWeight={500}
-                            fontSize={14}
-                            sx={{ marginTop: "5px" }}
-                          >
-                            Hosted by {row.ownerFullName}
-                          </Typography>
                         </Grid>
                       </Grid>
                     </div>
@@ -529,43 +505,32 @@ const ReportManagement = () => {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {row.reporterName}
+                    {row.ownerFullName}
                   </TableCell>
                   <TableCell align="center">
                     {moment(row.date).format("DD-MM-YYYY")}
                   </TableCell>
                   <TableCell align="center" sx={{}}>
-                    <Chip
-                      label={row.reason}
-                      style={{
-                        background: reasonType.find(
-                          (item) => item.name === row.reason
-                        )?.background,
-
-                        fontWeight: 600,
-                        color: reasonType.find(
-                          (item) => item.name === row.reason
-                        )?.color,
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <Typography
-                      variant="body1"
-                      color="initial"
-                      fontSize={14}
+                    <Button
                       sx={{
-                        width: "150px",
-                        // display: "-webkit-box",
-                        // WebkitBoxOrient: "vertical",
-                        // overflow: "hidden",
-                        // WebkitLineClamp: 2,
+                        borderRadius: "20px",
+                        textTransform: "none",
+                        background: "#EBEBEB",
+                        color: "black",
+                        fontSize: "12px",
+                        p: "10px 15px",
+                        fontWeight: 600,
+                        "&:hover": {
+                          background: "#EBEBEB",
+                          color: "black",
+                        },
                       }}
+                      onClick={() => handleOpenReasonList(row.reasons)}
                     >
-                      {row.description}
-                    </Typography>
+                      View reports ({row.reasons.length})
+                    </Button>
                   </TableCell>
-                  <TableCell align="center" sx={{ p: 0 }}>
+                  <TableCell align="center" sx={{}}>
                     <Chip
                       label={row.status}
                       style={{
@@ -659,6 +624,13 @@ const ReportManagement = () => {
             </TableFooter>
           </Table>
         </TableContainer>
+      </div>
+      <div className="modal" style={{ display: "none" }}>
+        <ViewReportModal
+          openReasons={openReasons}
+          handleCloseReasonList={handleCloseReasonList}
+          reasonList={selectedReasonList}
+        />
       </div>
     </div>
   );
