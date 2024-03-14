@@ -23,6 +23,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { styled } from "@mui/system";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/auth.context";
+import Wallet from "../../wallet/Wallet";
 
 const pageNames = [
   {
@@ -33,14 +34,14 @@ const pageNames = [
     name: "Buy",
     url: "/auctions",
   },
-  {
-    name: "Sell",
-    url: "/sell",
-  },
-  {
-    name: "Alert",
-    url: "",
-  },
+  // {
+  //   name: "100000000 $",
+  //   url: "/sell",
+  // },
+  // {
+  //   name: "Alert",
+  //   url: "",
+  // },
 ];
 
 export const userSettings = [
@@ -80,10 +81,13 @@ function ResponsiveAppBar({ userName }) {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { logout, isOpenLogin, setIsOpenLogin } = useContext(AuthContext);
+  const [openWallet, setOpenWallet] = React.useState(false);
 
   const currentLocation = location.pathname;
 
   const { user } = useContext(AuthContext);
+
+  
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -114,6 +118,14 @@ function ResponsiveAppBar({ userName }) {
 
   return (
     <div className="navbar-container">
+      {openWallet ? (
+        <div className="wallet">
+          <Wallet />
+        </div>
+      ) : (
+        ""
+      )}
+
       <AppBar
         className="header"
         position="static"
@@ -191,6 +203,20 @@ function ResponsiveAppBar({ userName }) {
               ))}
             </Box>
             <Box>
+              <Button
+                className="box-wallet-number"
+                sx={{
+                  textTransform: "none",
+                  color: "black",
+                  fontSize: "18px",
+                }}
+                onClick={() => setOpenWallet(!openWallet)}
+              >
+                Wallet: 100,000,000 $
+              </Button>
+            </Box>
+
+            <Box>
               {user ? (
                 <>
                   <Button
@@ -225,25 +251,25 @@ function ResponsiveAppBar({ userName }) {
                     sx={{}}
                   >
                     {
-                       userSettings
-                          .filter((item) => item.role.includes(user.role))
-                          .map((setting, index) => (
-                            <div key={index}>
-                              <MenuItem
-                                sx={{
-                                  py: "16px",
-                                  fontSize: "17px",
-                                  pl: "20px",
-                                  pr: "80px",
-                                  fontWeight: 600,
-                                }}
-                                onClick={() => handleNavigate(setting.url)}
-                              >
-                                {setting.name}
-                              </MenuItem>
-                              <CustomDivider />
-                            </div>
-                          ))
+                      userSettings
+                        .filter((item) => item.role.includes(user.role))
+                        .map((setting, index) => (
+                          <div key={index}>
+                            <MenuItem
+                              sx={{
+                                py: "16px",
+                                fontSize: "17px",
+                                pl: "20px",
+                                pr: "80px",
+                                fontWeight: 600,
+                              }}
+                              onClick={() => handleNavigate(setting.url)}
+                            >
+                              {setting.name}
+                            </MenuItem>
+                            <CustomDivider />
+                          </div>
+                        ))
                       // : userSettings
                       //     .filter((item) => item.name !== "Staff Dashboard")
                       //     .map((setting, index) => (
