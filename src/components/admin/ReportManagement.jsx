@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   Box,
@@ -38,6 +38,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import PropTypes from "prop-types";
 import { reports } from "./reportList";
 import ViewReportModal from "./ViewReportModal";
+import { AuctionContext } from "../../context/auction.context";
 
 const tableHeader = {
   fontWeight: 600,
@@ -128,7 +129,13 @@ const ReportManagement = () => {
 
   const [selectedReasonList, setSelectedReasonList] = useState([]);
 
+  const [reportTIme, setReportTime] = useState(null);
+
+  const { getAllReport, handleReport } = useContext(AuctionContext);
+
   const [isLoading, setIsLoading] = useState(true);
+
+  const [reports, setReports] = useState(null);
 
   const [selectedFilter, setSelectedFilter] = useState("All");
 
@@ -140,8 +147,9 @@ const ReportManagement = () => {
 
   const countStatus = useMemo(() => {
     return (listReports, status) => {
-      if (listReports.length > 0) {
+      if (listReports?.length > 0) {
         const count = listReports.reduce((acc, auction) => {
+          console.log(auction);
           if (auction.status.toLowerCase() === status.toLowerCase()) {
             return acc + 1;
           }
@@ -153,27 +161,38 @@ const ReportManagement = () => {
   }, []);
 
   const [statusCount, setStatusCount] = useState({
-    all: reports.length,
+    all: reports?.length,
     approved: countStatus(reports, "Approved"),
     rejected: countStatus(reports, "Rejected"),
     pending: countStatus(reports, "Pending"),
   });
 
   useEffect(() => {
-    setStatusCount((prevCount) => ({
-      ...prevCount,
-      all: reports.length,
-      approved: countStatus(reports, "Approved"),
-      rejected: countStatus(reports, "Rejected"),
-      pending: countStatus(reports, "Pending"),
-    }));
+    const fetchData = async () => {
+      const res = await getAllReport();
+
+      console.log(res);
+
+      if (res.success) {
+        setReports(res.response);
+        setStatusCount((prevCount) => ({
+          ...prevCount,
+          all: res.response?.length,
+          approved: countStatus(res.response, "Approved"),
+          rejected: countStatus(res.response, "Rejected"),
+          pending: countStatus(res.response, "Pending"),
+        }));
+      }
+    };
+
+    fetchData();
   }, []);
 
   const [page, setPage] = React.useState(0);
 
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-  const filteredReportData = reports.filter(
+  const filteredReportData = reports?.filter(
     (row) =>
       selectedFilter === "All" ||
       (selectedFilter !== "All" && row.status === selectedFilter)
@@ -226,15 +245,36 @@ const ReportManagement = () => {
     //update result amount
   };
 
-  const handleOpenReasonList = (reasonList) => {
+  const handleOpenReasonList = (reasonList, time) => {
     setOpenReasons(true);
     setSelectedReasonList(reasonList);
+    setReportTime(time);
     // console.log(selectedRowData.reasons);
   };
 
   const handleCloseReasonList = () => {
     setOpenReasons(false);
+    setReportTime(null);
     setSelectedReasonList([]);
+  };
+
+  const handleReportRequest = async (choice, id) => {
+    const res = await handleReport(choice, id);
+
+    console.log(res);
+
+    if (res.success) {
+      const indexToUpdate = reports.findIndex(
+        (item) => item._id === res.response._id
+      );
+
+      if (indexToUpdate !== -1) {
+        const updatedReportList = [...reports];
+        updatedReportList[indexToUpdate] = res.response;
+
+        setReports(updatedReportList);
+      }
+    }
   };
 
   useEffect(() => {
@@ -244,14 +284,18 @@ const ReportManagement = () => {
   const actions = [
     {
       name: "Close Auction",
-      onClick: (id) => {
+      onClick: (row) => {
+        console.log(row);
         // handleCloseAuction(id);
+        handleReportRequest("Approved", row?._id);
       },
       icon: <DeleteIcon />,
     },
     {
       name: "Reject Request",
-      onClick: () => {},
+      onClick: (row) => {
+        handleReportRequest("Rejected", row?._id);
+      },
       icon: <CloseIcon />,
     },
   ];
@@ -407,7 +451,7 @@ const ReportManagement = () => {
                       marginRight: "5px",
                     }}
                   >
-                    {filteredReportData.length}
+                    {filteredReportData?.length}
                   </span>{" "}
                   result(s)
                 </Typography>
@@ -423,9 +467,7 @@ const ReportManagement = () => {
                 <TableCell align="center" style={tableHeader}>
                   No.
                 </TableCell>
-                <TableCell style={{ ...tableHeader, width: "350px" }}>
-                  Property Overview
-                </TableCell>
+                <TableCell style={tableHeader}>Auction Overview</TableCell>
                 <TableCell align="center" style={tableHeader}>
                   Owner
                 </TableCell>
@@ -443,15 +485,15 @@ const ReportManagement = () => {
             </TableHead>
             <TableBody>
               {(rowsPerPage > 0
-                ? filteredReportData.slice(
+                ? filteredReportData?.slice(
                     page * rowsPerPage,
                     page * rowsPerPage + rowsPerPage
                   )
                 : filteredReportData
-              ).map((row, index) => (
+              )?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{count + index}</TableCell>
-                  <TableCell sx={{ width: "350px" }}>
+                  <TableCell sx={{ width: "400px" }}>
                     <div className="">
                       <Grid
                         container
@@ -461,7 +503,7 @@ const ReportManagement = () => {
                       >
                         <Grid item>
                           <img
-                            src={row?.img}
+                            src={row?.auctionId?.realEstateID?.image[0]}
                             alt=""
                             width="80px"
                             height="80px"
@@ -481,7 +523,7 @@ const ReportManagement = () => {
                               WebkitLineClamp: 2,
                             }}
                           >
-                            {row?.address}
+                            {`${row?.auctionId?.realEstateID?.street} ${row?.auctionId?.realEstateID?.ward} ${row?.auctionId?.realEstateID?.district} ${row?.auctionId?.realEstateID?.city}`}
                           </Typography>
                           <Typography
                             variant="body1"
@@ -491,6 +533,16 @@ const ReportManagement = () => {
                             sx={{ marginTop: "5px" }}
                           >
                             {row.type}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            color="initial"
+                            fontWeight={500}
+                            fontSize={14}
+                            sx={{ marginTop: "5px" }}
+                          >
+                            Hosted by{" "}
+                            {`${row?.ownerId?.firstName} ${row?.ownerId?.lastName}`}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -505,29 +557,22 @@ const ReportManagement = () => {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {row.ownerFullName}
+                    {`${row?.ownerId?.firstName} ${row?.ownerId?.lastName}`}
                   </TableCell>
                   <TableCell align="center">
-                    {moment(row.date).format("DD-MM-YYYY")}
+                    {moment(row.createdAt).format("DD-MM-YYYY")}
                   </TableCell>
-                  <TableCell align="center" sx={{}}>
+
+                  <TableCell align="center">
                     <Button
-                      sx={{
-                        borderRadius: "20px",
-                        textTransform: "none",
-                        background: "#EBEBEB",
-                        color: "black",
-                        fontSize: "12px",
-                        p: "10px 15px",
-                        fontWeight: 600,
-                        "&:hover": {
-                          background: "#EBEBEB",
-                          color: "black",
-                        },
-                      }}
-                      onClick={() => handleOpenReasonList(row.reasons)}
+                      variant="body1"
+                      color="initial"
+                      fontSize={14}
+                      onClick={() =>
+                        handleOpenReasonList(row?.reportDetail, row?.createdAt)
+                      }
                     >
-                      View reports ({row.reasons.length})
+                      Report Detail
                     </Button>
                   </TableCell>
                   <TableCell align="center" sx={{}}>
@@ -605,7 +650,7 @@ const ReportManagement = () => {
                 <TablePagination
                   rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
                   colSpan={3}
-                  count={filteredReportData.length}
+                  count={filteredReportData?.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   slotProps={{
@@ -630,6 +675,7 @@ const ReportManagement = () => {
           openReasons={openReasons}
           handleCloseReasonList={handleCloseReasonList}
           reasonList={selectedReasonList}
+          reportTime={reportTIme}
         />
       </div>
     </div>

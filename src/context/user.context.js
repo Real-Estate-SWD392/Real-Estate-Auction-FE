@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./auth.context";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -7,6 +7,8 @@ export const UserContext = createContext();
 
 export const UserContextProvider = ({ children }) => {
   const { user, setUser, accessToken } = useContext(AuthContext);
+
+  const [userWallet, setUserWallet] = useState(null);
 
   const updateProfile = async (id, values) => {
     values.profile.image = values.image;
@@ -273,6 +275,89 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
+  const getBalance = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/e-wallet/${user._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Get E-wallet Successfully", data);
+        return data;
+      } else {
+        console.error("Get E-wallet Failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Get E-wallet Fail", error);
+    }
+  };
+
+  const addMoneyToEwallet = async (amount) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/e-wallet/add/${user._id}`,
+        { amount },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Add Money Successfully", data);
+        return data;
+      } else {
+        console.error("Add Money Failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Add Money Fail", error);
+    }
+  };
+
+  const payMoney = async (amount) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/e-wallet/pay/${user._id}`,
+        { amount },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Pay Money Successfully", data);
+        return data;
+      } else {
+        console.error("Pay Money Failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Pay Mone Fail", error);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -285,6 +370,11 @@ export const UserContextProvider = ({ children }) => {
         unbanAccount,
         removeAccount,
         createAccount,
+        getBalance,
+        addMoneyToEwallet,
+        userWallet,
+        setUserWallet,
+        payMoney,
       }}
     >
       {children}

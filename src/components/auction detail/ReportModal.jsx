@@ -13,8 +13,10 @@ import {
   Typography,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useRef } from "react";
+import { AuctionContext } from "../../context/auction.context";
+import { AuthContext } from "../../context/auth.context";
 
 const style = {
   position: "absolute",
@@ -51,7 +53,7 @@ const reasons = [
 
 const REQUIRED_COUNT = 70;
 
-const ReportModal = ({ openReport, handleCloseReport }) => {
+const ReportModal = ({ openReport, handleCloseReport, ownerID, auctionID }) => {
   const [report, setReport] = useState({
     reason: "",
     description: "",
@@ -60,6 +62,10 @@ const ReportModal = ({ openReport, handleCloseReport }) => {
   const [letterCount, setLetterCount] = useState(0);
 
   const [error, setError] = useState({});
+
+  const { createReport } = useContext(AuctionContext);
+
+  const { user } = useContext(AuthContext);
 
   const handleInputChange = (name, value) => {
     if (name === "description") {
@@ -104,11 +110,22 @@ const ReportModal = ({ openReport, handleCloseReport }) => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     validateForm();
-    console.log(report);
-    //toastify notification
-    handleCloseReport();
+
+    if (!error?.description) {
+      const res = await createReport({
+        reportReason: report.reason,
+        reportDescription: report.description,
+        reporterId: user._id,
+        ownerId: ownerID,
+        auctionId: auctionID,
+      });
+
+      if (res) {
+        handleCloseReport();
+      }
+    }
   };
 
   return (

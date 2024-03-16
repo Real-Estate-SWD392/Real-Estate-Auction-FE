@@ -133,8 +133,6 @@ const AddProperties = () => {
     },
   });
 
-
-
   useEffect(() => {
     const getProvince = `${provinceURL}/api/province`;
     fetch(getProvince)
@@ -380,9 +378,8 @@ const AddProperties = () => {
       if (formik.values.image) imgUrl = await uploadImagesFile();
 
       if (formik.values.pdf) pdfUrl = await uploadPDFsFile();
-      
+
       await createNewRealEstate({ formValues, image: imgUrl, pdf: pdfUrl });
-      
     } catch (error) {
       console.log(error);
     }
@@ -457,7 +454,7 @@ const AddProperties = () => {
               <Grid item>
                 <FormControl sx={inputSmall}>
                   <InputLabel id="demo-simple-select-label">
-                    Province
+                    Province *
                   </InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
@@ -491,7 +488,7 @@ const AddProperties = () => {
               <Grid item>
                 <FormControl sx={inputSmall}>
                   <InputLabel id="demo-simple-select-label">
-                    District
+                    District *
                   </InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
@@ -523,7 +520,7 @@ const AddProperties = () => {
               </Grid>
               <Grid item>
                 <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">Ward</InputLabel>
+                  <InputLabel id="demo-simple-select-label">Ward *</InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
@@ -551,7 +548,7 @@ const AddProperties = () => {
             <Grid item>
               <TextField
                 id=""
-                label="Property Image"
+                label="Property Image *"
                 name="image"
                 // onChange={handleInputChange}
                 // onChange={(event) => {
@@ -635,7 +632,7 @@ const AddProperties = () => {
               <Grid item>
                 <FormControl sx={inputWidth}>
                   <InputLabel id="demo-simple-select-label">
-                    Property Type
+                    Property Type *
                   </InputLabel>
                   <Select
                     sx={inputStyle}
@@ -659,7 +656,7 @@ const AddProperties = () => {
               <Grid item>
                 <TextField
                   id=""
-                  label="Property Size (m2)"
+                  label="Property Size *  (m2)"
                   name="size"
                   // value={property.size}
                   value={formik.values.size}
@@ -678,7 +675,7 @@ const AddProperties = () => {
               <Grid item>
                 <TextField
                   id=""
-                  label="Bedrooms"
+                  label="Bedrooms *"
                   name="bedRoom"
                   // value={property.bedRoom}
                   value={formik.values.bedRoom}
@@ -719,7 +716,7 @@ const AddProperties = () => {
               <Grid item>
                 <TextField
                   id=""
-                  label="Bathrooms"
+                  label="Bathrooms *"
                   name="bathRoom"
                   // value={property.bathRoom}
                   value={formik.values.bathRoom}
@@ -760,7 +757,7 @@ const AddProperties = () => {
             <Grid item>
               <TextField
                 id=""
-                label="Description"
+                label="Description *"
                 name="description"
                 // value={property.description}
                 value={formik.values.description}
@@ -795,7 +792,7 @@ const AddProperties = () => {
             <Grid item>
               <TextField
                 id=""
-                label="The required documents"
+                label="The required documents *"
                 // onChange={handleInputChange}
                 value={formik.values.pdf.length > 0 ? "Document list" : ""}
                 sx={{ width: "630px" }}

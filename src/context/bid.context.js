@@ -121,7 +121,36 @@ export const BidContextProvider = ({ children }) => {
     console.log(values);
     try {
       const response = await axios.post(
-        `http://localhost:8080/bill/${user._id}`,
+        `http://localhost:8080/bill/createBill/${user._id}`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Create successfully", data);
+        return data;
+      } else {
+        console.error("Create Bill failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error during create bill", error);
+    }
+  };
+
+  const createNewBill = async (values) => {
+    console.log(values);
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/bill/newBill/${user._id}`,
         values,
         {
           headers: {
@@ -194,6 +223,7 @@ export const BidContextProvider = ({ children }) => {
         createBill,
         getBill,
         getBidByAuction,
+        createNewBill,
       }}
     >
       {children}

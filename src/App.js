@@ -30,8 +30,6 @@ function App() {
 
     console.log(updatedList);
 
-    updatedList.unshift(res.response[0]);
-
     dispatch(setProperties(updatedList));
     dispatch(setSearchResults(updatedList));
   };

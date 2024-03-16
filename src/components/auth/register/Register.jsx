@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import "./Register.scss";
 import { useState } from "react";
 import { Col, Modal, Row } from "react-bootstrap";
-import { validationPassword } from "../validate";
+import { validationPassword, validationRegister } from "../validate";
 import {
   FormControl,
   FormHelperText,
@@ -35,7 +35,12 @@ const Register = (props) => {
       password: "",
       re_password: "",
     },
-    validationSchema: validationPassword,
+    validationSchema: validationRegister,
+    onSubmit: (values) => {
+
+      console.log("Data login ", values);
+      handleRegister();
+    }
   });
 
   const handleLoginGoogle = () => {
@@ -78,12 +83,12 @@ const Register = (props) => {
         receive instant updates.
       </p>
 
-      <form className="form-container" onSubmit={formik.handle}>
+      <form  onSubmit={formik.handleSubmit} className="form-container">
         <Row>
           <Col style={{ paddingRight: "5px" }}>
             <FormControl variant="outlined">
               <InputLabel htmlFor="current-password" color="primary">
-                First Name
+                First Name *
               </InputLabel>
               <OutlinedInput
                 color="primary"
@@ -94,7 +99,7 @@ const Register = (props) => {
                 name="firstName"
                 onChange={formik.handleChange}
                 // error={
-                //   formik.touched.password && Boolean(formik.errors.password)
+                //   formik.touched.firstName && Boolean(formik.errors.firstName)
                 // }
               />
               <FormHelperText error>
@@ -105,14 +110,13 @@ const Register = (props) => {
           <Col style={{ paddingLeft: "5px" }}>
             <FormControl variant="outlined">
               <InputLabel htmlFor="current-password" color="primary">
-                Last Name
+                Last Name *
               </InputLabel>
               <OutlinedInput
                 color="primary"
                 label="last name"
                 className="input-field"
                 margin="dense"
-                type="email"
                 name="lastName"
                 onChange={formik.handleChange}
                 // error={
@@ -128,7 +132,7 @@ const Register = (props) => {
 
         <FormControl variant="outlined">
           <InputLabel htmlFor="current-password" color="primary">
-            Email Address
+            Email Address *
           </InputLabel>
           <OutlinedInput
             color="primary"
@@ -149,7 +153,7 @@ const Register = (props) => {
 
         <FormControl variant="outlined">
           <InputLabel htmlFor="current-password" color="primary">
-            Phone
+            Phone *
           </InputLabel>
           <OutlinedInput
             color="primary"
@@ -170,7 +174,7 @@ const Register = (props) => {
 
         <FormControl variant="outlined">
           <InputLabel htmlFor="current-password" color="primary">
-            Password
+            Password *
           </InputLabel>
           <OutlinedInput
             color="primary"
@@ -200,7 +204,7 @@ const Register = (props) => {
 
         <FormControl variant="outlined">
           <InputLabel htmlFor="current-password" color="primary">
-            Confirm Password
+            Confirm Password *
           </InputLabel>
           <OutlinedInput
             color="primary"
@@ -237,7 +241,7 @@ const Register = (props) => {
             type="submit"
             disabled={formik.isSubmitting}
             style={{ color: "white" }}
-            onClick={handleRegister}
+            // onClick={handleRegister}
           >
             Register
           </Button>

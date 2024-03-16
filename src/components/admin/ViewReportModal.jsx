@@ -11,6 +11,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import moment from "moment";
 import React from "react";
 
 const style = {
@@ -25,6 +26,7 @@ const ViewReportModal = ({
   openReasons,
   handleCloseReasonList,
   reasonList,
+  reportTime,
 }) => {
   const reasonType = [
     {
@@ -137,12 +139,12 @@ const ViewReportModal = ({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {reason.reporterName}
+                        {`${reason.reporterId.firstName} ${reason.reporterId.firstName}`}
                       </TableCell>
                       <TableCell align="center" sx={{ pr: "20px" }}>
                         {
                           <Chip
-                            label={reason.reason}
+                            label={reason.reportReason}
                             style={{
                               background: reasonType.find(
                                 (item) => item.name === reason.reason
@@ -157,10 +159,10 @@ const ViewReportModal = ({
                         }
                       </TableCell>
                       <TableCell align="center" sx={{ pr: "20px" }}>
-                        {reason.description}
+                        {reason.reportDescription}
                       </TableCell>
                       <TableCell align="center" sx={{ pr: "20px" }}>
-                        12-03-2024
+                        {moment(reportTime).format("DD-MM-YYYY")}
                       </TableCell>
                     </TableRow>
                   ))}

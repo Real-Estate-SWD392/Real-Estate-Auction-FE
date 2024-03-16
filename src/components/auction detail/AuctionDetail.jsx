@@ -27,9 +27,6 @@ const AuctionDetail = ({ props }) => {
   const mins = 0;
   const secs = 0;
 
-  
-
-
   return (
     <div className="auction-detail-container">
       <Grid container spacing={5}>
@@ -167,9 +164,11 @@ const AuctionDetail = ({ props }) => {
         <Grid xs={5}>
           <div className="detail-bidding-space">
             <div className="clock-container">
-
-
-              <Grid container spacing={1} sx={{ marginLeft: "1px", justifyContent:"center" }}>
+              <Grid
+                container
+                spacing={1}
+                sx={{ marginLeft: "1px", justifyContent: "center" }}
+              >
                 <Grid item flexDirection="column">
                   <Typography
                     variant="body1"
@@ -242,9 +241,6 @@ const AuctionDetail = ({ props }) => {
                   </Typography>
                 </Grid>
               </Grid>
-
-
-
             </div>
 
             <div className="detail-bid-price-container">

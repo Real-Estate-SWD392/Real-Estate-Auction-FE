@@ -1,0 +1,56 @@
+.wallet-container {
+  width: 350px;
+  height: 400px;
+  background-color: black;
+  color: white;
+  border-radius: 20px;
+  h1 {
+    text-align: center;
+    padding: 20px 0;
+    font-weight: 400;
+    font-size: 20px;
+  }
+
+  .balance-field {
+    // width: 310px;
+    background-color: white;
+    color: black;
+    border-radius: 20px;
+    margin: 0 20px;
+    padding: 10px 20px;
+
+    p {
+      margin: 0;
+      font-weight: 400;
+    }
+
+    .balance-number {
+      font-size: 35px;
+      margin: 0;
+      // text-align: center;
+    }
+  }
+
+  .add-balance {
+    text-align: center;
+    width: 310px;
+    height: 50px;
+    background-color: #44a9ff;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 50px;
+    border-radius: 15px;
+
+    p {
+      margin: 0;
+      padding-top: 4px;
+      color: white;
+      font-size: 20px;
+    }
+
+    .payment {
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  }
+}
