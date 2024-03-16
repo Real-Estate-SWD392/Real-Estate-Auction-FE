@@ -101,8 +101,8 @@ export const UserContextProvider = ({ children }) => {
   const removeFromFavList = async (_id) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/member/remove-favorite-auction/${user._id}`,
-        { _id }, // Include _id in the request body
+        `http://localhost:8080/member/remove-favorite-auction/${_id}`,
+        { id: user._id }, // Include _id in the request body
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -183,6 +183,66 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
+  const unbanAccount = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/account/unban/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Unban Account Successfully", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        console.error("Unban Account Failed", response.data);
+        toast.error(response.data.message);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Unban Account Fail", error);
+    }
+  };
+
+  const createAccount = async (body) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/account/`,
+        { body },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Create Account Successfully", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        console.error("Create Account Failed", response.data);
+        toast.error(response.data.message);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Ban Account Fail", error);
+    }
+  };
+
   const removeAccount = async (id) => {
     try {
       const response = await axios.put(
@@ -222,7 +282,9 @@ export const UserContextProvider = ({ children }) => {
         removeFromFavList,
         getAllAccount,
         banAccount,
+        unbanAccount,
         removeAccount,
+        createAccount,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-.wallet-container {
+.add-balance-container {
     width: 350px;
     height: 400px;
     background-color: white;
@@ -12,8 +12,7 @@
         font-size: 20px;
     }
 
-    .balance-field {
-        // width: 310px;
+    .add-balance-field {
         background-color: black;
         color: white;
         border-radius: 20px;
@@ -25,22 +24,40 @@
             font-weight: 600;
         }
 
-        .balance-number {
-            font-size: 40px;
-            margin: 0;
-            // text-align: center;
-        }
+        .custom-textfield {
+            width: 100%;
+            margin-bottom: 16px;
+            
+            // Set text color
+            & .MuiInputBase-input {
+              color: white !important;
+              font-size: 40px !important;
+            }
+          
+            // Remove focus outline
+            & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+              border-color: transparent !important;
+            }
+          
+            // Remove focus shadow
+            & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+              box-shadow: none !important;
+            }
+          }
+          
+          
     }
 
-    .add-balance {
+    .add-balance-btn {
         text-align: center;
         width: 310px;
         height: 50px;
         background-color: #44a9ff;
         margin-left: 20px;
         margin-right: 20px;
-        margin-top: 30px;
+        margin-top: 50px;
         border-radius: 15px;
+        border: 0.4px solid gray;
 
         p {
             margin: 0;
@@ -51,7 +68,6 @@
 
         
     }
-
     .payment {
         font-size: 16px;
         margin-top: 20px;

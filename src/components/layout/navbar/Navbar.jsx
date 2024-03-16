@@ -24,6 +24,7 @@ import { styled } from "@mui/system";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/auth.context";
 import Wallet from "../../wallet/Wallet";
+import AddBalance from "../../wallet/AddBalance";
 
 const pageNames = [
   {
@@ -34,14 +35,14 @@ const pageNames = [
     name: "Buy",
     url: "/auctions",
   },
-  // {
-  //   name: "100000000 $",
-  //   url: "/sell",
-  // },
-  // {
-  //   name: "Alert",
-  //   url: "",
-  // },
+  {
+    name: "Sell",
+    url: "/sell/profile",
+  },
+  {
+    name: "Alert",
+    url: "",
+  },
 ];
 
 export const userSettings = [
@@ -58,14 +59,14 @@ export const userSettings = [
   },
 
   {
-    name: "Staff Dashboard",
-    url: "/accommondation-admin/auction-management",
+    name: "For Staff",
+    url: "/accommondation-staff/auction-management",
     role: ["staff"],
   },
 
   {
-    name: "Admin Dashboard",
-    url: "/accommondation-admin",
+    name: "For Admin",
+    url: "/accommondation-admin/user-management",
     role: ["admin"],
   },
 ];
@@ -82,12 +83,13 @@ function ResponsiveAppBar({ userName }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { logout, isOpenLogin, setIsOpenLogin } = useContext(AuthContext);
   const [openWallet, setOpenWallet] = React.useState(false);
+  const [openAddBalance, setOpenAddBalance] = React.useState(false);
 
   const currentLocation = location.pathname;
 
   const { user } = useContext(AuthContext);
 
-  
+  // console.log(user);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -112,15 +114,23 @@ function ResponsiveAppBar({ userName }) {
 
   const [modalShow, setModalShow] = React.useState(false);
 
-  console.log(anchorEl);
+  // console.log(anchorEl);
 
-  console.log(Boolean(anchorEl));
+  // console.log(Boolean(anchorEl));
 
   return (
     <div className="navbar-container">
       {openWallet ? (
         <div className="wallet">
-          <Wallet />
+          <Wallet setOpenAddBalance={setOpenAddBalance} setOpenWallet={setOpenWallet}/>
+        </div>
+      ) : (
+        ""
+      )}
+
+      {openAddBalance ? (
+        <div className="add-balance-nav">
+          <AddBalance />
         </div>
       ) : (
         ""
@@ -210,7 +220,7 @@ function ResponsiveAppBar({ userName }) {
                   color: "black",
                   fontSize: "18px",
                 }}
-                onClick={() => setOpenWallet(!openWallet)}
+                onClick={() => {setOpenWallet(!openWallet); setOpenAddBalance(false)}}
               >
                 Wallet: 100,000,000 $
               </Button>
@@ -250,46 +260,25 @@ function ResponsiveAppBar({ userName }) {
                     onClose={handleClose}
                     sx={{}}
                   >
-                    {
-                      userSettings
-                        .filter((item) => item.role.includes(user.role))
-                        .map((setting, index) => (
-                          <div key={index}>
-                            <MenuItem
-                              sx={{
-                                py: "16px",
-                                fontSize: "17px",
-                                pl: "20px",
-                                pr: "80px",
-                                fontWeight: 600,
-                              }}
-                              onClick={() => handleNavigate(setting.url)}
-                            >
-                              {setting.name}
-                            </MenuItem>
-                            <CustomDivider />
-                          </div>
-                        ))
-                      // : userSettings
-                      //     .filter((item) => item.name !== "Staff Dashboard")
-                      //     .map((setting, index) => (
-                      //       <div key={index}>
-                      //         <MenuItem
-                      //           sx={{
-                      //             py: "16px",
-                      //             fontSize: "17px",
-                      //             pl: "20px",
-                      //             pr: "80px",
-                      //             fontWeight: 600,
-                      //           }}
-                      //           onClick={() => handleNavigate(setting.url)}
-                      //         >
-                      //           {setting.name}
-                      //         </MenuItem>
-                      //         <CustomDivider />
-                      //       </div>
-                      //     ))
-                    }
+                    {userSettings
+                      .filter((item) => item.role.includes(user.role))
+                      .map((setting, index) => (
+                        <div key={index}>
+                          <MenuItem
+                            sx={{
+                              py: "16px",
+                              fontSize: "17px",
+                              pl: "20px",
+                              pr: "80px",
+                              fontWeight: 600,
+                            }}
+                            onClick={() => handleNavigate(setting.url)}
+                          >
+                            {setting.name}
+                          </MenuItem>
+                          <CustomDivider />
+                        </div>
+                      ))}
                     <MenuItem
                       sx={{
                         py: "16px",

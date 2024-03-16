@@ -50,6 +50,12 @@ export const statusColor = [
     color: "#8B8B8B",
     amount: 2,
   },
+
+  {
+    name: "Wait For Approval",
+    color: "yellow",
+    amount: 2,
+  },
   {
     name: "Rejected",
     color: "#FF0000",
@@ -137,70 +143,73 @@ const MyListings = () => {
         >
           My Listings
         </Typography>
-        <div className="status-overall">
-          {statusColor.map((status, index) => (
-            <Button
-              style={buttonStyles}
-              sx={{ mr: "14px" }}
-              onClick={() => handelFilter(status.name)}
-            >
-              <Ball color={status.color} />
-              <Typography
-                variant="body1"
-                color="white"
-                fontSize={14}
-                fontWeight={500}
-              >
-                {status.name.toUpperCase()} (
-                {
-                  statusAmount.filter(
-                    (auction) => auction.status === status.name
-                  ).length
-                }
-                )
-              </Typography>
-            </Button>
-          ))}
-        </div>
       </div>
       <Divider />
       {isLoading ? (
         <Loading setIsLoading={setIsloading} />
       ) : (
-        <div className="listing" style={{ marginTop: "30px" }}>
-          <Grid container spacing={3} justifyContent="flex-start">
-            {auctionLists &&
-            Array.isArray(auctionLists) &&
-            auctionLists.length > 0 ? (
-              auctionLists.map((prop, index) => (
-                <Grid item key={index}>
-                  <MyListingCard
-                    property={prop}
-                    propID={prop._id}
-                    propImg={prop.image}
-                    propType={prop.type}
-                    desc={prop.desc}
-                    propAddress={prop.propAddress}
-                    beds={prop.bedRoom}
-                    baths={prop.bathRoom}
-                    area={prop.size}
-                    status={prop.status}
-                    propStreet={prop.street}
-                    propWard={prop.ward}
-                    propDistrict={prop.district}
-                    propCity={prop.city}
-                    auctionLists={auctionLists}
-                    setAuctionLists={setAuctionLists}
-                  />
-                </Grid>
-              ))
-            ) : (
-              <h3 style={{ width: "100%", textAlign: "center" }}>
-                You Don't Create Any Auction Yet!
-              </h3>
-            )}
-          </Grid>
-        </div>
+        <>
+          {" "}
+          <div className="status-overall">
+            {statusColor.map((status, index) => (
+              <Button
+                style={buttonStyles}
+                sx={{ mr: "14px" }}
+                onClick={() => handelFilter(status.name)}
+              >
+                <Ball color={status.color} />
+                <Typography
+                  variant="body1"
+                  color="white"
+                  fontSize={14}
+                  fontWeight={500}
+                >
+                  {status.name.toUpperCase()} (
+                  {
+                    statusAmount.filter(
+                      (auction) => auction.status === status.name
+                    ).length
+                  }
+                  )
+                </Typography>
+              </Button>
+            ))}
+          </div>
+          <div className="listing" style={{ marginTop: "30px" }}>
+            <Grid container spacing={3} justifyContent="flex-start">
+              {auctionLists &&
+              Array.isArray(auctionLists) &&
+              auctionLists.length > 0 ? (
+                auctionLists.map((prop, index) => (
+                  <Grid item key={index}>
+                    <MyListingCard
+                      property={prop}
+                      propID={prop._id}
+                      propImg={prop.image}
+                      propType={prop.type}
+                      desc={prop.description}
+                      propAddress={prop.propAddress}
+                      beds={prop.bedRoom}
+                      baths={prop.bathRoom}
+                      area={prop.size}
+                      status={prop.status}
+                      propStreet={prop.street}
+                      propWard={prop.ward}
+                      propDistrict={prop.district}
+                      propCity={prop.city}
+                      auctionLists={auctionLists}
+                      setAuctionLists={setAuctionLists}
+                    />
+                  </Grid>
+                ))
+              ) : (
+                <h3 style={{ width: "100%", textAlign: "center" }}>
+                  You Don't Create Any Auction Yet!
+                </h3>
+              )}
+            </Grid>
+          </div>
+        </>
       )}
     </Card>
   );

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./auth.context";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { io } from "socket.io-client";
 
 export const AuctionContext = createContext();
 
@@ -9,6 +10,19 @@ export const AuctionContextProvider = ({ children }) => {
   const { user, setUser, accessToken } = useContext(AuthContext);
 
   const [auctionList, setAuctionList] = useState([]);
+
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
+
+    console.log(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [user]);
 
   const getAllAuctions = async () => {
     try {
@@ -46,6 +60,32 @@ export const AuctionContextProvider = ({ children }) => {
             "Content-Type": "application/json",
           },
           withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Auction List: ", data);
+        return response.data;
+      } else {
+        const errorData = await response.data;
+        console.error("Load auction failed", errorData);
+        return errorData.data;
+      }
+    } catch (error) {
+      console.error("Error during update", error);
+    }
+  };
+
+  const getInAuctionRealEstate = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/auction/status/In Auction`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -234,6 +274,74 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const updateAuctionTime = async (id, values) => {
+    try {
+      console.log(id, values);
+
+      const response = await axios.put(
+        `http://localhost:8080/auction/update-time/`,
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Update Sucess: ", data);
+        toast.success("Update Auction Success");
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Update failed", errorData);
+        toast.error("Update Auction Fail");
+
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Create Auction Fail!!");
+      console.log(error);
+    }
+  };
+
+  const updateAuction = async (id, values) => {
+    try {
+      console.log(id, values);
+
+      const response = await axios.put(
+        `http://localhost:8080/auction/update/${id}`,
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Update Sucess: ", data);
+        toast.success("Update Auction Success");
+        return data;
+      } else {
+        const errorData = await response.data;
+        console.error("Update failed", errorData);
+        toast.error("Update Auction Fail");
+
+        return errorData;
+      }
+    } catch (error) {
+      toast.error("Create Auction Fail!!");
+      console.log(error);
+    }
+  };
+
   const addToJoinList = async (id) => {
     try {
       const response = await axios.put(
@@ -258,7 +366,7 @@ export const AuctionContextProvider = ({ children }) => {
         return errorData;
       }
     } catch (error) {
-      toast.error("Add To Join List Fail!!");
+      // toast.error("Add To Join List Fail!!");
       console.log(error);
     }
   };
@@ -281,12 +389,46 @@ export const AuctionContextProvider = ({ children }) => {
         const data = await response.data;
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Set Winner Sucess: ", data);
+        return data;
       } else {
         const errorData = await response.data;
         console.error("Set Winner failed", errorData);
+        return errorData;
       }
     } catch (error) {
-      toast.error("Set Winner Auction Fail!!");
+      console.log(error);
+    }
+  };
+
+  const startAuction = async (auctionList) => {
+    console.log(auctionList);
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/auction/startAuction`,
+        { auctionList },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = await response.data;
+        // Handle successful login, e.g., save token to local storage, redirect, etc.
+        console.log("Start Sucess: ", data);
+        // toast.success(data.message);
+        return data;
+      } else {
+        const errorData = await response.data;
+        // toast.error(errorData.message);
+        console.error("Start failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      // toast.error("Close Auction Fail!!");
       console.log(error);
     }
   };
@@ -323,6 +465,58 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const getNotStartAuction = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/auction/status/Not Start`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        console.log("Not Start List: ", data);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("Load not Start auction failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Error during load", error);
+    }
+  };
+
+  const checkAlreadyPay = async (auctionID) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/bill/checkAlreadyPay/${user._id}/${auctionID}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        console.log("already pay?: ", data);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("already pay failed", errorData);
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Error during load", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -346,10 +540,17 @@ export const AuctionContextProvider = ({ children }) => {
         sortByTime,
         sortByPopular,
         createAuction,
+        updateAuction,
         getAuctionByRealEstateID,
         closeAuction,
         setWinner,
         addToJoinList,
+        startAuction,
+        updateAuctionTime,
+        getInAuctionRealEstate,
+        getNotStartAuction,
+        checkAlreadyPay,
+        socket,
       }}
     >
       {children}

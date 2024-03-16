@@ -70,7 +70,6 @@ const Register = (props) => {
         password: formik.values.password,
         re_password: formik.values.re_password,
       });
-      window.location.reload();
       props.setModalShow(false);
     } catch (error) {
       console.log(error);

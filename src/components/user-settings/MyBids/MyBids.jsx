@@ -11,6 +11,9 @@ import { auctionProp } from "../listProp";
 import MyBidCard from "./MyBidCard";
 import { BidContext } from "../../../context/bid.context";
 import Loading from "../../loading/Loading";
+import { useDispatch, useSelector } from "react-redux";
+import { setSavedList } from "../../../redux/reducers/savedAuctionSlice";
+import { setBidList } from "../../../redux/reducers/myBidSlice";
 
 const Divider = styled("div")({
   width: "100%",
@@ -21,6 +24,34 @@ const Divider = styled("div")({
 const MyBids = () => {
   const [isLoading, setIsloading] = useState(true);
   const { bidList } = useContext(BidContext);
+  const list = useSelector((state) => state.bid.bidList);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Create a map to store the highest price bid for each auctionID
+    const highestPriceBidsMap = new Map();
+
+    // Iterate through bidList
+    bidList.forEach((bid) => {
+      console.log(bid);
+      // Check if the auctionID already exists in the map
+      if (highestPriceBidsMap.has(bid.auctionID._id)) {
+        // If it does, compare the price with the existing bid
+        const existingBid = highestPriceBidsMap.get(bid.auctionID._id);
+        if (bid.price > existingBid.price) {
+          // If the new bid has a higher price, update the map
+          highestPriceBidsMap.set(bid.auctionID._id, { ...bid });
+        }
+      } else {
+        // If the auctionID does not exist in the map, add it
+        highestPriceBidsMap.set(bid.auctionID._id, { ...bid });
+      }
+    });
+
+    // Convert the map values to an array to get the final list of highest price bids
+    dispatch(setBidList(Array.from(highestPriceBidsMap.values())));
+  }, [bidList]);
 
   return (
     <Card
@@ -58,8 +89,8 @@ const MyBids = () => {
       ) : (
         <div className="listing" style={{ marginTop: "30px" }}>
           <Grid container spacing={3} justifyContent="flex-start">
-            {bidList.length > 0 ? (
-              bidList.map((prop, index) => (
+            {list?.length > 0 ? (
+              list?.map((prop, index) => (
                 <Grid item key={index}>
                   <MyBidCard
                     propID={prop?.auctionID?._id}

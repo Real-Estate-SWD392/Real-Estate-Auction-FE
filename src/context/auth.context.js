@@ -22,7 +22,6 @@ export const AuthContextProvider = ({ children }) => {
 
   const [refreshToken, setRefreshToken] = useState(Cookies.get("refreshToken"));
 
-
   useEffect(() => {
     const token = Cookies.get("refreshToken");
     if (token) {
@@ -57,13 +56,12 @@ export const AuthContextProvider = ({ children }) => {
           secure: true,
           sameSite: "None",
         });
-        return data.response;
-
-        
+        return data;
       } else {
         const errorData = response.data;
         console.error("Login failed", errorData);
         console.log("Response: ", response);
+        return errorData;
       }
     } catch (error) {
       console.error("Error during login", error);
@@ -120,13 +118,17 @@ export const AuthContextProvider = ({ children }) => {
         const data = await response.json();
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Register successfully", data);
+        toast.success("Register successfully");
+        return data;
       } else {
         const errorData = await response.json();
         console.error("Register failed", errorData);
-        console.log("Response: ", response);
+        toast.error("Register Failed");
+        return errorData;
       }
     } catch (error) {
       console.error("Error during login", error);
+      toast.error("Register Failed");
     }
   };
 

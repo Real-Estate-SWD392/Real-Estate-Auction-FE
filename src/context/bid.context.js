@@ -66,6 +66,32 @@ export const BidContextProvider = ({ children }) => {
     }
   };
 
+  const getBidByAuction = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/bid/auction/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Get successfully", data);
+        return response.data;
+      } else {
+        console.error("Get Bid List failed", response.data);
+      }
+    } catch (error) {
+      console.error("Error during get bid list", error);
+    }
+  };
+
   const updateNewBid = async (values) => {
     try {
       const response = await axios.put(`http://localhost:8080/bid/`, values, {
@@ -120,14 +146,40 @@ export const BidContextProvider = ({ children }) => {
     }
   };
 
+  const getBill = async (id, query) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/bill/getBill/${id}${query}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Get successfully", data);
+        return data;
+      } else {
+        console.error("Get Bill failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error during get bill", error);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       getUserBid();
       getWinBid();
     }
   }, []);
-
-  console.log(bidList);
 
   return (
     <BidContext.Provider
@@ -140,6 +192,8 @@ export const BidContextProvider = ({ children }) => {
         updateNewBid,
         getWinBid,
         createBill,
+        getBill,
+        getBidByAuction,
       }}
     >
       {children}

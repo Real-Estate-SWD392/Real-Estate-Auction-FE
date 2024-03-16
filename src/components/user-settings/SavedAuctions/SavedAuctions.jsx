@@ -14,6 +14,8 @@ import { AuthContext } from "../../../context/auth.context";
 import { getMemberInfoById } from "../../../service/memberService";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../loading/Loading";
+import { useDispatch, useSelector } from "react-redux";
+import { setSavedList } from "../../../redux/reducers/savedAuctionSlice";
 
 const Divider = styled("div")({
   width: "100%",
@@ -22,6 +24,10 @@ const Divider = styled("div")({
 });
 
 const SavedAuctions = () => {
+  const savedList = useSelector((state) => state.saved.savedList);
+
+  const dispatch = useDispatch();
+
   const [auctionList, setAuctionList] = useState([]);
   const [loading, setLoading] = useState(true); // Track loading state
 
@@ -31,8 +37,6 @@ const SavedAuctions = () => {
     : [];
 
   const navigate = useNavigate();
-
-  console.log("Listing", idList);
 
   const getAuctionByID = async (id) => {
     try {
@@ -77,7 +81,9 @@ const SavedAuctions = () => {
           // Handle the error, e.g., display a message to the user
         }
       }
+
       setAuctionList(auctions);
+      dispatch(setSavedList(auctions));
     } catch (error) {
       console.error("Error fetching list of auctions by ID list:", error);
       // Handle the error, e.g., display a message to the user
@@ -87,6 +93,8 @@ const SavedAuctions = () => {
   useLayoutEffect(() => {
     getListOfAuctionsByIDList(idList);
   }, []);
+
+  console.log(savedList);
 
   return (
     <Card
@@ -123,8 +131,8 @@ const SavedAuctions = () => {
       ) : (
         <div className="listing" style={{ marginTop: "30px" }}>
           <Grid container spacing={3} justifyContent="flex-start">
-            {auctionList.length > 0 ? (
-              auctionList.map((prop, index) => (
+            {savedList?.length > 0 ? (
+              savedList?.map((prop, index) => (
                 <Grid item key={index}>
                   <div>
                     <SavedAuctionCard

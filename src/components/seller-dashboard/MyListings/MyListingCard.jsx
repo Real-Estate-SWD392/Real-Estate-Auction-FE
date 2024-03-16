@@ -40,7 +40,7 @@ const imgCard = {
 
 const address = {
   width: "300px",
-  height: "50px",
+  height: "60px",
 };
 
 const descSpacing = {
@@ -117,6 +117,7 @@ const MyListingCard = ({
   const { getAuctionByRealEstateID } = useContext(AuctionContext);
 
   const [open, setOpen] = React.useState(false);
+  const [checkExist, setCheckExist] = useState(null);
   const [auction, setAuction] = useState({
     id: "",
     name: `${user.firstName} ${user.lastName}`,
@@ -130,7 +131,7 @@ const MyListingCard = ({
     realEstateID: propID,
   });
 
-  const { createAuction, auctionList, setAuctionList } =
+  const { createAuction, auctionList, setAuctionList, updateAuction } =
     useContext(AuctionContext);
 
   const nav = useNavigate();
@@ -151,12 +152,12 @@ const MyListingCard = ({
 
     validationSchema: validationCreateAuction,
     onSubmit: (values) => {
-      console.log("hahaha");
       console.log("Auction create data", values);
       handleSubmitAuction();
     },
   });
 
+  console.log(checkExist);
   console.log("Value of formik", formik.values);
 
   const handleOpen = () => setOpen(true);
@@ -195,27 +196,52 @@ const MyListingCard = ({
     }));
   };
 
-  console.log("real data1", auction);
-  console.log("real data2", formik.values);
   const handleSubmitAuction = async () => {
     try {
-      const res = await createAuction(formik.values);
-      console.log(res);
+      const checkExistAuction = await getAuctionByRealEstateID(propID);
 
-      if (res.result) {
-        // Find the index of the item with the same _id in the auctionList array
-        const indexToUpdate = auctionLists.findIndex(
-          (item) => item._id === res.result.realEstateID
+      console.log(propID);
+
+      if (checkExistAuction?.response) {
+        formik.setFieldValue(
+          "startPrice",
+          checkExistAuction.response.startPrice
         );
 
-        // If the index is found, update the auctionList
-        if (indexToUpdate !== -1) {
-          const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
-          updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
-          setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
+        const res = await updateAuction(
+          checkExistAuction.response._id,
+          formik.values
+        );
+        console.log(res);
+        if (res.response) {
+          const indexToUpdate = auctionLists.findIndex(
+            (item) => item._id === res.response.realEstateID
+          );
+          if (indexToUpdate !== -1) {
+            const updatedAuctionList = [...auctionLists];
+            updatedAuctionList[indexToUpdate].status = "Pending";
+            setAuctionLists(updatedAuctionList);
+          }
         }
+      } else {
+        const res = await createAuction(formik.values);
+        console.log(res);
+
+        if (res.result) {
+          // Find the index of the item with the same _id in the auctionList array
+          const indexToUpdate = auctionLists.findIndex(
+            (item) => item._id === res.result.realEstateID
+          );
+
+          // If the index is found, update the auctionList
+          if (indexToUpdate !== -1) {
+            const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
+            updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
+            setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
+          }
+        }
+        handleClose();
       }
-      handleClose();
     } catch (error) {
       console.log("Cannot create", error);
     }
@@ -368,7 +394,9 @@ const MyListingCard = ({
               WebkitLineClamp: 4, // Adjust the number of lines to your preference
             }}
           >
-            {desc}
+            {desc
+              ? `Description: ${desc}`
+              : "No Description For This Real Estate"}
           </Typography>
         </div>
         <div className="prop-price" style={{ marginTop: "15px" }}>
@@ -405,14 +433,19 @@ const MyListingCard = ({
                     break;
                   }
 
+                  case "Pending": {
+                    handleOpen();
+                    break;
+                  }
+
                   default: {
                     break;
                   }
                 }
               }}
             >
-              {status === "Pending" || status === "Sold"
-                ? "View Detail"
+              {status === "Pending"
+                ? "Update Auction"
                 : status === "In Auction"
                 ? "View Auction"
                 : "Open Auction"}

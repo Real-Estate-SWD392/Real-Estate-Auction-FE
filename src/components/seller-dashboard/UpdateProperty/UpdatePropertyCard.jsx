@@ -206,7 +206,9 @@ const UpdatePropertyCard = ({
               WebkitLineClamp: 4, // Adjust the number of lines to your preference
             }}
           >
-            Description: {desc}
+            {desc
+              ? `Description: ${desc}`
+              : "No Description For This Real Estate"}{" "}
           </Typography>
         </div>
         <div className="prop-price" style={{ marginTop: "15px" }}>

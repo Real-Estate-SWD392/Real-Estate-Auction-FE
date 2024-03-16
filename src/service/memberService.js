@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const getMemberInfoById = async (id, headers) => {
-  return axios.get(`http://localhost:8080/member/${id}`, { headers });
+  return axios.get(`http://localhost:8080/member/${id}`, {
+    headers,
+  });
 };
 
 const getBidListByMemberId = async (id, headers) => {

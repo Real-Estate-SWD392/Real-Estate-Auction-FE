@@ -29,6 +29,8 @@ const SignIn = (props) => {
 
   const { login, loginGoogle, user } = useContext(AuthContext);
 
+  const nav = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       password: "",
@@ -71,16 +73,17 @@ const SignIn = (props) => {
         password: values.password,
       });
 
-      console.log("Logonnn", res);
-
-      if (res.role === "staff") {
-        navigate("/accommondation-admin/auction-management")
-      } else if (res.role === "member") {
-        navigate("/");
-        props.setModalShow(false);
+      if (res.response.status === "Banned") {
+        console.log("Banned");
+      } else {
+        if (res.response.role === "staff") {
+          nav("/accommondation-staff");
+        } else if (res.response.role === "admin") {
+          nav("/accommondation-admin");
+        }
       }
-      
-      
+
+      props.setModalShow(false);
     } catch (error) {
       console.log(error);
     }

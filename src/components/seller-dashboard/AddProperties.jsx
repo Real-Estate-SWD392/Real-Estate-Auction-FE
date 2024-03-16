@@ -129,7 +129,7 @@ const AddProperties = () => {
     onSubmit: (values) => {
       console.log("Form Data", values);
       handleCreateProperty();
-      navigate("/sell/property-list");
+      // navigate("/sell/property-list");
     },
   });
 

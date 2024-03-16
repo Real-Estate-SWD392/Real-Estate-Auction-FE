@@ -64,7 +64,7 @@ export const RealEstateContextProvider = ({ children }) => {
     values.formValues.image = values.image;
     values.formValues.pdf = values.pdf;
 
-    console.log("Hu hon chua 1",values);
+    console.log("Hu hon chua 1", values);
 
     try {
       const response = await axios.post(
@@ -159,6 +159,33 @@ export const RealEstateContextProvider = ({ children }) => {
     } catch (error) {
       toast.error("Update real estate fail!!");
       console.error("Error during upload", error);
+    }
+  };
+
+  const closeRealEstate = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/real-estate/close/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Close successfully", response);
+        return data;
+      } else {
+        console.error("Close failed", response);
+        return response;
+      }
+    } catch (error) {
+      console.error("Error during close", error);
     }
   };
 
@@ -258,6 +285,7 @@ export const RealEstateContextProvider = ({ children }) => {
         uploadPDFs,
         updateRealEstate,
         getRealEstateByStatus,
+        closeRealEstate,
       }}
     >
       {children}

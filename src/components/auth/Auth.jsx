@@ -48,8 +48,6 @@ export default function Auth(props) {
     setValue(newValue);
   };
 
-  console.log(props);
-
   return (
     <Modal
       {...props}

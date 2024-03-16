@@ -23,10 +23,8 @@ const ProfileComponent = ({ index, userName, userEmail }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const currentLocation = location.pathname;
-  console.log(currentLocation);
 
   const currentName = tabs.find((tab) => tab.url === currentLocation);
-  console.log(currentName.tabName);
 
   useEffect(() => {
     if (currentLocation === "/my-account") {

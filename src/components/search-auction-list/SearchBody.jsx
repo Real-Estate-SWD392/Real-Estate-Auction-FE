@@ -14,19 +14,25 @@ import { useDispatch, useSelector } from "react-redux";
 import AuctionPropCard from "../home/related-prop/AuctionPropCard";
 import { AuctionContext } from "../../context/auction.context";
 import { setProperties } from "../../redux/reducers/auctionSlice";
-import { setSearchResutlts } from "../../redux/reducers/searchAuctionSlice";
+import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import { provinceURL } from "../../apiConfig";
 import { textAlign } from "@mui/system";
 
-export const listPropType = ["Condominium", "Villa","Penthouse","Ground","House"];
+export const listPropType = [
+  "Condominium",
+  "Villa",
+  "Penthouse",
+  "Ground",
+  "House",
+];
 export const listCity = ["Thủ Đức", "Hồ Chí Minh"];
 export const bathNum = [1, 2, 3, 4];
 export const bedNum = [1, 2, 3, 4];
 
 const SearchBody = ({ searchTerm, resultCount }) => {
-  const [itemAuction, setItemAuction] = React.useState([]);
+  // const [itemAuction, setItemAuction] = React.useState([]);
 
-  const [auctions, setAuctions] = useState({});
+  // const [auctions, setAuctions] = useState({});
 
   const properties = useSelector((state) => state.search.searchResults);
 
@@ -34,7 +40,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
 
   const dispatch = useDispatch();
 
-  const { filterAuction, sortByTime, sortByPopular } =
+  const { filterAuction, sortByTime, sortByPopular, getInAuctionRealEstate } =
     useContext(AuctionContext);
 
   const [filterValues, setFilterValues] = useState({
@@ -77,10 +83,10 @@ const SearchBody = ({ searchTerm, resultCount }) => {
     const fetchFilteredAuction = async () => {
       try {
         const res = await filterAuction(filterValues);
-        console.log("Fileeee", res.response);
+        // console.log("Fileeee", res.response);
 
         if (res.response) {
-          dispatch(setSearchResutlts(res.response));
+          dispatch(setSearchResults(res.response));
         }
       } catch (error) {
         console.error(error);
@@ -110,6 +116,15 @@ const SearchBody = ({ searchTerm, resultCount }) => {
         setProvinceList(provincesData);
       })
       .catch((err) => console.error("Error fetching data: ", err));
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getInAuctionRealEstate();
+      dispatch(setSearchResults(res.response));
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -255,7 +270,7 @@ const SearchBody = ({ searchTerm, resultCount }) => {
             </FormControl>
           </Typography>
         </div>
-        <Grid container spacing={3} justifyContent="center">
+        <Grid container spacing={3} sx={{ width: "90%", margin: "0 auto" }}>
           {properties?.length > 0 ? (
             properties.map((prop, index) => (
               <Grid item key={index}>

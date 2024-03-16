@@ -1,6 +1,6 @@
 // RelatedPropList.js
-import React from "react";
-import { connect, useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { Grid, IconButton, Typography } from "@mui/material";
 import AuctionPropCard from "./AuctionPropCard";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -8,6 +8,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuctionContext } from "../../../context/auction.context";
+import axios from "axios";
+import { setProperties } from "../../../redux/reducers/auctionSlice";
 
 const buttonStyle = {
   background: "#F4F7FA",
@@ -21,17 +23,39 @@ const RelatedPropList = ({}) => {
   const navigate = useNavigate();
   const properties = useSelector((state) => state.auction.properties);
 
+  const dispatch = useDispatch();
+
   setAuctionList(properties);
 
   const handleNavigate = () => {
     navigate("/auctions");
   };
 
+  useEffect(() => {
+    async function fetchAuctions() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/auction/status/In Auction"
+        );
+        dispatch(setProperties(response.data.response));
+        console.log(response);
+      } catch (error) {
+        console.error("Error fetching auctions:", error);
+      }
+    }
+
+    fetchAuctions();
+  }, []);
+
   return (
     <>
       <div
         className="header-rcm-prop"
-        style={{ display: "flex", justifyContent: "space-between", padding: "0 80px" }}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "0 80px",
+        }}
       >
         <Typography
           variant="body1"
@@ -42,10 +66,7 @@ const RelatedPropList = ({}) => {
           Recommended Properties
         </Typography>
         <div className="navigate-next">
-          <IconButton
-            style={buttonStyle}
-            onClick={handleNavigate}
-          >
+          <IconButton style={buttonStyle} onClick={handleNavigate}>
             <ChevronRightIcon
               sx={{
                 transform: "rotate(180deg)",
@@ -57,8 +78,9 @@ const RelatedPropList = ({}) => {
           </IconButton>
         </div>
       </div>
-      <Grid container spacing={3} justifyContent="flex-start" style={{padding: "0 85px", marginTop:"20px"}}>
-        {auctionList.map((prop, index) => (
+      <Grid container spacing={3} sx={{ width: "90%", margin: "0 auto" }}>
+        {/* <Grid container spacing={3} justifyContent="flex-start" style={{padding: "0 85px", marginTop:"20px"}}> */}
+        {[...auctionList]?.splice(0, 4).map((prop, index) => (
           <Grid item key={index} xs={3} md={3}>
             <AuctionPropCard
               id={prop._id}
