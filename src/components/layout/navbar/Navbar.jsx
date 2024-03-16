@@ -129,7 +129,7 @@ function ResponsiveAppBar({ userName }) {
     <div className="navbar-container">
       {openWallet ? (
         <div className="wallet">
-          <Wallet setOpenAddBalance={setOpenAddBalance} setOpenWallet={setOpenWallet}/>
+          <Wallet setOpenAddBalance={setOpenAddBalance} setOpenWallet={setOpenWallet} wallet={userWallet}/>
         </div>
       ) : (
         ""

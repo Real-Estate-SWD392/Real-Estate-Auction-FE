@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 const Wallet = (props) => {
   
-  const { wallet } = props;
+  // const { wallet } = props;
+  console.log("Walllll", props);
   const navigate = useNavigate();
   const formattedValue = (value) => {
     // Ensure the input is a valid number
@@ -42,7 +43,7 @@ const Wallet = (props) => {
       <h1>E-wallet</h1>
       <div className="balance-field">
         <p>Your balance</p>
-        <p className="balance-number">{formattedValue(wallet?.balance)}</p>
+        <p className="balance-number">{formattedValue(props.wallet?.balance)}</p>
       </div>
 
       <div>
