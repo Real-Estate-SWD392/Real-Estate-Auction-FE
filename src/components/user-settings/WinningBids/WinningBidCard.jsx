@@ -19,6 +19,11 @@ import { useNavigate } from "react-router-dom";
 import { AuctionContext } from "../../../context/auction.context";
 import { toast } from "react-toastify";
 import { BidContext } from "../../../context/bid.context";
+import { UserContext } from "../../../context/user.context";
+import { useDispatch, useSelector } from "react-redux";
+import { setProperties } from "../../../redux/reducers/auctionSlice";
+import { setSearchResults } from "../../../redux/reducers/searchAuctionSlice";
+import { RealEstateContext } from "../../../context/real-estate.context";
 
 const colorBall = {
   width: "12px",
@@ -85,6 +90,7 @@ const WinningBidCard = ({
   baths,
   area,
   propID,
+  realEstateID,
 }) => {
   const nav = useNavigate();
 
@@ -92,24 +98,57 @@ const WinningBidCard = ({
 
   const { checkAlreadyPay } = useContext(AuctionContext);
 
-  const { createBill } = useContext(BidContext);
+  const { payMoney, userWallet, setUserWallet } = useContext(UserContext);
+
+  const { closeRealEstate } = useContext(RealEstateContext);
+
+  const { createBill, createNewBill } = useContext(BidContext);
+
+  const auctionList = useSelector((state) => state.auction.properties);
+
+  const dispatch = useDispatch();
+
+  console.log(realEstateID);
 
   const handlePayWinningAuction = async () => {
     try {
-      const dataPost = {
-        auctionID: propID,
-        total: currentBid,
-        bankCode: "",
-        language: "vn",
-        payment: "VNPay",
-        type: "Pay Winning Auction",
-      };
+      const res = await payMoney(currentBid);
+      if (res.success) {
+        setUserWallet(res.response);
+        const close = await closeRealEstate(realEstateID);
 
-      const response = await createBill(dataPost);
+        console.log(close);
 
-      window.location.href = response.url;
+        if (close.success) {
+          const dataPost = {
+            auctionID: propID,
+            total: currentBid,
+            payment: "VNPay",
+            type: "Pay Winning Auction",
+          };
+
+          const createBill = await createNewBill(dataPost);
+
+          console.log(createBill);
+        }
+
+        // if (close.success) {
+        //   const indexToUpdate = auctionList.findIndex(
+        //     (item) => item._id === res.response._id
+        //   );
+
+        //   // If the index is found, update the auctionList
+        //   if (indexToUpdate !== -1) {
+        //     console.log(close);
+        //     const updatedAuctionList = [...auctionList];
+        //     updatedAuctionList[indexToUpdate] = close.response;
+        //     dispatch(setProperties(updatedAuctionList));
+        //     dispatch(setSearchResults(updatedAuctionList));
+        //   }
+        // }
+      }
     } catch (error) {
-      console.error("Error placing bid:", error);
+      console.error("Error Pay Winning:", error);
     }
   };
 
@@ -125,7 +164,7 @@ const WinningBidCard = ({
     fetchData();
   }, []);
 
-  console.log(checkPay);
+  console.log(currentBid);
 
   return (
     <Card elevation={2} sx={{ borderRadius: "12px" }}>

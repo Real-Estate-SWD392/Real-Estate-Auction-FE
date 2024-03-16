@@ -28,6 +28,7 @@ import { AuthContext } from "../../context/auth.context";
 import { useFormik } from "formik";
 import { validationProperty } from "./propertyValidate";
 import { useNavigate } from "react-router-dom";
+import Loading from "../loading/Loading";
 
 const REQUIRED_COUNT = 180;
 
@@ -98,6 +99,7 @@ const AddProperties = () => {
   const [letterCount, setLetterCount] = useState(0);
   const [openImage, setOpenImageList] = useState(false);
   const [openDocument, setOpenDocument] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { uploadImages, uploadPDFs, createNewRealEstate } =
     useContext(RealEstateContext);
@@ -128,8 +130,8 @@ const AddProperties = () => {
     validationSchema: validationProperty,
     onSubmit: (values) => {
       console.log("Form Data", values);
+      setIsLoading(true);
       handleCreateProperty();
-      navigate("/sell/property-list");
     },
   });
 
@@ -150,6 +152,8 @@ const AddProperties = () => {
       })
       .catch((err) => console.error("Error fetching data: ", err));
   }, []);
+
+  console.log(typeof formik.values.image);
 
   const handleSelectLocation = async (fieldName, selectedValue) => {
     setProperty((prevProp) => ({
@@ -379,7 +383,19 @@ const AddProperties = () => {
 
       if (formik.values.pdf) pdfUrl = await uploadPDFsFile();
 
-      await createNewRealEstate({ formValues, image: imgUrl, pdf: pdfUrl });
+      const res = await createNewRealEstate({
+        formValues,
+        image: imgUrl,
+        pdf: pdfUrl,
+      });
+
+      console.log(res);
+
+      if (res.success) {
+        setIsLoading(false);
+        navigate("/sell/property-list");
+        console.log(formik.values.image);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -416,464 +432,489 @@ const AddProperties = () => {
           </Typography>
         </div>
         <CustomDivider />
-        <div
-          className="contact-inf"
-          style={{ marginTop: "45px", padding: "0px 40px" }}
-        >
-          <Typography
-            variant="body1"
-            color="initial"
-            fontSize={20}
-            fontWeight={600}
+        {isLoading ? (
+          <Loading setIsLoading={setIsLoading} loadingTime={false} />
+        ) : (
+          <div
+            className="contact-inf"
+            style={{ marginTop: "45px", padding: "0px 40px" }}
           >
-            Property Details
-          </Typography>
-          <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid
-            container
-            flexDirection="column"
-            sx={{ mt: "15px" }}
-            spacing={4}
-          >
-            <Grid item>
-              <TextField
-                id=""
-                name="street"
-                label="Street Address *"
-                value={formik.values.street}
-                error={formik.touched.street && Boolean(formik.errors.street)}
-                helperText={formik.touched.street && formik.errors.street}
-                onChange={formik.handleChange}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  style: inputStyle,
-                }}
-              />
-            </Grid>
-            <Grid container item spacing={2}>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">
-                    Province *
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    // value={property.city}
-                    value={formik.values.city}
-                    label="Province"
-                    onChange={(event) =>
-                      handleSelectLocation("city", event.target.value)
-                    }
-                    // onChange={(event) => {
-                    //   handleSelectLocation("city", event.target.value);
-                    // }
-                    // }
-                    sx={selectStyle}
-                  >
-                    {location.provinces.map((province) => (
-                      <MenuItem
-                        key={province.province_id}
-                        value={province.province_name}
-                      >
-                        {province.province_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {formik.touched.city && formik.errors.city && (
-                    <FormHelperText error>{formik.errors.city}</FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">
-                    District *
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    // value={property.district}
-                    value={formik.values.district}
-                    label="Province"
-                    // onChange={formik.handleChange}
-                    onChange={(event) =>
-                      handleSelectLocation("district", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.districts.map((district) => (
-                      <MenuItem
-                        key={district.district_id}
-                        value={district.district_name}
-                      >
-                        {district.district_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {formik.touched.district && formik.errors.district && (
-                    <FormHelperText error>
-                      {formik.errors.district}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl sx={inputSmall}>
-                  <InputLabel id="demo-simple-select-label">Ward *</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    // value={property.ward}
-                    value={formik.values.ward}
-                    label="Province"
-                    // onChange={formik.handleChange}
-                    onChange={(event) =>
-                      handleSelectLocation("ward", event.target.value)
-                    }
-                    sx={selectStyle}
-                  >
-                    {location.wards.map((ward) => (
-                      <MenuItem key={ward.ward_id} value={ward.ward_name}>
-                        {ward.ward_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {formik.touched.ward && formik.errors.ward && (
-                    <FormHelperText error>{formik.errors.ward}</FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="Property Image *"
-                name="image"
-                // onChange={handleInputChange}
-                // onChange={(event) => {
-                //   formik.setFieldValue("image", event.currentTarget.files);
-                //   handleImageChange(event);
-                // }}
-                // value={image.length > 0 ? "Image list" : ""}
-                value={formik.values.image.length > 0 ? "Image list" : ""}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  readOnly: true,
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      {formik.values.image.length > 0 ? (
-                        <Chip
-                          label={`View files (${formik.values.image.length})`}
-                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
-                          onClick={() => handleOpenImg()}
-                        />
-                      ) : (
-                        ""
-                      )}
-                      <label htmlFor="fileInput">
-                        <Button
-                          variant="contained"
-                          component="span"
-                          sx={{
-                            borderRadius: "0 20px 20px 0",
-                            background: "#000000",
-                            textTransform: "none",
-                            px: "30px",
-                            py: "16px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            "&:hover": {
-                              background: "#000000",
-                            },
-                            mr: "-13px",
-                          }}
-                          disabled={image.length > 4}
-                        >
-                          Add Image (.png, .jpg)
-                        </Button>
-                      </label>
-                    </InputAdornment>
-                  ),
-                }}
-                error={formik.touched.image && !!formik.errors.image}
-                helperText={formik.touched.image && formik.errors.image}
-                onBlur={formik.handleBlur}
-              />
-              <input
-                type="file"
-                name="image"
-                multiple
-                accept=".png, .jpg"
-                style={{ display: "none" }}
-                id="fileInput"
-                onChange={(event) => {
-                  const files = Array.from(event.currentTarget.files);
-                  formik.setFieldValue("image", files); // Set files as an array
-                  // formik.setFieldValue("image", event.currentTarget.files);
-                  handleImageChange(event);
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Typography
-            variant="body1"
-            color="initial"
-            fontSize={20}
-            fontWeight={600}
-            sx={{ mt: "45px" }}
-          >
-            Property Features
-          </Typography>
-          <Divider sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }} />
-          <Grid container sx={{ mt: "15px" }} spacing={4}>
-            <Grid container item spacing={4}>
-              <Grid item>
-                <FormControl sx={inputWidth}>
-                  <InputLabel id="demo-simple-select-label">
-                    Property Type *
-                  </InputLabel>
-                  <Select
-                    sx={inputStyle}
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    // value={property.type}
-                    value={formik.values.type}
-                    name="type"
-                    label="Property Type"
-                    onChange={formik.handleChange}
-                  >
-                    {propertyTypes.map((type) => (
-                      <MenuItem value={type}>{type}</MenuItem>
-                    ))}
-                  </Select>
-                  {formik.touched.type && formik.errors.type && (
-                    <FormHelperText error>{formik.errors.type}</FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={20}
+              fontWeight={600}
+            >
+              Property Details
+            </Typography>
+            <Divider
+              sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }}
+            />
+            <Grid
+              container
+              flexDirection="column"
+              sx={{ mt: "15px" }}
+              spacing={4}
+            >
               <Grid item>
                 <TextField
                   id=""
-                  label="Property Size *  (m2)"
-                  name="size"
-                  // value={property.size}
-                  value={formik.values.size}
-                  error={formik.touched.size && Boolean(formik.errors.size)}
-                  helperText={formik.touched.size && formik.errors.size}
-                  sx={inputWidth}
+                  name="street"
+                  label="Street Address *"
+                  value={formik.values.street}
+                  error={formik.touched.street && Boolean(formik.errors.street)}
+                  helperText={formik.touched.street && formik.errors.street}
+                  onChange={formik.handleChange}
+                  sx={{ width: "630px" }}
                   InputProps={{
                     style: inputStyle,
                   }}
-                  // onChange={handleInputChange}
-                  onChange={formik.handleChange}
                 />
               </Grid>
-            </Grid>
-            <Grid container item spacing={4}>
-              <Grid item>
-                <TextField
-                  id=""
-                  label="Bedrooms *"
-                  name="bedRoom"
-                  // value={property.bedRoom}
-                  value={formik.values.bedRoom}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.bedRoom && Boolean(formik.errors.bedRoom)
-                  }
-                  helperText={formik.touched.bedRoom && formik.errors.bedRoom}
-                  sx={inputWidth}
-                  InputProps={{
-                    style: {
-                      ...inputStyle,
-                    },
-                    startAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleDecrement("bedRoom")}>
-                          <RemoveIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleIncrement("bedRoom")}>
-                          <AddIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  inputProps={{
-                    style: {
-                      textAlign: "center",
-                    },
-                  }}
-                  // Use Formik's handleChange function
-                  onBlur={formik.handleBlur}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  id=""
-                  label="Bathrooms *"
-                  name="bathRoom"
-                  // value={property.bathRoom}
-                  value={formik.values.bathRoom}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.bathRoom && Boolean(formik.errors.bathRoom)
-                  }
-                  helperText={formik.touched.bathRoom && formik.errors.bathRoom}
-                  sx={inputWidth}
-                  InputProps={{
-                    style: {
-                      ...inputStyle,
-                    },
-                    startAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleDecrement("bathRoom")}>
-                          <RemoveIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment>
-                        <IconButton onClick={() => handleIncrement("bathRoom")}>
-                          <AddIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  inputProps={{
-                    style: {
-                      textAlign: "center",
-                    },
-                  }}
-                  onBlur={formik.handleBlur}
-                />
-              </Grid>
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="Description *"
-                name="description"
-                // value={property.description}
-                value={formik.values.description}
-                error={
-                  formik.touched.description &&
-                  Boolean(formik.errors.description)
-                }
-                helperText={
-                  formik.touched.description && formik.errors.description
-                }
-                onChange={formik.handleChange}
-                // onChange={handleInputChange}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      <Typography
-                        variant="body1"
-                        color="initial"
-                        fontSize={12}
-                        sx={{ mr: "10px" }}
-                      >
-                        {letterCount}/{REQUIRED_COUNT}
-                      </Typography>
-                    </InputAdornment>
-                  ),
-                }}
-                multiline
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                id=""
-                label="The required documents *"
-                // onChange={handleInputChange}
-                value={formik.values.pdf.length > 0 ? "Document list" : ""}
-                sx={{ width: "630px" }}
-                InputProps={{
-                  readOnly: true,
-                  style: inputStyle,
-                  endAdornment: (
-                    <InputAdornment>
-                      {formik.values.pdf.length > 0 ? (
-                        <Chip
-                          label={`View files (${formik.values.pdf.length})`}
-                          sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
-                          onClick={() => handleOpenDoc()}
-                        />
-                      ) : (
-                        ""
-                      )}
-                      <label htmlFor="fileInputpdf">
-                        <Button
-                          variant="contained"
-                          component="span"
-                          sx={{
-                            borderRadius: "0 20px 20px 0",
-                            background: "#000000",
-                            textTransform: "none",
-                            px: "30px",
-                            py: "16px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            "&:hover": {
-                              background: "#000000",
-                            },
-                            mr: "-13px",
-                          }}
+              <Grid container item spacing={2}>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      Province *
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      // value={property.city}
+                      value={formik.values.city}
+                      label="Province"
+                      onChange={(event) =>
+                        handleSelectLocation("city", event.target.value)
+                      }
+                      // onChange={(event) => {
+                      //   handleSelectLocation("city", event.target.value);
+                      // }
+                      // }
+                      sx={selectStyle}
+                    >
+                      {location.provinces.map((province) => (
+                        <MenuItem
+                          key={province.province_id}
+                          value={province.province_name}
                         >
-                          Add pdf (.pdf)
-                        </Button>
-                      </label>
-                    </InputAdornment>
-                  ),
-                }}
-                error={formik.touched.pdf && !!formik.errors.pdf}
-                helperText={formik.touched.pdf && formik.errors.pdf}
-                onBlur={formik.handleBlur}
-              />
-              <input
-                type="file"
-                name="pdf"
-                multiple
-                accept=".pdf"
-                style={{ display: "none" }}
-                id="fileInputpdf"
-                // onChange={handleDocumentChange}
-                onChange={(event) => {
-                  const files = Array.from(event.currentTarget.files);
-                  formik.setFieldValue("pdf", files); // Set files as an array
-                  handleDocumentChange(event);
-                }}
-              />
+                          {province.province_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {formik.touched.city && formik.errors.city && (
+                      <FormHelperText error>
+                        {formik.errors.city}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      District *
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      // value={property.district}
+                      value={formik.values.district}
+                      label="Province"
+                      // onChange={formik.handleChange}
+                      onChange={(event) =>
+                        handleSelectLocation("district", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.districts.map((district) => (
+                        <MenuItem
+                          key={district.district_id}
+                          value={district.district_name}
+                        >
+                          {district.district_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {formik.touched.district && formik.errors.district && (
+                      <FormHelperText error>
+                        {formik.errors.district}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl sx={inputSmall}>
+                    <InputLabel id="demo-simple-select-label">
+                      Ward *
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      // value={property.ward}
+                      value={formik.values.ward}
+                      label="Province"
+                      // onChange={formik.handleChange}
+                      onChange={(event) =>
+                        handleSelectLocation("ward", event.target.value)
+                      }
+                      sx={selectStyle}
+                    >
+                      {location.wards.map((ward) => (
+                        <MenuItem key={ward.ward_id} value={ward.ward_name}>
+                          {ward.ward_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {formik.touched.ward && formik.errors.ward && (
+                      <FormHelperText error>
+                        {formik.errors.ward}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="Property Image *"
+                  name="image"
+                  // onChange={handleInputChange}
+                  // onChange={(event) => {
+                  //   formik.setFieldValue("image", event.currentTarget.files);
+                  //   handleImageChange(event);
+                  // }}
+                  // value={image.length > 0 ? "Image list" : ""}
+                  value={formik.values.image.length > 0 ? "Image list" : ""}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    readOnly: true,
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        {formik.values.image.length > 0 ? (
+                          <Chip
+                            label={`View files (${formik.values.image.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenImg()}
+                          />
+                        ) : (
+                          ""
+                        )}
+                        <label htmlFor="fileInput">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                              borderRadius: "0 20px 20px 0",
+                              background: "#000000",
+                              textTransform: "none",
+                              px: "30px",
+                              py: "16px",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              "&:hover": {
+                                background: "#000000",
+                              },
+                              mr: "-13px",
+                            }}
+                            disabled={image.length > 4}
+                          >
+                            Add Image (.png, .jpg)
+                          </Button>
+                        </label>
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={formik.touched.image && !!formik.errors.image}
+                  helperText={formik.touched.image && formik.errors.image}
+                  onBlur={formik.handleBlur}
+                />
+                <input
+                  type="file"
+                  name="image"
+                  multiple
+                  accept=".png, .jpg"
+                  style={{ display: "none" }}
+                  id="fileInput"
+                  onChange={(event) => {
+                    const files = Array.from(event.currentTarget.files);
+                    formik.setFieldValue("image", files); // Set files as an array
+                    // formik.setFieldValue("image", event.currentTarget.files);
+                    handleImageChange(event);
+                  }}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-          <Button
-            type="submit"
-            sx={{
-              background: "#118BF4",
-              color: "white",
-              borderRadius: "8px",
-              textTransform: "none",
-              "&:hover": {
+            <Typography
+              variant="body1"
+              color="initial"
+              fontSize={20}
+              fontWeight={600}
+              sx={{ mt: "45px" }}
+            >
+              Property Features
+            </Typography>
+            <Divider
+              sx={{ mt: "10px", background: "#F0F0F0", height: "3px" }}
+            />
+            <Grid container sx={{ mt: "15px" }} spacing={4}>
+              <Grid container item spacing={4}>
+                <Grid item>
+                  <FormControl sx={inputWidth}>
+                    <InputLabel id="demo-simple-select-label">
+                      Property Type *
+                    </InputLabel>
+                    <Select
+                      sx={inputStyle}
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      // value={property.type}
+                      value={formik.values.type}
+                      name="type"
+                      label="Property Type"
+                      onChange={formik.handleChange}
+                    >
+                      {propertyTypes.map((type) => (
+                        <MenuItem value={type}>{type}</MenuItem>
+                      ))}
+                    </Select>
+                    {formik.touched.type && formik.errors.type && (
+                      <FormHelperText error>
+                        {formik.errors.type}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Property Size *  (m2)"
+                    name="size"
+                    // value={property.size}
+                    value={formik.values.size}
+                    error={formik.touched.size && Boolean(formik.errors.size)}
+                    helperText={formik.touched.size && formik.errors.size}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: inputStyle,
+                    }}
+                    // onChange={handleInputChange}
+                    onChange={formik.handleChange}
+                  />
+                </Grid>
+              </Grid>
+              <Grid container item spacing={4}>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Bedrooms *"
+                    name="bedRoom"
+                    // value={property.bedRoom}
+                    value={formik.values.bedRoom}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.bedRoom && Boolean(formik.errors.bedRoom)
+                    }
+                    helperText={formik.touched.bedRoom && formik.errors.bedRoom}
+                    sx={inputWidth}
+                    InputProps={{
+                      style: {
+                        ...inputStyle,
+                      },
+                      startAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleDecrement("bedRoom")}
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleIncrement("bedRoom")}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    inputProps={{
+                      style: {
+                        textAlign: "center",
+                      },
+                    }}
+                    // Use Formik's handleChange function
+                    onBlur={formik.handleBlur}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    id=""
+                    label="Bathrooms *"
+                    name="bathRoom"
+                    // value={property.bathRoom}
+                    value={formik.values.bathRoom}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.bathRoom && Boolean(formik.errors.bathRoom)
+                    }
+                    helperText={
+                      formik.touched.bathRoom && formik.errors.bathRoom
+                    }
+                    sx={inputWidth}
+                    InputProps={{
+                      style: {
+                        ...inputStyle,
+                      },
+                      startAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleDecrement("bathRoom")}
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment>
+                          <IconButton
+                            onClick={() => handleIncrement("bathRoom")}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    inputProps={{
+                      style: {
+                        textAlign: "center",
+                      },
+                    }}
+                    onBlur={formik.handleBlur}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="Description *"
+                  name="description"
+                  // value={property.description}
+                  value={formik.values.description}
+                  error={
+                    formik.touched.description &&
+                    Boolean(formik.errors.description)
+                  }
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  onChange={formik.handleChange}
+                  // onChange={handleInputChange}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        <Typography
+                          variant="body1"
+                          color="initial"
+                          fontSize={12}
+                          sx={{ mr: "10px" }}
+                        >
+                          {letterCount}/{REQUIRED_COUNT}
+                        </Typography>
+                      </InputAdornment>
+                    ),
+                  }}
+                  multiline
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  id=""
+                  label="The required documents *"
+                  // onChange={handleInputChange}
+                  value={formik.values.pdf.length > 0 ? "Document list" : ""}
+                  sx={{ width: "630px" }}
+                  InputProps={{
+                    readOnly: true,
+                    style: inputStyle,
+                    endAdornment: (
+                      <InputAdornment>
+                        {formik.values.pdf.length > 0 ? (
+                          <Chip
+                            label={`View files (${formik.values.pdf.length})`}
+                            sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
+                            onClick={() => handleOpenDoc()}
+                          />
+                        ) : (
+                          ""
+                        )}
+                        <label htmlFor="fileInputpdf">
+                          <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                              borderRadius: "0 20px 20px 0",
+                              background: "#000000",
+                              textTransform: "none",
+                              px: "30px",
+                              py: "16px",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              "&:hover": {
+                                background: "#000000",
+                              },
+                              mr: "-13px",
+                            }}
+                          >
+                            Add pdf (.pdf)
+                          </Button>
+                        </label>
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={formik.touched.pdf && !!formik.errors.pdf}
+                  helperText={formik.touched.pdf && formik.errors.pdf}
+                  onBlur={formik.handleBlur}
+                />
+                <input
+                  type="file"
+                  name="pdf"
+                  multiple
+                  accept=".pdf"
+                  style={{ display: "none" }}
+                  id="fileInputpdf"
+                  // onChange={handleDocumentChange}
+                  onChange={(event) => {
+                    const files = Array.from(event.currentTarget.files);
+                    formik.setFieldValue("pdf", files); // Set files as an array
+                    handleDocumentChange(event);
+                  }}
+                />
+              </Grid>
+            </Grid>
+            <Button
+              type="submit"
+              sx={{
                 background: "#118BF4",
-              },
-              fontWeight: "600",
-              p: "12px 295px",
-              mt: "50px",
-              fontSize: "16px",
-            }}
-            // onClick={() => handleCreateProperty()}
-          >
-            Save
-          </Button>
-        </div>
+                color: "white",
+                borderRadius: "8px",
+                textTransform: "none",
+                "&:hover": {
+                  background: "#118BF4",
+                },
+                fontWeight: "600",
+                p: "12px 295px",
+                mt: "50px",
+                fontSize: "16px",
+              }}
+            >
+              Save
+            </Button>
+          </div>
+        )}
       </Card>
       <div className="image-modal">
         <Modal
@@ -890,30 +931,31 @@ const AddProperties = () => {
                 overflowX: "auto",
               }}
             >
-              {formik.values.image.map((image, index) => (
-                <div key={index} style={{ position: "relative" }}>
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={image.name}
-                    style={{
-                      width: "300px",
-                      height: "300px", // Maintain the aspect ratio
-                    }}
-                  />
-                  <Button
-                    onClick={() => handleDeleteImg(index, formik)}
-                    style={{
-                      position: "absolute",
-                      top: 5,
-                      right: 5,
-                      color: "black",
-                      background: "white",
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ))}
+              {formik?.values?.image instanceof File &&
+                formik?.values?.image?.map((image, index) => (
+                  <div key={index} style={{ position: "relative" }}>
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={image.name}
+                      style={{
+                        width: "300px",
+                        height: "300px", // Maintain the aspect ratio
+                      }}
+                    />
+                    <Button
+                      onClick={() => handleDeleteImg(index, formik)}
+                      style={{
+                        position: "absolute",
+                        top: 5,
+                        right: 5,
+                        color: "black",
+                        background: "white",
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                ))}
             </div>
           </Box>
         </Modal>

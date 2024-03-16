@@ -54,6 +54,7 @@ import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import ReactSimpleImageViewer from "react-simple-image-viewer";
 import BidderList from "./BidderList";
 import ReportModal from "./ReportModal";
+import Loading from "../loading/Loading";
 
 const specStyle = {
   textAlign: "center",
@@ -283,6 +284,8 @@ const AuctionDetail1 = () => {
 
   const [checkIsOwner, setCheckIsOwner] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const [payNowBill, setPayNowBil] = useState({
     userID: user?._id,
     total: property?.buyNowPrice * (10 / 100),
@@ -412,6 +415,11 @@ const AuctionDetail1 = () => {
       setBidderList(updatedBidderList);
     });
 
+    socket.on("currentAuction", (res) => {
+      console.log(res);
+      dispatch(setDetail(res));
+    });
+
     return () => {
       socket.off("currentBid");
     };
@@ -487,6 +495,17 @@ const AuctionDetail1 = () => {
         const addJoinList = await addToJoinList(id);
         console.log(addJoinList);
         if (addJoinList.success) {
+          const dataPost = {
+            auctionID: id,
+            total: payNowBill?.total,
+            payment: "VNPay",
+            type: "Pay Auction Fee",
+          };
+
+          const createBill = await createNewBill(dataPost);
+
+          console.log(createBill);
+
           dispatch(setDetail(addJoinList.response));
           setJoinList(addJoinList.response.joinList);
           toast.success("Join Auction Successfully!!");
@@ -529,6 +548,8 @@ const AuctionDetail1 = () => {
             payment: "VNPay",
             type: "Buy Now",
           };
+
+          socket.emit("buyNow", buyNow.response);
 
           const createBill = await createNewBill(dataPost);
 
@@ -636,6 +657,10 @@ const AuctionDetail1 = () => {
     // document.body.removeChild(anchor);
     openFileInNewPage(url);
   };
+
+  if (isLoading) {
+    return <Loading setIsLoading={setIsLoading} />;
+  }
 
   return (
     <Box sx={{ background: "white" }}>
@@ -1690,7 +1715,7 @@ const AuctionDetail1 = () => {
                           <InputAdornment>
                             <IconButton
                               onClick={() => handleDecrement()}
-                              disabled={bidPrice === currentPrice}
+                              disabled={bidPrice === property?.currentPrice}
                             >
                               <RemoveIcon />
                             </IconButton>
@@ -1775,6 +1800,32 @@ const AuctionDetail1 = () => {
                                 fontWeight={500}
                               >
                                 {method.value}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+
+                          <Grid
+                            container
+                            flexDirection="column"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <Grid item>
+                              {method.value === "Choose another wallet" ? (
+                                ""
+                              ) : (
+                                <Typography
+                                  variant="body1"
+                                  color="initial"
+                                  fontWeight={600}
+                                >
+                                  Available balance
+                                </Typography>
+                              )}
+                            </Grid>
+                            <Grid item>
+                              <Typography variant="body1" color="initial">
+                                {formattedValue(userWallet?.balance)}
                               </Typography>
                             </Grid>
                           </Grid>
@@ -2054,13 +2105,9 @@ const AuctionDetail1 = () => {
                               )}
                             </Grid>
                             <Grid item>
-                              {method.value === "Choose another wallet" ? (
-                                ""
-                              ) : (
-                                <Typography variant="body1" color="initial">
-                                  {formattedValue(userWallet?.balance)}
-                                </Typography>
-                              )}
+                              <Typography variant="body1" color="initial">
+                                {formattedValue(userWallet?.balance)}
+                              </Typography>
                             </Grid>
                           </Grid>
                         </Box>

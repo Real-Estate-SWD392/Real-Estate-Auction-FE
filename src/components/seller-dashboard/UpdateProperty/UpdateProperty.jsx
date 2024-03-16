@@ -228,6 +228,7 @@ const UpdateProperty = () => {
     validationSchema: validationProperty,
     onSubmit: (values) => {
       console.log("Form Data", values);
+      handleUpdateProperty();
     },
   });
 

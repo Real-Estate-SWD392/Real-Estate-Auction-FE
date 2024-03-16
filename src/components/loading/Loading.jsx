@@ -1,17 +1,22 @@
 import { CircularProgress } from "@mui/material";
 import React, { useEffect } from "react";
 
-const Loading = ({ setIsLoading }) => {
+const Loading = ({ setIsLoading, loadingTime }) => {
   useEffect(() => {
     // Set a timeout to delay the execution of the effect
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
 
-    return () => {
-      clearTimeout(timeoutId);
-    };
+    if (loadingTime === undefined) {
+      const timeoutId = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
   }, []);
+
+  console.log(loadingTime);
 
   return (
     <div

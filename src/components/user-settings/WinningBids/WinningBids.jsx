@@ -85,6 +85,7 @@ const WinningBids = () => {
                     area={prop?.realEstateID?.size}
                     yourBid={prop?.yourBid}
                     propID={prop?._id}
+                    realEstateID={prop?.realEstateID._id}
                   />
                 </Grid>
               ))
