@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setDetail, setProperties } from "../../redux/reducers/auctionSlice";
 import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import { RealEstateContext } from "../../context/real-estate.context";
+import { UserContext } from "../../context/user.context";
 
 export const style = {
   position: "absolute",
@@ -40,6 +41,8 @@ const SuccessPayment = () => {
 
   const { getBill, setWinList } = useContext(BidContext);
 
+  const { addMoneyToEwallet } = useContext(UserContext);
+
   const { addToJoinList, setWinner } = useContext(AuctionContext);
 
   const { closeRealEstate } = useContext(RealEstateContext);
@@ -69,6 +72,12 @@ const SuccessPayment = () => {
               if (res.success) {
                 dispatch(setDetail(res.response));
               }
+              break;
+            }
+
+            case "Add Money To E-wallet": {
+              const res = await addMoneyToEwallet(getBillRes.response.total);
+              console.log(res);
               break;
             }
 

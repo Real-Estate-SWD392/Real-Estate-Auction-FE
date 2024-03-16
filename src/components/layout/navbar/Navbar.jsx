@@ -25,6 +25,8 @@ import { useContext } from "react";
 import { AuthContext } from "../../../context/auth.context";
 import Wallet from "../../wallet/Wallet";
 import AddBalance from "../../wallet/AddBalance";
+import { useEffect } from "react";
+import { UserContext } from "../../../context/user.context";
 
 const pageNames = [
   {
@@ -36,11 +38,7 @@ const pageNames = [
     url: "/auctions",
   },
   {
-    name: "Sell",
-    url: "/sell/profile",
-  },
-  {
-    name: "Alert",
+    name: "E-wallet",
     url: "",
   },
 ];
@@ -82,14 +80,13 @@ function ResponsiveAppBar({ userName }) {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { logout, isOpenLogin, setIsOpenLogin } = useContext(AuthContext);
+  const { userWallet, setUserWallet, getBalance } = useContext(UserContext);
   const [openWallet, setOpenWallet] = React.useState(false);
   const [openAddBalance, setOpenAddBalance] = React.useState(false);
 
   const currentLocation = location.pathname;
 
   const { user } = useContext(AuthContext);
-
-  // console.log(user);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -113,6 +110,16 @@ function ResponsiveAppBar({ userName }) {
   };
 
   const [modalShow, setModalShow] = React.useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getBalance();
+      console.log(res);
+      setUserWallet(res?.response);
+    };
+
+    fetchData();
+  }, [user]);
 
   // console.log(anchorEl);
 
@@ -174,56 +181,84 @@ function ResponsiveAppBar({ userName }) {
                 marginRight: "30px",
               }}
             >
-              {pageNames.map((page, index) => (
-                <>
-                  <Button
-                    key={index}
-                    onClick={() => handleNavigate(page.url)}
-                    sx={{
-                      my: 2,
-                      color: "black",
-                      display: "block",
-                      textTransform: "none",
-                      marginLeft: "10px",
-                    }}
-                  >
-                    {page.name === "Alert" ? (
-                      // Render a different type of content for 'Alert'
-                      <Badge badgeContent={1} color="primary">
-                        <Typography
-                          variant="body1"
-                          color="initial"
-                          fontWeight={600}
-                        >
-                          {page.name}
-                        </Typography>
-                      </Badge>
-                    ) : (
-                      // Render the regular content for other pages
-                      <Typography
-                        variant="body1"
-                        color="initial"
-                        fontWeight={600}
+              {user
+                ? pageNames.map((page, index) =>
+                    user && page.name === "E-wallet" ? (
+                      <Button
+                        key={index}
+                        onClick={() => {setOpenWallet(!openWallet); setOpenAddBalance(false)}}
+                        sx={{
+                          my: 2,
+                          color: "black",
+                          display: "block",
+                          textTransform: "none",
+                          marginLeft: "10px",
+                          fontSize: "18px",
+                        }}
                       >
-                        {page.name}
-                      </Typography>
-                    )}
-                  </Button>
-                </>
-              ))}
-            </Box>
-            <Box>
-              <Button
-                className="box-wallet-number"
-                sx={{
-                  textTransform: "none",
-                  color: "black",
-                  fontSize: "18px",
-                }}
-                onClick={() => {setOpenWallet(!openWallet); setOpenAddBalance(false)}}
-              >
-                Wallet: 100,000,000 $
-              </Button>
+                        {
+                          // Render the regular content for other pages
+                          <Typography
+                            variant="body1"
+                            color="initial"
+                            fontWeight={600}
+                            fontSize={"18px"}
+                          >
+                            {page.name}
+                          </Typography>
+                        }
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          key={index}
+                          onClick={() => handleNavigate(page.url)}
+                          sx={{
+                            my: 2,
+                            color: "black",
+                            display: "block",
+                            textTransform: "none",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            color="initial"
+                            fontWeight={600}
+                            fontSize={"18px"}
+                          >
+                            {page.name}
+                          </Typography>
+                        </Button>
+                      </>
+                    )
+                  )
+                : pageNames
+                    .filter((item) => item.name !== "E-wallet")
+                    .map((page, index) => (
+                      <>
+                        <Button
+                          key={index}
+                          onClick={() => handleNavigate(page.url)}
+                          sx={{
+                            my: 2,
+                            color: "black",
+                            display: "block",
+                            textTransform: "none",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            color="initial"
+                            fontWeight={600}
+                            fontSize={"18px"}
+                          >
+                            {page.name}
+                          </Typography>
+                        </Button>
+                      </>
+                    ))}
             </Box>
 
             <Box>
@@ -260,25 +295,46 @@ function ResponsiveAppBar({ userName }) {
                     onClose={handleClose}
                     sx={{}}
                   >
-                    {userSettings
-                      .filter((item) => item.role.includes(user.role))
-                      .map((setting, index) => (
-                        <div key={index}>
-                          <MenuItem
-                            sx={{
-                              py: "16px",
-                              fontSize: "17px",
-                              pl: "20px",
-                              pr: "80px",
-                              fontWeight: 600,
-                            }}
-                            onClick={() => handleNavigate(setting.url)}
-                          >
-                            {setting.name}
-                          </MenuItem>
-                          <CustomDivider />
-                        </div>
-                      ))}
+                    {
+                      userSettings
+                        .filter((item) => item.role.includes(user.role))
+                        .map((setting, index) => (
+                          <div key={index}>
+                            <MenuItem
+                              sx={{
+                                py: "16px",
+                                fontSize: "17px",
+                                pl: "20px",
+                                pr: "80px",
+                                fontWeight: 600,
+                              }}
+                              onClick={() => handleNavigate(setting.url)}
+                            >
+                              {setting.name}
+                            </MenuItem>
+                            <CustomDivider />
+                          </div>
+                        ))
+                      // : userSettings
+                      //     .filter((item) => item.name !== "Staff Dashboard")
+                      //     .map((setting, index) => (
+                      //       <div key={index}>
+                      //         <MenuItem
+                      //           sx={{
+                      //             py: "16px",
+                      //             fontSize: "17px",
+                      //             pl: "20px",
+                      //             pr: "80px",
+                      //             fontWeight: 600,
+                      //           }}
+                      //           onClick={() => handleNavigate(setting.url)}
+                      //         >
+                      //           {setting.name}
+                      //         </MenuItem>
+                      //         <CustomDivider />
+                      //       </div>
+                      //     ))
+                    }
                     <MenuItem
                       sx={{
                         py: "16px",

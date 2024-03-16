@@ -517,6 +517,92 @@ export const AuctionContextProvider = ({ children }) => {
     }
   };
 
+  const createReport = async (body) => {
+    try {
+      const response = await axios.post(`http://localhost:8080/report`, body, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        withCredentials: true,
+      });
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Create Report Success: ", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("Create Report failed", errorData);
+        toast.error(errorData.message);
+
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Create Report Fail", error);
+      toast.error(error.response.data.message);
+    }
+  };
+
+  const handleReport = async (status, id) => {
+    console.log(id);
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/report/${id}`,
+        { status },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Handle Report Success: ", data);
+        toast.success(data.message);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("Handle Report failed", errorData);
+        toast.error(errorData.message);
+
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Create Report Fail", error);
+      toast.error(error.response.data.message);
+    }
+  };
+
+  const getAllReport = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/report`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        withCredentials: true,
+      });
+
+      if (response.status >= 200 && response.status <= 300) {
+        const data = response.data;
+        console.log("Report List: ", data);
+        return data;
+      } else {
+        const errorData = response.data;
+        console.error("Get Report List failed", errorData);
+
+        return errorData;
+      }
+    } catch (error) {
+      console.error("Get Report Fail", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -551,6 +637,9 @@ export const AuctionContextProvider = ({ children }) => {
         getNotStartAuction,
         checkAlreadyPay,
         socket,
+        createReport,
+        getAllReport,
+        handleReport,
       }}
     >
       {children}

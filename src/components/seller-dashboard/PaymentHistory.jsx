@@ -161,6 +161,38 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
     fetchAllAuction();
   }, []);
 
+  const handleOpenPopover = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRowIndex(index);
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+    setSelectedRowIndex(null);
+  };
+
+  const handleClickAway = () => {
+    handleClosePopover();
+  };
+
+  const open = Boolean(anchorEl);
+
+  const handleToggleFilter = (name) => {
+    setSelectedFilter(name);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const handleEnterKey = (event) => {
+    if (event.key === "Enter") {
+      console.log(search);
+    }
+    //call api for search
+    //update result amount
+  };
+
   const CurrencyFormatter = ({ amount }) => {
     // Ensure amount is a number
     const formattedAmount = Number(amount).toLocaleString("en-US", {
@@ -281,6 +313,9 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
     },
   ];
 
+  if (isLoading) {
+    return <Loading setIsLoading={setIsLoading} />;
+  }
   const handleNavigate = async (id) => {
     console.log("ạklaa", id);
     try {
@@ -298,178 +333,154 @@ const PaymentHistory = ({ all, active, pending, rejected, ended }) => {
   };
 
   return (
-    <Card
-      sx={{
-        width: "1100px",
-        pb: "100px",
-        mb: "50px",
-        paddingX: "35px",
-        pt: "30px",
-      }}
-    >
-      <div
-        className="header"
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          paddingBottom: "30px",
-        }}
+    <div style={{ marginLeft: "50px" }}>
+      <Typography
+        variant="body1"
+        color="initial"
+        fontSize={26}
+        fontWeight={600}
       >
-        <Typography
-          variant="body1"
-          color="initial"
-          fontSize={25}
-          fontWeight={600}
-          sx={{ mr: "40px" }}
-        >
-          Payment History
-        </Typography>
+        Payment History
+      </Typography>
+      <div className="box" style={{ marginTop: "50px", width: "130%" }}>
+        <TableContainer component={Paper}>
+          <Table sx={{ width: "100%" }} aria-label="customized table">
+            <TableHead sx={{ background: "#F4F6F8" }}>
+              <TableRow>
+                <TableCell align="center" style={tableHeader}>
+                  No.
+                </TableCell>
+                {/* <TableCell style={tableHeader}>Property Overview</TableCell> */}
+
+                <TableCell align="center" style={tableHeader}>
+                  Total
+                </TableCell>
+                <TableCell align="center" style={tableHeader}>
+                  Payment
+                </TableCell>
+                <TableCell align="center" style={tableHeader}>
+                  Status
+                </TableCell>
+                <TableCell align="center" style={tableHeader}>
+                  Type
+                </TableCell>
+                <TableCell align="center" style={tableHeader}>
+                  Create At
+                </TableCell>
+                <TableCell align="center" style={tableHeader}>
+                  Action
+                </TableCell>
+                <TableCell style={tableHeader}></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {billsInfo &&
+                billsInfo?.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell align="center">{count + index}</TableCell>
+                    {/* <TableCell> */}
+                    {/* <div className=""> */}
+                    {/* <Grid container alignItems="center" spacing={2}>
+                          <Grid item>
+                            <img
+                              src={row?.realEstateID?.image[0]}
+                              alt=""
+                              width="80px"
+                              height="80px"
+                              style={{ borderRadius: "10px" }}
+                            />
+                          </Grid>
+                          <Grid item>
+                            <Typography
+                              variant="body1"
+                              color="initial"
+                              sx={{
+                                width: "220px",
+                                display: "-webkit-box",
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                WebkitLineClamp: 2,
+                              }}
+                            >
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              color="initial"
+                              fontWeight={600}
+                              sx={{ marginTop: "10px" }}
+                            >
+                              {row.type}
+                            </Typography>
+                          </Grid>
+                        </Grid> */}
+                    {/* </div> */}
+                    {/* // </TableCell> */}
+
+                    <TableCell align="center">
+                      <CurrencyFormatter amount={row.total} />
+                    </TableCell>
+                    <TableCell align="center">{row.payment}</TableCell>
+                    <TableCell align="center">
+                      <Chip
+                        label={row.status}
+                        style={{
+                          background: filterType.find(
+                            (item) => item.name === row.status
+                          )?.background,
+
+                          fontWeight: 600,
+                          color: filterType.find(
+                            (item) => item.name === row.status
+                          )?.color,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      style={{
+                        maxWidth: "500px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {row.type}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      style={{
+                        maxWidth: "200px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {moment(row.createdAt).format("DD-MM-YYYY")}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      style={{
+                        maxWidth: "500px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <Button
+                        onClick={() =>
+                          navigate(`/auction_detail/${row.auctionID}`)
+                        }
+                      >
+                        {row?.auctionID ? "View auction" : ""}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
-      <Divider />
-      {isLoading ? (
-        <Loading setIsLoading={setIsLoading} />
-      ) : (
-        <div className="box" style={{ marginTop: "50px" }}>
-          <TableContainer component={Paper}>
-            <Table sx={{ width: "100%" }} aria-label="customized table">
-              <TableHead sx={{ background: "#F4F6F8" }}>
-                <TableRow>
-                  <TableCell align="center" style={tableHeader}>
-                    No.
-                  </TableCell>
-                  {/* <TableCell style={tableHeader}>Property Overview</TableCell> */}
-
-                  <TableCell align="center" style={tableHeader}>
-                    Create At
-                  </TableCell>
-                  <TableCell align="center" style={tableHeader}>
-                    Total
-                  </TableCell>
-                  <TableCell align="center" style={tableHeader}>
-                    Payment
-                  </TableCell>
-                  <TableCell align="center" style={tableHeader}>
-                    Status
-                  </TableCell>
-                  <TableCell align="center" style={tableHeader}>
-                    Type
-                  </TableCell>
-                  <TableCell align="center" style={tableHeader}>
-                    Action
-                  </TableCell>
-                  <TableCell style={tableHeader}></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {billsInfo &&
-                  billsInfo?.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell align="center">{count + index}</TableCell>
-                      {/* <TableCell> */}
-                      {/* <div className=""> */}
-                      {/* <Grid container alignItems="center" spacing={2}>
-                            <Grid item>
-                              <img
-                                src={row?.realEstateID?.image[0]}
-                                alt=""
-                                width="80px"
-                                height="80px"
-                                style={{ borderRadius: "10px" }}
-                              />
-                            </Grid>
-                            <Grid item>
-                              <Typography
-                                variant="body1"
-                                color="initial"
-                                sx={{
-                                  width: "220px",
-                                  display: "-webkit-box",
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
-                                  WebkitLineClamp: 2,
-                                }}
-                              >
-                              </Typography>
-                              <Typography
-                                variant="body1"
-                                color="initial"
-                                fontWeight={600}
-                                sx={{ marginTop: "10px" }}
-                              >
-                                {row.type}
-                              </Typography>
-                            </Grid>
-                          </Grid> */}
-                      {/* </div> */}
-                      {/* // </TableCell> */}
-
-                      <TableCell
-                        align="center"
-                        style={{
-                          maxWidth: "200px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {moment(row.createdAt).format("DD-MM-YYYY")}
-                      </TableCell>
-                      <TableCell align="center">
-                        <CurrencyFormatter amount={row.total} />
-                      </TableCell>
-                      <TableCell align="center">{row.payment}</TableCell>
-                      <TableCell align="center">
-                        <Chip
-                          label={row.status}
-                          style={{
-                            background: filterType.find(
-                              (item) => item.name === row.status
-                            )?.background,
-
-                            fontWeight: 600,
-                            color: filterType.find(
-                              (item) => item.name === row.status
-                            )?.color,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        style={{
-                          maxWidth: "500px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {row.type}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        style={{
-                          maxWidth: "500px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <Button
-                          onClick={() =>
-                            navigate(`/auction_detail/${row.auctionID}`)
-                          }
-                        >
-                          View auction
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      )}
-    </Card>
+    </div>
   );
 };
 

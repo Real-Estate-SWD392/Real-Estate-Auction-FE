@@ -37,6 +37,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import vnpay from "../../assets/img/Logo_VNPAY.jpg";
 import momo from "../../assets/img/Vi-MoMo-new.jpg";
+import wallet from "../../assets/img/e-wallet.png";
 import axios from "axios";
 
 import { AuthContext } from "../../context/auth.context";
@@ -52,6 +53,7 @@ import { AuctionContext } from "../../context/auction.context";
 import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import ReactSimpleImageViewer from "react-simple-image-viewer";
 import BidderList from "./BidderList";
+import ReportModal from "./ReportModal";
 
 const specStyle = {
   textAlign: "center",
@@ -104,19 +106,8 @@ const style = {
 
 export const methodList = [
   {
-    value: "VNPay Wallet",
-    img: vnpay,
-    balance: 60000,
-  },
-  {
-    value: "Momo Wallet",
-    img: momo,
-    balance: 40000,
-  },
-  {
-    value: "Choose another wallet",
-    img: "",
-    balance: 100000000000000,
+    value: "E-Wallet",
+    img: wallet,
   },
 ];
 
@@ -163,6 +154,16 @@ const AuctionDetail1 = () => {
 
   const [imageList, setImageList] = useState([]);
 
+  const [openReport, setOpenReport] = useState(false);
+
+  const handleOpenReport = () => {
+    setOpenReport(true);
+  };
+
+  const handleCloseReport = () => {
+    setOpenReport(false);
+  };
+
   //fetch img list here
   useEffect(() => {
     setImageList(propImg);
@@ -186,7 +187,8 @@ const AuctionDetail1 = () => {
     setViewBidders(false);
   };
 
-  const { removeFromFavList } = useContext(UserContext);
+  const { removeFromFavList, userWallet, setUserWallet, payMoney } =
+    useContext(UserContext);
 
   const handleSelectedChange = (event) => {
     const selectedMethodValue = event.target.value;
@@ -195,9 +197,9 @@ const AuctionDetail1 = () => {
     );
 
     setPaymentMethod({
-      value: selectedMethod.value,
-      img: selectedMethod.img,
-      balance: selectedMethod.balance,
+      value: selectedMethod?.value,
+      img: selectedMethod?.img,
+      balance: selectedMethod?.balance,
     });
   };
 
@@ -295,7 +297,7 @@ const AuctionDetail1 = () => {
 
   const [bidderList, setBidderList] = useState([]);
 
-  const { bidList, updateNewBid, setBidList, createBill, getBidByAuction } =
+  const { bidList, setBidList, createNewBill, getBidByAuction } =
     useContext(BidContext);
 
   const propertyList = useSelector((state) => state.auction.properties);
@@ -415,6 +417,8 @@ const AuctionDetail1 = () => {
     };
   }, [socket]);
 
+  console.log(userWallet);
+
   const handlePlaceBid = async () => {
     try {
       const res = await createBid(bidData, headers);
@@ -463,41 +467,34 @@ const AuctionDetail1 = () => {
 
   const handleAddToJoinList = async () => {
     try {
-      const dataPost = {
-        auctionID: id,
-        total: payNowBill.total,
-        bankCode: "",
-        language: "vn",
-        payment: "VNPay",
-        type: "Pay Auction Fee",
-      };
+      // const dataPost = {
+      //   auctionID: id,
+      //   total: payNowBill.total,
+      //   bankCode: "",
+      //   language: "vn",
+      //   payment: "VNPay",
+      //   type: "Pay Auction Fee",
+      // };
 
-      const response = await createBill(dataPost);
+      // const response = await createBill(dataPost);
 
-      window.location.href = response.url;
+      // window.location.href = response.url;
 
-      // const res = await addToJoinList(id);
-      // console.log(res);
-      // if (res.success) {
-      //   dispatch(setDetail(res.response));
-      //   setJoinList(res.response.joinList);
-      //   toast.success("Join List successfully !!!");
-      //   handleClosePay();
+      const res = await payMoney(payNowBill?.total);
 
-      //   const indexToUpdate = propertyList.findIndex(
-      //     (item) => item._id === res.response._id
-      //   );
+      if (res.success) {
+        setUserWallet(res.response);
+        const addJoinList = await addToJoinList(id);
+        console.log(addJoinList);
+        if (addJoinList.success) {
+          dispatch(setDetail(addJoinList.response));
+          setJoinList(addJoinList.response.joinList);
+          toast.success("Join Auction Successfully!!");
+          setOpenPay(false);
+        }
+      }
 
-      //   // If the index is found, update the auctionList
-      //   if (indexToUpdate !== -1) {
-      //     console.log(res);
-      //     const updatedAuctionList = [...propertyList];
-      //     updatedAuctionList[indexToUpdate] = res.response;
-      //     dispatch(setProperties(updatedAuctionList));
-      //   }
-      // } else {
-      //   toast.error("Join List Fail failed !!!");
-      // }
+      console.log(res);
     } catch (error) {
       console.error("Error placing bid:", error);
       toast.error("Error pay fee. Please try again later.");
@@ -506,26 +503,42 @@ const AuctionDetail1 = () => {
 
   const handleSetWinner = async (type) => {
     try {
-      const dataPost = {
-        auctionID: id,
-        total: property?.buyNowPrice,
-        bankCode: "",
-        language: "vn",
-        payment: "VNPay",
-        type: "Buy Now",
-      };
+      // const dataPost = {
+      //   auctionID: id,
+      //   total: property?.buyNowPrice,
+      //   bankCode: "",
+      //   language: "vn",
+      //   payment: "VNPay",
+      //   type: "Buy Now",
+      // };
+      // const response = await createBill(dataPost);
+      // window.location.href = response.url;
 
-      const response = await createBill(dataPost);
+      const res = await payMoney(property?.buyNowPrice);
 
-      window.location.href = response.url;
+      if (res.success) {
+        setUserWallet(res.response);
+        const buyNow = await setWinner(id, user._id);
 
-      // await setWinner(id, user._id);
-      // if (type === "Buy Now") {
-      //   toast.success("Buy Auction Successfully");
-      //   handleCloseBuy();
-      // } else if (type === "Bid") {
-      //   // code more
-      // }
+        console.log(buyNow);
+
+        if (buyNow.success) {
+          const dataPost = {
+            auctionID: id,
+            total: property?.buyNowPrice,
+            payment: "VNPay",
+            type: "Buy Now",
+          };
+
+          const createBill = await createNewBill(dataPost);
+
+          console.log(createBill);
+
+          dispatch(setDetail(buyNow.response));
+          toast.success("Buy Real Estate Successfully!!");
+          setOpenBuy(false);
+        }
+      }
     } catch (error) {
       console.error("Set Winner Fail:", error);
     }
@@ -654,9 +667,16 @@ const AuctionDetail1 = () => {
               textDecoration: "underline",
             },
           }}
+          onClick={() => handleOpenReport()}
         >
           Not legitimate? Report this Auction
         </Button>
+        <ReportModal
+          openReport={openReport}
+          handleCloseReport={handleCloseReport}
+          ownerID={property?.realEstateID?.ownerID._id}
+          auctionID={id}
+        />
       </div>
       <div className="detail-component" style={{ marginTop: "15px" }}>
         <Grid container justifyContent="center" spacing={6}>
@@ -1728,8 +1748,8 @@ const AuctionDetail1 = () => {
                     {methodList.map((method, index) => (
                       <MenuItem
                         key={index}
-                        disabled={method.balance < bidPrice}
                         value={method.value}
+                        disabled={userWallet?.balance < bidPrice}
                       >
                         <Box
                           sx={{
@@ -1742,15 +1762,11 @@ const AuctionDetail1 = () => {
                         >
                           <Grid container spacing={2} alignItems="center">
                             <Grid item>
-                              {method.value === "Choose another wallet" ? (
-                                ""
-                              ) : (
-                                <CardMedia
-                                  component="img"
-                                  src={method.img}
-                                  sx={{ width: "60px", height: "40px" }}
-                                />
-                              )}
+                              <CardMedia
+                                component="img"
+                                src={method.img}
+                                sx={{ width: "60px", height: "40px" }}
+                              />
                             </Grid>
                             <Grid item>
                               <Typography
@@ -1760,35 +1776,6 @@ const AuctionDetail1 = () => {
                               >
                                 {method.value}
                               </Typography>
-                            </Grid>
-                          </Grid>
-                          <Grid
-                            container
-                            flexDirection="column"
-                            justifyContent="center"
-                            alignItems="center"
-                          >
-                            <Grid item>
-                              {method.value === "Choose another wallet" ? (
-                                ""
-                              ) : (
-                                <Typography
-                                  variant="body1"
-                                  color="initial"
-                                  fontWeight={600}
-                                >
-                                  Available balance
-                                </Typography>
-                              )}
-                            </Grid>
-                            <Grid item>
-                              {method.value === "Choose another wallet" ? (
-                                ""
-                              ) : (
-                                <Typography variant="body1" color="initial">
-                                  {formattedValue(method.balance)}
-                                </Typography>
-                              )}
                             </Grid>
                           </Grid>
                         </Box>
@@ -1811,6 +1798,7 @@ const AuctionDetail1 = () => {
                   fontWeight: 600,
                   borderRadius: "8px",
                 }}
+                disabled={paymentMethod?.value === ""}
                 onClick={() => handlePlaceBid()}
               >
                 Place bid
@@ -2016,7 +2004,7 @@ const AuctionDetail1 = () => {
                     {methodList.map((method, index) => (
                       <MenuItem
                         key={index}
-                        disabled={method.balance < property?.buyPrice}
+                        disabled={userWallet?.balance < property?.buyNowPrice}
                         value={method.value}
                       >
                         <Box
@@ -2030,15 +2018,11 @@ const AuctionDetail1 = () => {
                         >
                           <Grid container spacing={2} alignItems="center">
                             <Grid item>
-                              {method.value === "Choose another wallet" ? (
-                                ""
-                              ) : (
-                                <CardMedia
-                                  component="img"
-                                  src={method.img}
-                                  sx={{ width: "60px", height: "40px" }}
-                                />
-                              )}
+                              <CardMedia
+                                component="img"
+                                src={method.img}
+                                sx={{ width: "60px", height: "40px" }}
+                              />
                             </Grid>
                             <Grid item>
                               <Typography
@@ -2074,7 +2058,7 @@ const AuctionDetail1 = () => {
                                 ""
                               ) : (
                                 <Typography variant="body1" color="initial">
-                                  {formattedValue(method.balance)}
+                                  {formattedValue(userWallet?.balance)}
                                 </Typography>
                               )}
                             </Grid>
@@ -2099,6 +2083,7 @@ const AuctionDetail1 = () => {
                   fontWeight: 600,
                   borderRadius: "8px",
                 }}
+                disabled={paymentMethod?.value === ""}
                 onClick={() => {
                   handleSetWinner("Buy Now");
                 }}
@@ -2200,7 +2185,7 @@ const AuctionDetail1 = () => {
                     {methodList.map((method, index) => (
                       <MenuItem
                         key={index}
-                        disabled={method.balance < property?.buyPrice}
+                        disabled={userWallet?.balance < payNowBill?.total}
                         value={method.value}
                       >
                         <Box
@@ -2214,15 +2199,11 @@ const AuctionDetail1 = () => {
                         >
                           <Grid container spacing={2} alignItems="center">
                             <Grid item>
-                              {method.value === "Choose another wallet" ? (
-                                ""
-                              ) : (
-                                <CardMedia
-                                  component="img"
-                                  src={method.img}
-                                  sx={{ width: "60px", height: "40px" }}
-                                />
-                              )}
+                              <CardMedia
+                                component="img"
+                                src={method.img}
+                                sx={{ width: "60px", height: "40px" }}
+                              />
                             </Grid>
                             <Grid item>
                               <Typography
@@ -2258,7 +2239,7 @@ const AuctionDetail1 = () => {
                                 ""
                               ) : (
                                 <Typography variant="body1" color="initial">
-                                  {formattedValue(method.balance)}
+                                  {formattedValue(userWallet?.balance)}
                                 </Typography>
                               )}
                             </Grid>
@@ -2286,6 +2267,7 @@ const AuctionDetail1 = () => {
                 onClick={() => {
                   handleAddToJoinList();
                 }}
+                disabled={paymentMethod?.value === ""}
               >
                 Pay now
               </Button>
@@ -2296,9 +2278,7 @@ const AuctionDetail1 = () => {
 
       <div className="image-modal">
         <Modal>
-          <Box>
-            
-          </Box>
+          <Box></Box>
         </Modal>
       </div>
     </Box>

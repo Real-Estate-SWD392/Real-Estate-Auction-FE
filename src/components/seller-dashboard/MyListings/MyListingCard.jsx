@@ -219,7 +219,7 @@ const MyListingCard = ({
           );
           if (indexToUpdate !== -1) {
             const updatedAuctionList = [...auctionLists];
-            updatedAuctionList[indexToUpdate].status = "Pending";
+            updatedAuctionList[indexToUpdate].status = "Wait For Approval";
             setAuctionLists(updatedAuctionList);
           }
         }
@@ -236,7 +236,7 @@ const MyListingCard = ({
           // If the index is found, update the auctionList
           if (indexToUpdate !== -1) {
             const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
-            updatedAuctionList[indexToUpdate].status = "Pending"; // Update the item at the found index with the new result
+            updatedAuctionList[indexToUpdate].status = "Wait For Approval"; // Update the item at the found index with the new result
             setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
           }
         }
@@ -409,47 +409,83 @@ const MyListingCard = ({
               justifyContent: "center",
             }}
           >
-            <Button
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                borderRadius: "8px",
-                background: "#118BF4",
-                padding: "12px 100px",
-                fontWeight: "600",
-                "&:hover": {
+            {status === "Sold" ? (
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: "8px",
                   background: "#118BF4",
-                },
-              }}
-              onClick={() => {
-                switch (status) {
-                  case "Available" || "Rejected": {
-                    handleOpen();
-                    break;
-                  }
+                  padding: "12px 100px",
+                  fontWeight: "600",
+                  "&:hover": {
+                    background: "#118BF4",
+                  },
+                }}
+                disabled={true}
+              >
+                Auction Sold
+              </Button>
+            ) : status === "Pending" ? (
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  background: "#118BF4",
+                  padding: "12px 100px",
+                  fontWeight: "600",
+                  "&:hover": {
+                    background: "#118BF4",
+                  },
+                }}
+                disabled={true}
+              >
+                Wait For Pay
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  background: "#118BF4",
+                  padding: "12px 100px",
+                  fontWeight: "600",
+                  "&:hover": {
+                    background: "#118BF4",
+                  },
+                }}
+                onClick={() => {
+                  switch (status) {
+                    case "Available" || "Rejected": {
+                      handleOpen();
+                      break;
+                    }
 
-                  case "In Auction": {
-                    handleNavigate();
-                    break;
-                  }
+                    case "In Auction": {
+                      handleNavigate();
+                      break;
+                    }
 
-                  case "Pending": {
-                    handleOpen();
-                    break;
-                  }
+                    case "Pending": {
+                      handleOpen();
+                      break;
+                    }
 
-                  default: {
-                    break;
+                    default: {
+                      break;
+                    }
                   }
-                }
-              }}
-            >
-              {status === "Pending"
-                ? "Update Auction"
-                : status === "In Auction"
-                ? "View Auction"
-                : "Open Auction"}
-            </Button>
+                }}
+              >
+                {status === "Wait For Approval"
+                  ? "Update Auction"
+                  : status === "In Auction"
+                  ? "View Auction"
+                  : "Open Auction"}
+              </Button>
+            )}
           </Box>
         </div>
       </Card>

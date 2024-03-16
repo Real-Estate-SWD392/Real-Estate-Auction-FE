@@ -133,8 +133,6 @@ const AddProperties = () => {
     },
   });
 
-
-
   useEffect(() => {
     const getProvince = `${provinceURL}/api/province`;
     fetch(getProvince)
@@ -380,9 +378,8 @@ const AddProperties = () => {
       if (formik.values.image) imgUrl = await uploadImagesFile();
 
       if (formik.values.pdf) pdfUrl = await uploadPDFsFile();
-      
+
       await createNewRealEstate({ formValues, image: imgUrl, pdf: pdfUrl });
-      
     } catch (error) {
       console.log(error);
     }

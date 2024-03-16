@@ -38,10 +38,9 @@ const SignIn = (props) => {
     },
     validationSchema: validationPassword,
     onSubmit: (values) => {
-
       console.log("Data login ", values);
       handleLogin(values);
-    }
+    },
   });
 
   const tooglePassword = (input) => {
@@ -69,8 +68,8 @@ const SignIn = (props) => {
 
     try {
       const res = await login({
-        email: values.email,
-        password: values.password,
+        email: formik.values.email,
+        password: formik.values.password,
       });
 
       if (res.response.status === "Banned") {

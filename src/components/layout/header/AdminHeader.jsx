@@ -6,8 +6,6 @@ import { AuthContext } from "../../../context/auth.context";
 const AdminHeader = ({ role, email }) => {
   const { user } = useContext(AuthContext);
 
-  console.log(user);
-
   return (
     <Box
       sx={{
