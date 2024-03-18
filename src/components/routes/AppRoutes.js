@@ -25,6 +25,7 @@ import Forbidden403 from "../forbidden-page/Forbidden403";
 import StaffLayout from "../layout/StaffLayout";
 import AuctionManagement from "../staff/AuctionManagement";
 import ProtectedRoutes from "./ProtectedRoutes";
+import ViewAuction from "../admin/ViewAuction";
 
 const AppRoutes = [
   {
@@ -129,6 +130,10 @@ const AppRoutes = [
       {
         path: "/accommondation-staff/reports",
         element: <ReportManagement />,
+      },
+      {
+        path: "/accommondation-staff/auction-management/:id",
+        element: <ViewAuction />,
       },
     ],
   },

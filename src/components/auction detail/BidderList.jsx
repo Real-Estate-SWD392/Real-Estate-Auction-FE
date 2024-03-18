@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { bidders } from "./bidderData";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 export const style = {
   position: "absolute",
