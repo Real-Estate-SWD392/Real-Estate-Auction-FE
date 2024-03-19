@@ -1,14 +1,14 @@
 .wallet-container {
   width: 350px;
-  background-color: whitesmoke;
-  color: black;
-  border-radius: 10px;
-  border: 0.1px solid rgba(0, 0, 0, 0.285);
+  height: 400px;
+  background-color: black;
+  color: white;
+  border-radius: 20px;
   h1 {
     text-align: center;
     padding: 20px 0;
-    font-weight: 500;
-    font-size: 24px;
+    font-weight: 400;
+    font-size: 20px;
   }
 
   .balance-field {
@@ -18,15 +18,14 @@
     border-radius: 20px;
     margin: 0 20px;
     padding: 10px 20px;
-    border: 1px solid black;
 
     p {
       margin: 0;
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .balance-number {
-      font-size: 35px;
+      font-size: 40px;
       margin: 0;
       // text-align: center;
     }
@@ -39,26 +38,19 @@
     background-color: #44a9ff;
     margin-left: 20px;
     margin-right: 20px;
-    margin-top: 30px;
+    margin-top: 50px;
     border-radius: 15px;
-
-    &:hover {
-      background-color: #288be2;
-    }
 
     p {
       margin: 0;
       padding-top: 4px;
-      color: black;
+      color: white;
       font-size: 20px;
     }
-  }
 
-  .payment {
-    font-size: 16px;
-    margin-top: 20px;
-    text-align: center;
-    padding-top: 4px;
-    width: 100%;
+    .payment {
+      font-size: 16px;
+      margin-top: 20px;
+    }
   }
 }

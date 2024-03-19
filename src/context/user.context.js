@@ -358,6 +358,34 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
+  const ratingOwner = async (id, value) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/member/rating-owner-auction/${id}`,
+        { value },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        // Handle successful update, e.g., update state, display success message, etc.
+        console.log("Rating Owner Successfully", data);
+        return data;
+      } else {
+        console.error("Rating Owner Failed", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Rating Owner Fail", error);
+    }
+  }
+
   return (
     <UserContext.Provider
       value={{
@@ -375,6 +403,7 @@ export const UserContextProvider = ({ children }) => {
         userWallet,
         setUserWallet,
         payMoney,
+        ratingOwner
       }}
     >
       {children}

@@ -132,6 +132,7 @@ const AddProperties = () => {
       console.log("Form Data", values);
       setIsLoading(true);
       handleCreateProperty();
+      // navigate("/sell/property-list");
     },
   });
 

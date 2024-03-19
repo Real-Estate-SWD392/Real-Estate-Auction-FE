@@ -274,10 +274,11 @@ function ResponsiveAppBar({ userName }) {
                     }}
                   >
                     Welcome,
-                    <span
+                    <p
                       style={{
                         fontWeight: 600,
                         fontSize: "18px",
+                        marginBottom: "0",
                         marginLeft: "10px",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -287,7 +288,7 @@ function ResponsiveAppBar({ userName }) {
                       }}
                     >
                       {userName}
-                    </span>
+                    </p>
                   </Button>
                   <Menu
                     anchorEl={anchorEl}

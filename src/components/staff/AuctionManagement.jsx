@@ -392,7 +392,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const actions = [
     {
       name: "View Detail",
-      forStatus: ["In Auction", "Requesting", "End", "Not Start"],
+      forStatus: ["In Auction", "Requesting", "End", "Not Start", "Cancel"],
       onClick: (id) => {
         navigate(`${id._id}`);
       },
@@ -474,6 +474,31 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       color: "rgb(105, 120, 133)",
     },
   ];
+
+  // const isDateAvailable = (date) => {
+  //   // Get the current date
+  //   const currentDate = new Date();
+  //   // Set the time of the current date to midnight (00:00:00)
+  //   currentDate.setHours(0, 0, 0, 0);
+  //   // Set the time of the provided date to midnight (00:00:00)
+  //   date.setHours(0, 0, 0, 0);
+  //   // Compare the provided date with the current date
+  //   // If the provided date is before the current date, it's disabled
+  //   return date >= currentDate;
+  // };
+
+  const isDateTimeValid = (date) => {
+    const now = new Date();
+    return date >= now; // Only allow dates in the future or current date
+  };
+
+  const handleOpenCalender = () => {
+    setIsOpenCalender(true);
+  };
+
+  const handleCloseCalender = () => {
+    setIsOpenCalender(false);
+  };
 
   if (isLoading) {
     return <Loading setIsLoading={setIsLoading} />;
@@ -861,6 +886,14 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                           timeZone: "Asia/Ho_Chi_Minh",
                         }
                       );
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          label="Basic date time picker"
+                          value={calenderValue}
+                          disablePast
+                          onChange={(newValue) => setCalenderValue(newValue)}
+                        />
+                      </LocalizationProvider>;
 
                       handleAuctionRequest(chooseID._id, {
                         checkedStatus: "Accepted",
