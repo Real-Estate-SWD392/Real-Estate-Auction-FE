@@ -20,4 +20,12 @@ const addAuctionToFavList = async (id, requestData, headers) => {
   );
 };
 
-export { getMemberInfoById, addAuctionToFavList };
+const ratingOwnerAuction = async (id, requestData, headers) => {
+  return axios.post(
+    `http://localhost:8080/member/rating-owner-auction/${id}`,
+    requestData,
+    { headers, withCredentials: true }
+  );
+};
+
+export { getMemberInfoById, addAuctionToFavList, ratingOwnerAuction };

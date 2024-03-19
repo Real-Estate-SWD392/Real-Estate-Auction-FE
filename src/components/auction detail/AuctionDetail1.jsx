@@ -18,6 +18,7 @@ import {
   TextField,
   Typography,
   Tooltip,
+  Rating,
 } from "@mui/material";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { detailProp } from "./detailProp";
@@ -54,6 +55,8 @@ import { setSearchResults } from "../../redux/reducers/searchAuctionSlice";
 import ReactSimpleImageViewer from "react-simple-image-viewer";
 import BidderList from "./BidderList";
 import ReportModal from "./ReportModal";
+import "./AuctionDetail.scss";
+import RatingModal from "./RatingModal";
 
 const specStyle = {
   textAlign: "center",
@@ -156,12 +159,22 @@ const AuctionDetail1 = () => {
 
   const [openReport, setOpenReport] = useState(false);
 
+  const [openRating, setOpenRating] = useState(false);
+
   const handleOpenReport = () => {
     setOpenReport(true);
   };
 
   const handleCloseReport = () => {
     setOpenReport(false);
+  };
+
+  const handleOpenRating = () => {
+    setOpenRating(true);
+  };
+
+  const handleCloseRating = () => {
+    setOpenRating(false);
   };
 
   //fetch img list here
@@ -277,7 +290,8 @@ const AuctionDetail1 = () => {
   const { user, accessToken, setUser, setIsOpenLogin } =
     useContext(AuthContext);
 
-  const { setWinner, addToJoinList, socket } = useContext(AuctionContext);
+  const { setWinner, addToJoinList, socket, getAuctionByRealEstateID } =
+    useContext(AuctionContext);
 
   const [checkAlreadyBid, setAlreadyBid] = useState(false);
 
@@ -636,6 +650,33 @@ const AuctionDetail1 = () => {
     // document.body.removeChild(anchor);
     openFileInNewPage(url);
   };
+
+  console.log("IDIDIDID", property.realEstateID);
+  //Take owner's info of this auction
+  const handleOwnerInfo = async () => {
+    // const realEstateInfo = await
+  };
+
+  const calculateAverageRating = () => {
+    const totalRatings =
+      property.realEstateID?.ownerID?.listRatingByUser.length;
+      console.log("55550", totalRatings);
+    if (totalRatings === 0) return 0;
+
+    // Calculate the sum of all ratings
+    const totalSum = property.realEstateID?.ownerID?.listRatingByUser.reduce(
+      (sum, rating) => sum + rating.rating, 0
+    );
+
+    console.log("7777", totalSum);
+
+    // Calculate the average rating
+    const averageRating = totalSum / totalRatings;
+    return averageRating.toFixed(1);
+  };
+
+  const averageRating = calculateAverageRating();
+  console.log("Rating", averageRating);
 
   return (
     <Box sx={{ background: "white" }}>
@@ -1512,6 +1553,89 @@ const AuctionDetail1 = () => {
                   </Grid>
                 </Grid>
               </Card>
+
+              <Card
+                elevation={0}
+                sx={{
+                  width: "432px",
+                  border: "1px solid #D1DEEA",
+                  textAlign: "center",
+                  borderRadius: "16px",
+                  px: "10px",
+                  marginTop: "20px",
+                  py: "23px",
+                }}
+              >
+                {/* <Grid
+                  container
+                  alignItems="center"
+                  spacing={2}
+                  justifyContent="center"
+                > */}
+
+                {/* <Grid item>
+                    <CardMedia
+                      component="img"
+                      src={warning_icon}
+                      sx={{ width: "45px", height: "54px" }}
+                    />
+                  </Grid>
+                  <Grid item sx={{ width: "320px" }}>
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      fontSize={14}
+                      fontWeight={600}
+                    >
+                      Special Servicing Conditions Apply
+                    </Typography>
+                    <Typography variant="body1" color="initial" fontSize={14}>
+                      Bid review required. Sold subject to seller approval.
+                    </Typography>
+                  </Grid> */}
+                {/* </Grid> */}
+                <Typography variant="body1" color="initial" fontSize={30}>
+                  {property.realEstateID?.ownerID?.firstName}{" "}
+                  {property.realEstateID?.ownerID?.lastName}
+                </Typography>
+                <Typography variant="body1" color="initial" fontSize={16}>
+                  (owner)
+                </Typography>
+                <Typography variant="body1" color="initial" fontSize={70}>
+                  {averageRating}
+                </Typography>
+                <Rating
+                  className="half-rating-read"
+                  name="half-rating-read"
+                  value={averageRating}
+                  precision={0.5}
+                  readOnly
+                  fontSize={100}
+                />
+                <Typography variant="body1" color="initial" fontSize={18}>
+                  ({property.realEstateID?.ownerID?.listRatingByUser.length}{" "}
+                  rates)
+                </Typography>
+                <Button
+                  sx={{
+                    textTransform: "none",
+                    marginTop: "30px",
+                    textDecoration: "underline",
+                    "&:hover": {
+                      background: "white",
+                      textDecoration: "underline",
+                    },
+                  }}
+                  onClick={() => handleOpenRating()}
+                >
+                  Do you like this owner ? Let's rating.
+                </Button>
+              </Card>
+              <RatingModal
+                openRating={openRating}
+                handleCloseRating={handleCloseRating}
+                ownerID={property?.realEstateID?.ownerID._id}
+              />
             </div>
           </Grid>
         </Grid>
