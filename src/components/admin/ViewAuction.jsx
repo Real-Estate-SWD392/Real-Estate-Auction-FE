@@ -164,6 +164,8 @@ const ViewAuction = () => {
     return <Loading setIsLoading={setIsLoading} />;
   }
 
+  console.log(auctionNoCount);
+
   if (!isLoading && auctionNoCount) {
     return (
       <div style={{ marginLeft: "50px", marginBottom: "20px" }}>
@@ -184,7 +186,7 @@ const ViewAuction = () => {
                   image={
                     selectedImage
                       ? selectedImage
-                      : auction?.realEstateID?.image[0]
+                      : auctionNoCount?.realEstateID?.image[0]
                   }
                   sx={{ width: "100%", height: "520px", borderRadius: "15px" }}
                 />
@@ -193,7 +195,7 @@ const ViewAuction = () => {
                   style={{ marginTop: "20px", width: "100%" }}
                 >
                   <Grid container justifyContent="space-between">
-                    {auction?.realEstateID?.image?.map((img, key) => (
+                    {auctionNoCount?.realEstateID?.image?.map((img, key) => (
                       <Grid item>
                         <img
                           src={img}
@@ -238,19 +240,19 @@ const ViewAuction = () => {
                         className="chip"
                         style={{
                           background: filterType.find(
-                            (item) => item.name === auction?.status
+                            (item) => item.name === auctionNoCount?.status
                           )?.background,
 
                           fontWeight: 600,
                           color: filterType.find(
-                            (item) => item.name === auction?.status
+                            (item) => item.name === auctionNoCount?.status
                           )?.color,
                           fontSize: "20px",
                           borderRadius: "16px",
                           padding: "5px 18px",
                         }}
                       >
-                        {auction?.status}
+                        {auctionNoCount?.status}
                       </div>
                     </Grid>
                     <Grid item>
@@ -260,7 +262,7 @@ const ViewAuction = () => {
                         fontWeight={600}
                       >
                         Request was sent on{" "}
-                        {moment(auction?.createdAt).format("DD-MM-YYYY")}
+                        {moment(auctionNoCount?.createdAt).format("DD-MM-YYYY")}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -275,7 +277,7 @@ const ViewAuction = () => {
                     fontSize={22}
                     fontWeight={600}
                   >
-                    {`${auction?.realEstateID?.street}, ${auction?.realEstateID?.ward}, ${auction?.realEstateID?.district}, ${auction?.realEstateID?.city} `}
+                    {`${auctionNoCount?.realEstateID?.street}, ${auctionNoCount?.realEstateID?.ward}, ${auctionNoCount?.realEstateID?.district}, ${auctionNoCount?.realEstateID?.city} `}
                   </Typography>
                 </div>
                 <div
@@ -293,7 +295,7 @@ const ViewAuction = () => {
                         color="initial"
                         style={specStyle}
                       >
-                        {auction?.realEstateID?.type}
+                        {auctionNoCount?.realEstateID?.type}
                       </Typography>
                       <Typography variant="body1" color="initial">
                         Property type
@@ -305,7 +307,7 @@ const ViewAuction = () => {
                         color="initial"
                         style={specStyle}
                       >
-                        {auction?.realEstateID?.bathRoom}
+                        {auctionNoCount?.realEstateID?.bathRoom}
                       </Typography>
                       <Typography variant="body1" color="initial">
                         Baths
@@ -317,7 +319,7 @@ const ViewAuction = () => {
                         color="initial"
                         style={specStyle}
                       >
-                        {auction?.realEstateID?.bedRoom}
+                        {auctionNoCount?.realEstateID?.bedRoom}
                       </Typography>
                       <Typography variant="body1" color="initial">
                         Beds
@@ -329,7 +331,7 @@ const ViewAuction = () => {
                         color="initial"
                         style={specStyle}
                       >
-                        {auction?.realEstateID?.size}
+                        {auctionNoCount?.realEstateID?.size}
                       </Typography>
                       <Typography variant="body1" color="initial">
                         Square ft.
@@ -349,7 +351,7 @@ const ViewAuction = () => {
                   <Typography variant="body1" color="initial" fontWeight={600}>
                     Property Related Documents:{" "}
                     <Chip
-                      label={`View documents (${auction?.realEstateID?.pdf?.length})`}
+                      label={`View documents (${auctionNoCount?.realEstateID?.pdf?.length})`}
                       sx={{ marginLeft: "20px", cursor: "pointer" }}
                       onClick={() => handleOpenDocuments()}
                     />
