@@ -14,6 +14,7 @@ import React from "react";
 
 import moment from "moment";
 import { bidders } from "./bidderData";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 export const style = {
   position: "absolute",

@@ -52,13 +52,18 @@ export const statusColor = [
   },
 
   {
-    name: "Wait For Approval",
+    name: "Requesting",
     color: "yellow",
     amount: 2,
   },
   {
     name: "Rejected",
     color: "#FF0000",
+    amount: 2,
+  },
+  {
+    name: "Not Start",
+    color: "white",
     amount: 2,
   },
 ];
@@ -154,7 +159,7 @@ const MyListings = () => {
             {statusColor.map((status, index) => (
               <Button
                 style={buttonStyles}
-                sx={{ mr: "14px" }}
+                sx={{ mr: "12px" }}
                 onClick={() => handelFilter(status.name)}
               >
                 <Ball color={status.color} />

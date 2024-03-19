@@ -216,6 +216,11 @@ const AuctionDetail1 = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setPaymentMethod({
+      value: "",
+      balance: 0,
+      img: "",
+    });
   };
 
   const handleOpenBuy = () => {
@@ -224,6 +229,11 @@ const AuctionDetail1 = () => {
 
   const handleCloseBuy = () => {
     setOpenBuy(false);
+    setPaymentMethod({
+      value: "",
+      balance: 0,
+      img: "",
+    });
   };
 
   const handleOpenPay = () => {
@@ -232,6 +242,11 @@ const AuctionDetail1 = () => {
 
   const handleClosePay = () => {
     setOpenPay(false);
+    setPaymentMethod({
+      value: "",
+      balance: 0,
+      img: "",
+    });
   };
 
   const handleDecrement = () => {
@@ -377,6 +392,11 @@ const AuctionDetail1 = () => {
         console.log("Add to list completed", res.data.response);
         toast.success("Add To Favorite List Successfully !!!");
         setUser(res.data.response);
+        setPaymentMethod({
+          value: "",
+          balance: 0,
+          img: "",
+        });
         // handleClose();
         // navigate("/auctions");
       } else {
@@ -510,6 +530,11 @@ const AuctionDetail1 = () => {
           setJoinList(addJoinList.response.joinList);
           toast.success("Join Auction Successfully!!");
           setOpenPay(false);
+          setPaymentMethod({
+            value: "",
+            balance: 0,
+            img: "",
+          });
         }
       }
 
@@ -1001,7 +1026,7 @@ const AuctionDetail1 = () => {
               <Card
                 elevation={0}
                 sx={{
-                  width: "432px",
+                  width: "460px",
                   border: "1px solid #D1DEEA",
                   borderRadius: "16px",
                   px: "20px",
@@ -1117,7 +1142,7 @@ const AuctionDetail1 = () => {
                       <Typography
                         variant="body1"
                         color="initial"
-                        fontSize={45}
+                        fontSize={35}
                         fontWeight={600}
                       >
                         {property?.startPrice > property?.currentPrice
@@ -1223,7 +1248,7 @@ const AuctionDetail1 = () => {
                         alignItems="center"
                         justifyContent="space-between"
                       >
-                        {!user && (
+                        {!user && property.status !== "End" && (
                           <Grid item width={"100%"}>
                             <Alert
                               severity="warning"
@@ -1422,7 +1447,7 @@ const AuctionDetail1 = () => {
               <Card
                 elevation={0}
                 sx={{
-                  width: "432px",
+                  width: "460px",
                   border: "1px solid #D1DEEA",
                   borderRadius: "16px",
                   px: "10px",
@@ -1462,7 +1487,7 @@ const AuctionDetail1 = () => {
               <Card
                 elevation={0}
                 sx={{
-                  width: "432px",
+                  width: "460px",
                   border: "1px solid #D1DEEA",
                   borderRadius: "16px",
                   px: "10px",
@@ -1501,7 +1526,7 @@ const AuctionDetail1 = () => {
               <Card
                 elevation={0}
                 sx={{
-                  width: "432px",
+                  width: "460px",
                   border: "1px solid #D1DEEA",
                   borderRadius: "16px",
                   px: "10px",

@@ -1,8 +1,14 @@
 import React from "react";
 import "./Wallet.scss";
 import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
 
-const Wallet = ({ wallet }) => {
+
+const Wallet = (props) => {
+  
+  // const { wallet } = props;
+  console.log("Walllll", props);
+  const navigate = useNavigate();
   const formattedValue = (value) => {
     // Ensure the input is a valid number
     if (typeof value !== "number" || isNaN(value)) {
@@ -37,17 +43,26 @@ const Wallet = ({ wallet }) => {
       <h1>E-wallet</h1>
       <div className="balance-field">
         <p>Your balance</p>
-        <p className="balance-number">{formattedValue(wallet?.balance)}</p>
+        <p className="balance-number">{formattedValue(props.wallet?.balance)}</p>
       </div>
 
-      <div className="add-balance">
-        <Button>
+      <div>
+        <Button
+          className="add-balance"
+          onClick={() => {
+            props.setOpenAddBalance(true);
+            props.setOpenWallet(false);
+          }}
+        >
           <p>Add Balance</p>
         </Button>
-        <p className="payment">Payment History</p>
+        <Button className="payment" onClick={() => navigate("/my-account/payment-history")}>
+          <p >Payment History</p>
+        </Button>
       </div>
     </div>
   );
 };
+      
 
 export default Wallet;

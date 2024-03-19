@@ -26,6 +26,8 @@ import StaffLayout from "../layout/StaffLayout";
 import AuctionManagement from "../staff/AuctionManagement";
 import ProtectedRoutes from "./ProtectedRoutes";
 import PaymentHistory from "../seller-dashboard/PaymentHistory";
+import ViewAuction from "../admin/ViewAuction";
+import AddBalance from "../wallet/AddBalance";
 
 const AppRoutes = [
   {
@@ -82,6 +84,11 @@ const AppRoutes = [
   },
 
   {
+    path: "/add-wallet",
+    element: <AddBalance />,
+  },
+
+  {
     path: "/my-account",
     element: <MyAccountLayout />,
     children: [
@@ -134,6 +141,10 @@ const AppRoutes = [
       {
         path: "/accommondation-staff/reports",
         element: <ReportManagement />,
+      },
+      {
+        path: "/accommondation-staff/auction-management/:id",
+        element: <ViewAuction />,
       },
     ],
   },

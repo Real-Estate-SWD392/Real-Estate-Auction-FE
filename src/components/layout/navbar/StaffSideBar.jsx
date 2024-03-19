@@ -49,8 +49,13 @@ const StaffSideBar = () => {
 
   const currentTab = sideBar.find((tab) => tab.url === currentLocation);
 
+  const desiredUrl =
+    "http://localhost:3000/accommondation-staff/auction-management";
+
+  const isURLContain = currentLocation.includes(desiredUrl);
+
   useEffect(() => {
-    if (currentLocation === "/accommondation-staff") {
+    if (currentLocation === "/accommondation-staff" || isURLContain) {
       navigate("auction-management");
       setSelectedIndex("Auction Management");
     } else setSelectedIndex(currentTab?.name);
@@ -126,7 +131,7 @@ const StaffSideBar = () => {
           {sideBar.map((content, index) => (
             <ListItem key={index}>
               <ListItemButton
-                selected={selectedIndex === content.name}
+                selected={isURLContain || selectedIndex === content.name}
                 onClick={() => handleClick(content.url, content.name)}
                 sx={{
                   py: "16px",
@@ -138,7 +143,10 @@ const StaffSideBar = () => {
               >
                 <ListItemIcon
                   sx={{
-                    color: selectedIndex === content.name ? selectedColor : "",
+                    color:
+                      isURLContain || selectedIndex === content.name
+                        ? selectedColor
+                        : "",
                   }}
                 >
                   {content.icon}
@@ -146,7 +154,9 @@ const StaffSideBar = () => {
                 <Typography
                   variant="body1"
                   color={
-                    selectedIndex === content.name ? selectedColor : "initial"
+                    isURLContain || selectedIndex === content.name
+                      ? selectedColor
+                      : "initial"
                   }
                   fontWeight={600}
                   fontSize={16}

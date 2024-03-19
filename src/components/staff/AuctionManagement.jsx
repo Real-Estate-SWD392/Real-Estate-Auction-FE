@@ -187,6 +187,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     return (listAuction, status) => {
       if (listAuction.length > 0) {
         const count = listAuction.reduce((acc, auction) => {
+          // console.log(auction.status, "-", status);
           if (auction.status.toLowerCase() === status.toLowerCase()) {
             return acc + 1;
           }
@@ -210,7 +211,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const [statusCount, setStatusCount] = useState({
     all: auctionsInfor.length,
     active: countStatus(auctionsInfor, "In Auction"),
-    pending: countStatus(auctionsInfor, "Wait For Approval"),
+    pending: countStatus(auctionsInfor, "Requesting"),
     notstart: countStatus(auctionsInfor, "Not Start"),
     rejected: countStatus(auctionsInfor, "Cancel"),
     ended: countStatus(auctionsInfor, "End"),
@@ -247,7 +248,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       ...prevCount,
       all: auctionsInfor.length,
       active: countStatus(auctionsInfor, "In Auction"),
-      pending: countStatus(auctionsInfor, "Wait For Approval"),
+      pending: countStatus(auctionsInfor, "Requesting"),
       rejected: countStatus(auctionsInfor, "Cancel"),
       notstart: countStatus(auctionsInfor, "Not Start"),
       ended: countStatus(auctionsInfor, "End"),
@@ -325,6 +326,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
 
   const handleAuctionRequest = async (id, data) => {
     try {
+      console.log(id);
       const res = await handleAuctionRequestByAdmin(id, data, headers);
 
       console.log(res);
@@ -390,15 +392,15 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
   const actions = [
     {
       name: "View Detail",
-      forStatus: ["In Auction", "Wait For Approval", "End", "Not Start"],
+      forStatus: ["In Auction", "Requesting", "End", "Not Start"],
       onClick: (id) => {
-        // navigate(`/auction_detail/${id}`);
+        navigate(`${id._id}`);
       },
       icon: <GridViewIcon />,
     },
     {
       name: "Approve Auction",
-      forStatus: ["Wait For Approval"],
+      forStatus: ["Requesting"],
       onClick: (auction) => {
         setIsOpenCalender(true);
         setAnchorEl(null);
@@ -408,8 +410,9 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     },
     {
       name: "Deny Auction",
-      forStatus: ["Wait For Approval"],
-      onClick: (id) => handleAuctionRequest(id, { checkedStatus: "Denied" }),
+      forStatus: ["Requesting"],
+      onClick: (id) =>
+        handleAuctionRequest(id._id, { checkedStatus: "Denied" }),
       icon: <DoDisturbIcon />,
     },
     {
@@ -422,13 +425,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
     },
     {
       name: "Delete Auction",
-      forStatus: [
-        "In Auction",
-        "End",
-        "Wait For Approval",
-        "Cancel",
-        "Not Start",
-      ],
+      forStatus: ["In Auction", "End", "Requesting", "Cancel", "Not Start"],
       onClick: () => {},
       icon: <DeleteIcon />,
     },
@@ -450,7 +447,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       color: "rgb(57,143,95)",
     },
     {
-      name: "Wait For Approval",
+      name: "Requesting",
       amount: statusCount.pending,
       background: "rgb(249, 168, 29, 0.1)",
       color: "rgb(249, 168, 29)",
@@ -469,6 +466,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
       background: "rgb(182, 43, 41, 0.1)",
       color: "rgb(182, 43, 41)",
     },
+
     {
       name: "End",
       amount: statusCount.ended,
@@ -814,7 +812,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
               className="calender-wrapper"
               style={{
                 backgroundColor: "white",
-                padding: "10px 20px",
+                padding: "20px",
                 width: "450px",
               }}
             >
@@ -837,43 +835,52 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                   onChange={(newValue) => setCalenderValue(newValue)}
                 />
               </LocalizationProvider> */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      label="Basic date time picker"
+                      value={calenderValue}
+                      onChange={(newValue) => setCalenderValue(newValue)}
+                    />
+                  </LocalizationProvider>
+                </div>
 
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  label="Basic date time picker"
-                  value={calenderValue}
-                  onChange={(newValue) => setCalenderValue(newValue)}
-                />
-              </LocalizationProvider>
+                <div className="calender-button" style={{ float: "right" }}>
+                  <Button
+                    onClick={() => {
+                      const date = new Date(calenderValue).toLocaleString(
+                        "en-US",
+                        {
+                          timeZone: "Asia/Ho_Chi_Minh",
+                        }
+                      );
 
-              <div className="calender-button" style={{ float: "right" }}>
-                <Button
-                  onClick={() => {
-                    const date = new Date(calenderValue).toLocaleString(
-                      "en-US",
-                      {
-                        timeZone: "Asia/Ho_Chi_Minh",
-                      }
-                    );
+                      handleAuctionRequest(chooseID._id, {
+                        checkedStatus: "Accepted",
+                        startDate: date,
+                      });
 
-                    handleAuctionRequest(chooseID._id, {
-                      checkedStatus: "Accepted",
-                      startDate: date,
-                    });
+                      const newList = [...notStartList];
 
-                    const newList = [...notStartList];
+                      newList.push(chooseID);
 
-                    newList.push(chooseID);
+                      dispatch(setNotStartAuction(newList));
 
-                    dispatch(setNotStartAuction(newList));
+                      setIsOpenCalender(false);
 
-                    setIsOpenCalender(false);
-
-                    setCalenderValue("");
-                  }}
-                >
-                  Submit
-                </Button>
+                      setCalenderValue("");
+                    }}
+                  >
+                    Submit
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -375,6 +375,8 @@ const AddProperties = () => {
   };
 
   const handleCreateProperty = async () => {
+    window.scrollTo(0, 0);
+
     try {
       let imgUrl = "";
       let pdfUrl = "";
@@ -925,7 +927,8 @@ const AddProperties = () => {
         >
           <Box sx={style}>
             <div
-              style={{
+              st
+              yle={{
                 display: "flex",
                 flexDirection: "row",
                 overflowX: "auto",

@@ -1,13 +1,25 @@
-import { CheckBox } from "@mui/icons-material";
+import { CheckBox, Close } from "@mui/icons-material";
 import {
+  Alert,
+  Box,
+  Button,
   Card,
   CardMedia,
   Checkbox,
+  Divider,
+  FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select,
+  Snackbar,
+  TextField,
   Typography,
-  Button,
+  Tooltip,
 } from "@mui/material";
-import { Box } from "@mui/system";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import BedIcon from "@mui/icons-material/Bed";
@@ -24,6 +36,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setProperties } from "../../../redux/reducers/auctionSlice";
 import { setSearchResults } from "../../../redux/reducers/searchAuctionSlice";
 import { RealEstateContext } from "../../../context/real-estate.context";
+import { methodList } from "../../auction detail/AuctionDetail1";
 
 const colorBall = {
   width: "12px",
@@ -40,6 +53,18 @@ const imgCard = {
 const address = {
   width: "300px",
   height: "50px",
+};
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 600,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: "15px",
 };
 
 const descSpacing = {
@@ -104,11 +129,45 @@ const WinningBidCard = ({
 
   const { createBill, createNewBill } = useContext(BidContext);
 
-  const auctionList = useSelector((state) => state.auction.properties);
+  const [openModal, setOpenModel] = useState(false);
 
-  const dispatch = useDispatch();
+  const [paymentMethod, setPaymentMethod] = useState({
+    value: "",
+    img: "",
+    balance: 0,
+  });
+
+  const formattedValue = (value) => {
+    // Ensure the input is a valid number
+    if (typeof value !== "number" || isNaN(value)) {
+      return "Invalid input";
+    }
+
+    // Use Intl.NumberFormat to format the number as US currency
+    const formattedAmount = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+
+    return formattedAmount;
+  };
 
   console.log(realEstateID);
+
+  const handleSelectedChange = (event) => {
+    const selectedMethodValue = event.target.value;
+    const selectedMethod = methodList.find(
+      (method) => method.value === selectedMethodValue
+    );
+
+    setPaymentMethod({
+      value: selectedMethod?.value,
+      img: selectedMethod?.img,
+      balance: selectedMethod?.balance,
+    });
+  };
 
   const handlePayWinningAuction = async () => {
     try {
@@ -126,7 +185,9 @@ const WinningBidCard = ({
             payment: "VNPay",
             type: "Pay Winning Auction",
           };
-
+          setCheckPay(true);
+          setOpenModel(false);
+          toast.success("Pay Winning Auction Successfully!!");
           const createBill = await createNewBill(dataPost);
 
           console.log(createBill);
@@ -403,7 +464,7 @@ const WinningBidCard = ({
                     padding: "12px 0",
                     fontWeight: "600",
                   }}
-                  onClick={handlePayWinningAuction}
+                  onClick={() => setOpenModel(true)}
                 >
                   Pay Winning Auction
                 </Button>
@@ -412,6 +473,192 @@ const WinningBidCard = ({
           </Grid>
         </Box>
       </div>
+
+      {openModal ? (
+        <div className="buy-modal">
+          <Modal
+            open={openModal}
+            onClose={() => setOpenModel(false)}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <div
+                className="close-btn"
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: "-10px",
+                }}
+              >
+                <IconButton onClick={() => setOpenModel(false)}>
+                  <Close />
+                </IconButton>
+              </div>
+              <div
+                className="modal-content"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  marginTop: "-20px",
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  color="initial"
+                  fontSize={24}
+                  fontWeight={600}
+                >
+                  Pay To Join Auction
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="#85929E"
+                  fontSize={14}
+                  sx={{ mt: "8px" }}
+                >
+                  Once you pay, you're committed to start bidding in this
+                  auction
+                </Typography>
+                <div
+                  className="duration-input"
+                  style={{
+                    marginTop: "30px",
+                  }}
+                ></div>
+                <div className="price-input" style={{ marginTop: "30px" }}>
+                  <Grid container>
+                    <Grid item>
+                      <TextField
+                        label="Price"
+                        value={currentBid}
+                        sx={{ width: "495px" }}
+                        InputProps={{
+                          readOnly: "true",
+                          style: {
+                            borderRadius: "8px",
+                          },
+                        }}
+                        inputProps={{
+                          style: {
+                            textAlign: "center",
+                          },
+                        }}
+                      >
+                        {formattedValue(currentBid)}
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                  <FormControl sx={{ width: "498px", mt: "20px" }}>
+                    <InputLabel id="demo-simple-select-label">
+                      Select payment method
+                    </InputLabel>
+                    <Select
+                      value={paymentMethod.value}
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      label="Select payment method"
+                      sx={{ borderRadius: "8px" }}
+                      onChange={handleSelectedChange}
+                    >
+                      {methodList.map((method, index) => (
+                        <MenuItem
+                          key={index}
+                          disabled={userWallet?.balance < currentBid}
+                          value={method.value}
+                        >
+                          <Box
+                            sx={{
+                              width: "100%",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              p: "10px 10px",
+                            }}
+                          >
+                            <Grid container spacing={2} alignItems="center">
+                              <Grid item>
+                                <CardMedia
+                                  component="img"
+                                  src={method.img}
+                                  sx={{ width: "60px", height: "40px" }}
+                                />
+                              </Grid>
+                              <Grid item>
+                                <Typography
+                                  variant="body1"
+                                  color="initial"
+                                  fontWeight={500}
+                                >
+                                  {method.value}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                            <Grid
+                              container
+                              flexDirection="column"
+                              justifyContent="center"
+                              alignItems="center"
+                            >
+                              <Grid item>
+                                {method.value === "Choose another wallet" ? (
+                                  ""
+                                ) : (
+                                  <Typography
+                                    variant="body1"
+                                    color="initial"
+                                    fontWeight={600}
+                                  >
+                                    Available balance
+                                  </Typography>
+                                )}
+                              </Grid>
+                              <Grid item>
+                                {method.value === "Choose another wallet" ? (
+                                  ""
+                                ) : (
+                                  <Typography variant="body1" color="initial">
+                                    {formattedValue(userWallet?.balance)}
+                                  </Typography>
+                                )}
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+                <Button
+                  variant="contained"
+                  sx={{
+                    mt: "40px",
+                    bgcolor: "#F25D49",
+                    p: "17px 205px",
+                    "&:hover": {
+                      bgcolor: "#F25D49",
+                    },
+                    textTransform: "none",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                  }}
+                  onClick={() => {
+                    handlePayWinningAuction();
+                  }}
+                  disabled={paymentMethod?.value === ""}
+                >
+                  Pay now
+                </Button>
+              </div>
+            </Box>
+          </Modal>
+        </div>
+      ) : (
+        ""
+      )}
     </Card>
   );
 };

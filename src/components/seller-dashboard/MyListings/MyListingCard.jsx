@@ -32,6 +32,7 @@ import { AuthContext } from "../../../context/auth.context";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import { validationCreateAuction } from "./validateCreateAuction";
+import moment from "moment";
 
 const imgCard = {
   width: "320px",
@@ -114,8 +115,6 @@ const MyListingCard = ({
 }) => {
   const { user } = useContext(AuthContext);
 
-  const { getAuctionByRealEstateID } = useContext(AuctionContext);
-
   const [open, setOpen] = React.useState(false);
   const [checkExist, setCheckExist] = useState(null);
   const [auction, setAuction] = useState({
@@ -131,8 +130,13 @@ const MyListingCard = ({
     realEstateID: propID,
   });
 
-  const { createAuction, auctionList, setAuctionList, updateAuction } =
-    useContext(AuctionContext);
+  const {
+    createAuction,
+    auctionList,
+    setAuctionList,
+    updateAuction,
+    getAuctionByRealEstateID,
+  } = useContext(AuctionContext);
 
   const nav = useNavigate();
 
@@ -163,6 +167,23 @@ const MyListingCard = ({
   const handleOpen = () => setOpen(true);
 
   const handleClose = () => setOpen(false);
+
+  const handleOpenUpdate = async () => {
+    const res = await getAuctionByRealEstateID(propID);
+    console.log(res);
+
+    if (res.success) {
+      formik.setFieldValue("startPrice", res.response.startPrice);
+      formik.setFieldValue("priceStep", res.response.priceStep);
+      formik.setFieldValue("buyNowPrice", res.response.buyNowPrice);
+      formik.setFieldValue("day", res.response.day);
+      formik.setFieldValue("hour", res.response.hour);
+      formik.setFieldValue("minute", res.response.minute);
+      formik.setFieldValue("second", res.response.second);
+    }
+
+    setOpen(true);
+  };
 
   const handlePriceChange = (field, value) => {
     // Allow only numeric input and handle empty value
@@ -195,6 +216,7 @@ const MyListingCard = ({
       [field]: validatedValue,
     }));
   };
+  console.log(property);
 
   const handleSubmitAuction = async () => {
     try {
@@ -203,11 +225,6 @@ const MyListingCard = ({
       console.log(propID);
 
       if (checkExistAuction?.response) {
-        formik.setFieldValue(
-          "startPrice",
-          checkExistAuction.response.startPrice
-        );
-
         const res = await updateAuction(
           checkExistAuction.response._id,
           formik.values
@@ -219,10 +236,12 @@ const MyListingCard = ({
           );
           if (indexToUpdate !== -1) {
             const updatedAuctionList = [...auctionLists];
-            updatedAuctionList[indexToUpdate].status = "Wait For Approval";
+            updatedAuctionList[indexToUpdate].status = "Requesting";
             setAuctionLists(updatedAuctionList);
           }
         }
+
+        handleClose();
       } else {
         const res = await createAuction(formik.values);
         console.log(res);
@@ -236,7 +255,7 @@ const MyListingCard = ({
           // If the index is found, update the auctionList
           if (indexToUpdate !== -1) {
             const updatedAuctionList = [...auctionLists]; // Create a copy of the auctionList array
-            updatedAuctionList[indexToUpdate].status = "Wait For Approval"; // Update the item at the found index with the new result
+            updatedAuctionList[indexToUpdate].status = "Requesting"; // Update the item at the found index with the new result
             setAuctionLists(updatedAuctionList); // Update the state with the updated auctionList
           }
         }
@@ -261,6 +280,18 @@ const MyListingCard = ({
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getAuctionByRealEstateID(propID);
+      console.log(res);
+      if (res?.success) {
+        setAuction(res.response);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -416,7 +447,9 @@ const MyListingCard = ({
                   textTransform: "none",
                   borderRadius: "8px",
                   background: "#118BF4",
-                  padding: "12px 100px",
+                  padding: "12px",
+                  width: "95%",
+
                   fontWeight: "600",
                   "&:hover": {
                     background: "#118BF4",
@@ -433,15 +466,16 @@ const MyListingCard = ({
                   textTransform: "none",
                   borderRadius: "8px",
                   background: "#118BF4",
-                  padding: "12px 100px",
+                  padding: "12px",
                   fontWeight: "600",
+                  width: "95%",
                   "&:hover": {
                     background: "#118BF4",
                   },
                 }}
                 disabled={true}
               >
-                Wait For Pay
+                Wait For Payment
               </Button>
             ) : (
               <Button
@@ -450,7 +484,8 @@ const MyListingCard = ({
                   textTransform: "none",
                   borderRadius: "8px",
                   background: "#118BF4",
-                  padding: "12px 100px",
+                  width: "95%",
+                  padding: "12px",
                   fontWeight: "600",
                   "&:hover": {
                     background: "#118BF4",
@@ -458,7 +493,8 @@ const MyListingCard = ({
                 }}
                 onClick={() => {
                   switch (status) {
-                    case "Available" || "Rejected": {
+                    case "Available":
+                    case "Rejected": {
                       handleOpen();
                       break;
                     }
@@ -468,21 +504,29 @@ const MyListingCard = ({
                       break;
                     }
 
-                    case "Pending": {
-                      handleOpen();
+                    case "Requesting": {
+                      handleOpenUpdate();
                       break;
                     }
 
+                    case "Not Start": {
+                      // console.log(auction);
+                      break;
+                    }
                     default: {
                       break;
                     }
                   }
                 }}
               >
-                {status === "Wait For Approval"
+                {status === "Requesting"
                   ? "Update Auction"
                   : status === "In Auction"
                   ? "View Auction"
+                  : status === "Not Start"
+                  ? `Start At: ${moment(auction.startDate).format(
+                      "HH:mm, DD/MM/YYYY"
+                    )}`
                   : "Open Auction"}
               </Button>
             )}

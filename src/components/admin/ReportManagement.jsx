@@ -188,6 +188,8 @@ const ReportManagement = () => {
     fetchData();
   }, []);
 
+  console.log(reports);
+
   const [page, setPage] = React.useState(0);
 
   const [rowsPerPage, setRowsPerPage] = React.useState(5);

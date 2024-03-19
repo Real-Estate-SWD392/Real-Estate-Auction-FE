@@ -39,6 +39,11 @@ export const statusColor = [
     color: "#FF0000",
     amount: 2,
   },
+  {
+    name: "WAIT FOR APPROVAL",
+    color: "yellow",
+    amount: 2,
+  },
 ];
 
 const UpdatePropertyList = ({ setIsOpenUpdate, setSelectedTabIndex }) => {

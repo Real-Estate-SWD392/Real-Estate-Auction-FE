@@ -24,6 +24,7 @@ import { styled } from "@mui/system";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/auth.context";
 import Wallet from "../../wallet/Wallet";
+import AddBalance from "../../wallet/AddBalance";
 import { useEffect } from "react";
 import { UserContext } from "../../../context/user.context";
 
@@ -40,14 +41,6 @@ const pageNames = [
     name: "E-wallet",
     url: "",
   },
-  // {
-  //   name: "100000000 $",
-  //   url: "/sell",
-  // },
-  // {
-  //   name: "Alert",
-  //   url: "",
-  // },
 ];
 
 export const userSettings = [
@@ -89,6 +82,7 @@ function ResponsiveAppBar({ userName }) {
   const { logout, isOpenLogin, setIsOpenLogin } = useContext(AuthContext);
   const { userWallet, setUserWallet, getBalance } = useContext(UserContext);
   const [openWallet, setOpenWallet] = React.useState(false);
+  const [openAddBalance, setOpenAddBalance] = React.useState(false);
 
   const currentLocation = location.pathname;
 
@@ -135,7 +129,15 @@ function ResponsiveAppBar({ userName }) {
     <div className="navbar-container">
       {openWallet ? (
         <div className="wallet">
-          <Wallet wallet={userWallet} />
+          <Wallet setOpenAddBalance={setOpenAddBalance} setOpenWallet={setOpenWallet} wallet={userWallet}/>
+        </div>
+      ) : (
+        ""
+      )}
+
+      {openAddBalance ? (
+        <div className="add-balance-nav">
+          <AddBalance />
         </div>
       ) : (
         ""
@@ -184,7 +186,7 @@ function ResponsiveAppBar({ userName }) {
                     user && page.name === "E-wallet" ? (
                       <Button
                         key={index}
-                        onClick={() => setOpenWallet(!openWallet)}
+                        onClick={() => {setOpenWallet(!openWallet); setOpenAddBalance(false)}}
                         sx={{
                           my: 2,
                           color: "black",

@@ -1,45 +1,51 @@
 .navbar-container {
-    position: relative;
-    .header {
-        background-color: white;
-        color: black;
+  position: relative;
+  .header {
+    background-color: white;
+    color: black;
 
-        .logo-container {
-            .image-logo {
-                width: 60px;
-            }
-            display: flex;
-            align-items: center;
+    .logo-container {
+      .image-logo {
+        width: 60px;
+      }
+      display: flex;
+      align-items: center;
 
-            .logo-content {
-                line-height: 1;
-                .logo-content-a {
-                    font-size: 24px;
-                    font-weight: 700;
-                }
-                .logo-content-b {
-                    font-size: 16px;
-                    font-weight: 600;
-                }
-            }
+      .logo-content {
+        line-height: 1;
+        .logo-content-a {
+          font-size: 24px;
+          font-weight: 700;
         }
-
-        .button-login-container {
-            padding: 15px 14px;
-            margin: 16px 10px;
-            border: 1px solid black;
-            border-radius: 10px;
-            cursor: pointer;
-
+        .logo-content-b {
+          font-size: 16px;
+          font-weight: 600;
         }
-
+      }
     }
 
-    .wallet {
-        position: absolute;
-        // display: none;
-        right: 100px;
-        top: 70px;
-        z-index: 4000;
+    .button-login-container {
+      padding: 15px 14px;
+      margin: 16px 10px;
+      border: 1px solid black;
+      border-radius: 10px;
+      cursor: pointer;
     }
+  }
+
+  .wallet {
+    position: absolute;
+    // display: none;
+    right: 120px;
+    top: 75px;
+    z-index: 4000;
+  }
+
+  .add-balance-nav {
+    position: absolute;
+    // display: none;
+    right: 100px;
+    top: 70px;
+    z-index: 4000;
+  }
 }
