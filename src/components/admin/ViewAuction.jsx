@@ -54,7 +54,7 @@ const filterType = [
   },
 
   {
-    name: "Appointed",
+    name: "Not Start",
     // amount: statusCount.notstart,
     background: "rgb(255, 190, 152,0.1)",
     color: "rgb(255, 190, 152)",
@@ -166,6 +166,57 @@ const ViewAuction = () => {
 
   console.log(auctionNoCount);
 
+  const getFileName = (url) => {
+    // Split the URL by '/'
+    const parts = url.split("/");
+
+    // Decode the URL-encoded component (e.g., %2F becomes '/')
+    const decodedFileName = decodeURIComponent(parts[parts.length - 1]);
+
+    // Split the decoded file name by '?'
+    const fileNameParts = decodedFileName.split("?");
+
+    // The first part should be the actual file name
+    const fileNameWithPrefix = fileNameParts[0];
+
+    const prefixRegex = /pdf\/\d+-/;
+
+    const fileNameWithoutPrefix = fileNameWithPrefix.replace(prefixRegex, "");
+
+    return fileNameWithoutPrefix;
+  };
+
+  const openFileInNewPage = (url) => {
+    const downloadWindow = window.open(url, "_blank");
+
+    if (!downloadWindow) {
+      // If the new window failed to open (due to pop-up blockers), provide a message or handle it as needed
+      console.error(
+        "Unable to open a new window. Please check your pop-up blocker settings."
+      );
+    }
+  };
+
+  const downloadFile = (url, fileName) => {
+    openFileInNewPage(url);
+  };
+
+  const formattedTime = (auctionNoCount, auction, status) => {
+    let formattedTime;
+    if (status === "Not Start") {
+      formattedTime = auctionNoCount;
+      if (formattedTime < 10) {
+        formattedTime = "0" + auctionNoCount;
+      }
+    } else {
+      formattedTime = auction;
+      if (formattedTime < 10) {
+        formattedTime = "0" + auction;
+      }
+    }
+    return formattedTime; // Return the formatted time after all conditions are checked
+  };
+
   if (!isLoading && auctionNoCount) {
     return (
       <div style={{ marginLeft: "50px", marginBottom: "20px" }}>
@@ -194,7 +245,7 @@ const ViewAuction = () => {
                   className="img-slide"
                   style={{ marginTop: "20px", width: "100%" }}
                 >
-                  <Grid container justifyContent="space-between">
+                  <Grid container spacing={8}>
                     {auctionNoCount?.realEstateID?.image?.map((img, key) => (
                       <Grid item>
                         <img
@@ -370,7 +421,11 @@ const ViewAuction = () => {
                         style={specStyle}
                       >
                         {/* {property.day < 10 ? "0" + property.day : property.day} */}{" "}
-                        {auctionNoCount?.day}
+                        {formattedTime(
+                          auctionNoCount?.day,
+                          auction?.day,
+                          auctionNoCount?.status
+                        )}
                       </Typography>
                       <Typography variant="body1" color="#48525B">
                         Days
@@ -393,7 +448,11 @@ const ViewAuction = () => {
                         style={specStyle}
                       >
                         {/* {property.hour < 10 ? "0" + property.hour : property.hour}  */}
-                        {auctionNoCount?.hour}
+                        {formattedTime(
+                          auctionNoCount?.hour,
+                          auction?.hour,
+                          auctionNoCount?.status
+                        )}
                       </Typography>
                       <Typography variant="body1" color="#48525B">
                         Hours
@@ -418,7 +477,11 @@ const ViewAuction = () => {
                         {/* {property.minute < 10
                       ? "0" + property.minute
                       : property.minute} */}
-                        {auctionNoCount?.minute}
+                        {formattedTime(
+                          auctionNoCount?.minute,
+                          auction?.minute,
+                          auctionNoCount?.status
+                        )}
                       </Typography>
                       <Typography variant="body1" color="#48525B">
                         Mins
@@ -443,7 +506,11 @@ const ViewAuction = () => {
                         {/* {property.second < 10
                       ? "0" + property.second
                       : property.second} */}
-                        {auctionNoCount?.second}
+                        {formattedTime(
+                          auctionNoCount?.second,
+                          auction?.second,
+                          auctionNoCount?.status
+                        )}
                       </Typography>
                       <Typography variant="body1" color="#48525B">
                         Secs
@@ -609,14 +676,20 @@ const ViewAuction = () => {
               <div className="doc-list" style={{ marginTop: "30px" }}>
                 <Grid container flexDirection="column" gap={2}>
                   {auctionNoCount?.realEstateID?.pdf?.map((doc) => (
-                    <Grid item display="flex" alignItems="center">
+                    <Grid
+                      item
+                      display="flex"
+                      alignItems="center"
+                      onClick={() => downloadFile(doc, getFileName(doc))}
+                      sx={{ cursor: "pointer" }}
+                    >
                       <PictureAsPdfIcon sx={{ color: "red" }} />
                       <Typography
                         variant="body1"
                         color="initial"
                         sx={{ marginLeft: "8px" }}
                       >
-                        {doc}
+                        {getFileName(doc)}
                       </Typography>
                     </Grid>
                   ))}
@@ -831,8 +904,7 @@ const ViewAuction = () => {
                       color="initial"
                       style={specStyle}
                     >
-                      {/* {property.day < 10 ? "0" + property.day : property.day} */}{" "}
-                      {auction?.day}
+                      {auction?.day < 10 ? "0" + auction?.day : auction?.day}
                     </Typography>
                     <Typography variant="body1" color="#48525B">
                       Days
@@ -854,8 +926,7 @@ const ViewAuction = () => {
                       color="initial"
                       style={specStyle}
                     >
-                      {/* {property.hour < 10 ? "0" + property.hour : property.hour}  */}
-                      {auction?.hour}
+                      {auction?.hour < 10 ? "0" + auction?.hour : auction?.hour}
                     </Typography>
                     <Typography variant="body1" color="#48525B">
                       Hours
@@ -877,10 +948,9 @@ const ViewAuction = () => {
                       color="initial"
                       style={specStyle}
                     >
-                      {/* {property.minute < 10
-                        ? "0" + property.minute
-                        : property.minute} */}
-                      {auction?.minute}
+                      {auction?.minute < 10
+                        ? "0" + auction?.minute
+                        : auction?.minute}
                     </Typography>
                     <Typography variant="body1" color="#48525B">
                       Mins
@@ -902,10 +972,9 @@ const ViewAuction = () => {
                       color="initial"
                       style={specStyle}
                     >
-                      {/* {property.second < 10
-                        ? "0" + property.second
-                        : property.second} */}
-                      {auction?.second}
+                      {auction?.second < 10
+                        ? "0" + auction?.second
+                        : auction?.second}
                     </Typography>
                     <Typography variant="body1" color="#48525B">
                       Secs
@@ -1071,14 +1140,20 @@ const ViewAuction = () => {
             <div className="doc-list" style={{ marginTop: "30px" }}>
               <Grid container flexDirection="column" gap={2}>
                 {auction?.realEstateID?.pdf?.map((doc) => (
-                  <Grid item display="flex" alignItems="center">
+                  <Grid
+                    item
+                    display="flex"
+                    alignItems="center"
+                    onClick={() => downloadFile(doc, getFileName(doc))}
+                    sx={{ cursor: "pointer" }}
+                  >
                     <PictureAsPdfIcon sx={{ color: "red" }} />
                     <Typography
                       variant="body1"
                       color="initial"
                       sx={{ marginLeft: "8px" }}
                     >
-                      {doc}
+                      {getFileName(doc)}
                     </Typography>
                   </Grid>
                 ))}
