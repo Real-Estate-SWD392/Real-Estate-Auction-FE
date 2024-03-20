@@ -274,7 +274,6 @@ const AddProperties = () => {
         name: file.name,
         url: URL.createObjectURL(file),
       }));
-
       setImage((prev) => [...prev, ...newImages]);
     }
   };
@@ -619,7 +618,7 @@ const AddProperties = () => {
                               },
                               mr: "-13px",
                             }}
-                            disabled={image.length > 4}
+                            disabled={formik.values.image.length > 5}
                           >
                             Add Image (.png, .jpg)
                           </Button>
@@ -928,38 +927,36 @@ const AddProperties = () => {
         >
           <Box sx={style}>
             <div
-              st
-              yle={{
+              style={{
                 display: "flex",
                 flexDirection: "row",
                 overflowX: "auto",
               }}
             >
-              {formik?.values?.image instanceof File &&
-                formik?.values?.image?.map((image, index) => (
-                  <div key={index} style={{ position: "relative" }}>
-                    <img
-                      src={URL.createObjectURL(image)}
-                      alt={image.name}
-                      style={{
-                        width: "300px",
-                        height: "300px", // Maintain the aspect ratio
-                      }}
-                    />
-                    <Button
-                      onClick={() => handleDeleteImg(index, formik)}
-                      style={{
-                        position: "absolute",
-                        top: 5,
-                        right: 5,
-                        color: "black",
-                        background: "white",
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                ))}
+              {image?.map((item, index) => (
+                <div key={index} style={{ position: "relative" }}>
+                  <img
+                    src={item.url}
+                    alt={item.name}
+                    style={{
+                      width: "300px",
+                      height: "300px", // Maintain the aspect ratio
+                    }}
+                  />
+                  <Button
+                    onClick={() => handleDeleteImg(index, formik)}
+                    style={{
+                      position: "absolute",
+                      top: 5,
+                      right: 5,
+                      color: "black",
+                      background: "white",
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ))}
             </div>
           </Box>
         </Modal>

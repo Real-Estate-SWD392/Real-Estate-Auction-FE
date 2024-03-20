@@ -222,9 +222,7 @@ const MyListingCard = ({
     try {
       const checkExistAuction = await getAuctionByRealEstateID(propID);
 
-      console.log(propID);
-
-      if (checkExistAuction?.response) {
+      if (checkExistAuction?.success) {
         const res = await updateAuction(
           checkExistAuction.response._id,
           formik.values

@@ -156,6 +156,8 @@ const ReportManagement = () => {
           return acc;
         }, 0);
         return count;
+      } else {
+        return 0;
       }
     };
   }, []);
@@ -173,11 +175,11 @@ const ReportManagement = () => {
 
       console.log(res);
 
-      if (res.success) {
+      if (res?.success) {
         setReports(res.response);
         setStatusCount((prevCount) => ({
           ...prevCount,
-          all: res.response?.length,
+          all: res?.response?.length,
           approved: countStatus(res.response, "Approved"),
           rejected: countStatus(res.response, "Rejected"),
           pending: countStatus(res.response, "Pending"),
@@ -265,7 +267,7 @@ const ReportManagement = () => {
 
     console.log(res);
 
-    if (res.success) {
+    if (res?.success) {
       const indexToUpdate = reports.findIndex(
         (item) => item._id === res.response._id
       );

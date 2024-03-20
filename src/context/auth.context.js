@@ -45,18 +45,24 @@ export const AuthContextProvider = ({ children }) => {
       );
 
       if (response.status === 200) {
-        toast.success("Login successfully");
         const data = response.data;
         // Handle successful login, e.g., save token to local storage, redirect, etc.
         console.log("Logged in successfully", data.response.role);
-        setUser(data.response);
-        setAccessToken(data.accessToken);
-        setRefreshToken(data.refreshToken);
-        Cookies.set("refreshToken", data.refreshToken, {
-          secure: true,
-          sameSite: "None",
-        });
-        return data;
+
+        if (data.response.status === "Banned") {
+          return toast.error("Your Account Is Banned");
+        } else {
+          setUser(data.response);
+          setAccessToken(data.accessToken);
+          setRefreshToken(data.refreshToken);
+          Cookies.set("refreshToken", data.refreshToken, {
+            secure: true,
+            sameSite: "None",
+          });
+          toast.success("Login successfully");
+
+          return data;
+        }
       } else {
         const errorData = response.data;
         console.error("Login failed", errorData);

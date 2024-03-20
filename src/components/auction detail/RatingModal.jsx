@@ -93,7 +93,12 @@ const labels = {
 const value = 3.5;
 const REQUIRED_COUNT = 70;
 
-const RatingModal = ({ openRating, handleCloseRating, ownerID }) => {
+const RatingModal = ({
+  openRating,
+  handleCloseRating,
+  ownerID,
+  setRatingDetail,
+}) => {
   const [report, setReport] = useState({
     reason: "",
     description: "",
@@ -137,6 +142,10 @@ const RatingModal = ({ openRating, handleCloseRating, ownerID }) => {
 
     try {
       const res = await ratingOwnerAuction(ownerID, rates, headers);
+
+      if (res.data.success) {
+        setRatingDetail(res.data.response);
+      }
       console.log("Hung Dep Trai", res);
       toast.success("Rating successfully !");
       handleCloseRating();

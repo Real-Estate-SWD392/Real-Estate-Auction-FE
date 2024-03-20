@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   FormControl,
@@ -53,7 +54,13 @@ const reasons = [
 
 const REQUIRED_COUNT = 70;
 
-const ReportModal = ({ openReport, handleCloseReport, ownerID, auctionID }) => {
+const ReportModal = ({
+  openReport,
+  handleCloseReport,
+  ownerID,
+  auctionID,
+  auctionStatus,
+}) => {
   const [report, setReport] = useState({
     reason: "",
     description: "",
@@ -175,79 +182,109 @@ const ReportModal = ({ openReport, handleCloseReport, ownerID, auctionID }) => {
             Once you send a report, the staff team will decide your report
             ticket
           </Typography>
-          <div className="price-input" style={{ marginTop: "30px" }}>
-            <FormControl>
-              <InputLabel id="demo-simple-select-label">Report type</InputLabel>
-              <Select
-                value={report.reason}
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Report type"
-                error={Boolean(error.reason)}
-                sx={{ borderRadius: "8px" }}
-                onChange={(event) =>
-                  handleInputChange("reason", event.target.value)
-                }
-              >
-                {reasons.map((reason, index) => (
-                  <MenuItem value={reason.name} key={index}>
-                    {reason.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <div className="" style={{ marginTop: "20px" }}>
-              <Grid container>
-                <Grid item>
-                  <TextField
-                    label="Report description"
-                    value={report.description}
-                    sx={{ width: "495px" }}
-                    InputProps={{
-                      // readOnly: letterCount >= REQUIRED_COUNT, // Lock input when limit is reached
-                      style: { borderRadius: "8px" },
-                      endAdornment: (
-                        <InputAdornment>
-                          <Typography
-                            variant="body1"
-                            color="initial"
-                            fontSize={12}
-                            sx={{ mr: "10px" }}
-                          >
-                            {letterCount}/{REQUIRED_COUNT}
-                          </Typography>
-                        </InputAdornment>
-                      ),
-                    }}
-                    multiline
+          {auctionStatus === "End" ? (
+            <Alert
+              severity="warning"
+              sx={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              This Auction Is End, You Cannot Report
+            </Alert>
+          ) : user && auctionStatus === "In Auction" ? (
+            <Alert
+              severity="warning"
+              sx={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              Please Login To Report This Auction
+            </Alert>
+          ) : (
+            <>
+              <div className="price-input" style={{ marginTop: "30px" }}>
+                <FormControl>
+                  <InputLabel id="demo-simple-select-label">
+                    Report type
+                  </InputLabel>
+                  <Select
+                    value={report.reason}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Report type"
+                    error={Boolean(error.reason)}
+                    sx={{ borderRadius: "8px" }}
                     onChange={(event) =>
-                      handleInputChange("description", event.target.value)
+                      handleInputChange("reason", event.target.value)
                     }
-                    error={Boolean(error.description)}
-                    helperText={error.description}
-                  />
-                </Grid>
-              </Grid>
-            </div>
-          </div>
-          <Button
-            variant="contained"
-            sx={{
-              mt: "40px",
-              bgcolor: "black",
-              p: "17px 205px",
-              "&:hover": {
-                bgcolor: "black",
-              },
-              textTransform: "none",
-              fontSize: "16px",
-              fontWeight: 600,
-              borderRadius: "8px",
-            }}
-            onClick={() => handleSubmit()}
-          >
-            Send Report
-          </Button>
+                  >
+                    {reasons.map((reason, index) => (
+                      <MenuItem value={reason.name} key={index}>
+                        {reason.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <div className="" style={{ marginTop: "20px" }}>
+                  <Grid container>
+                    <Grid item>
+                      <TextField
+                        label="Report description"
+                        value={report.description}
+                        sx={{ width: "495px" }}
+                        InputProps={{
+                          // readOnly: letterCount >= REQUIRED_COUNT, // Lock input when limit is reached
+                          style: { borderRadius: "8px" },
+                          endAdornment: (
+                            <InputAdornment>
+                              <Typography
+                                variant="body1"
+                                color="initial"
+                                fontSize={12}
+                                sx={{ mr: "10px" }}
+                              >
+                                {letterCount}/{REQUIRED_COUNT}
+                              </Typography>
+                            </InputAdornment>
+                          ),
+                        }}
+                        multiline
+                        onChange={(event) =>
+                          handleInputChange("description", event.target.value)
+                        }
+                        error={Boolean(error.description)}
+                        helperText={error.description}
+                      />
+                    </Grid>
+                  </Grid>
+                </div>
+              </div>
+              <Button
+                variant="contained"
+                sx={{
+                  mt: "40px",
+                  bgcolor: "black",
+                  p: "17px 205px",
+                  "&:hover": {
+                    bgcolor: "black",
+                  },
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+                onClick={() => handleSubmit()}
+              >
+                Send Report
+              </Button>
+            </>
+          )}
         </div>
       </Box>
     </Modal>

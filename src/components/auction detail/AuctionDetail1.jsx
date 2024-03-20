@@ -315,6 +315,8 @@ const AuctionDetail1 = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [ratingDetail, setRatingDetail] = useState(null);
+
   const [payNowBill, setPayNowBil] = useState({
     userID: user?._id,
     total: property?.buyNowPrice * (10 / 100),
@@ -379,6 +381,7 @@ const AuctionDetail1 = () => {
       if (res?.data?.response?.realEstateID?.ownerID?._id === user?._id) {
         setCheckIsOwner(true);
       }
+      setRatingDetail(res.data.response.realEstateID.ownerID);
       dispatch(setDetail(res.data.response));
       setPayNowBil((prev) => ({
         ...prev,
@@ -532,7 +535,7 @@ const AuctionDetail1 = () => {
           const dataPost = {
             auctionID: id,
             total: payNowBill?.total,
-            payment: "VNPay",
+            payment: "E-wallet",
             type: "Pay Auction Fee",
           };
 
@@ -584,7 +587,7 @@ const AuctionDetail1 = () => {
           const dataPost = {
             auctionID: id,
             total: property?.buyNowPrice,
-            payment: "VNPay",
+            payment: "E-wallet",
             type: "Buy Now",
           };
 
@@ -704,13 +707,12 @@ const AuctionDetail1 = () => {
   };
 
   const calculateAverageRating = () => {
-    const totalRatings =
-      property.realEstateID?.ownerID?.listRatingByUser.length;
+    const totalRatings = ratingDetail?.listRatingByUser?.length;
     console.log("55550", totalRatings);
     if (totalRatings === 0) return 0;
 
     // Calculate the sum of all ratings
-    const totalSum = property.realEstateID?.ownerID?.listRatingByUser.reduce(
+    const totalSum = ratingDetail?.listRatingByUser.reduce(
       (sum, rating) => sum + rating.rating,
       0
     );
@@ -768,6 +770,7 @@ const AuctionDetail1 = () => {
           handleCloseReport={handleCloseReport}
           ownerID={property?.realEstateID?.ownerID._id}
           auctionID={id}
+          auctionStatus={property?.status}
         />
       </div>
       <div className="detail-component" style={{ marginTop: "15px" }}>
@@ -1646,8 +1649,9 @@ const AuctionDetail1 = () => {
                   </Grid> */}
                 {/* </Grid> */}
                 <Typography variant="body1" color="initial" fontSize={30}>
-                  {property.realEstateID?.ownerID?.firstName}{" "}
-                  {property.realEstateID?.ownerID?.lastName}
+                  {user?._id === ratingDetail?._id
+                    ? "You"
+                    : `${ratingDetail?.firstName} ${ratingDetail?.lastName}`}{" "}
                 </Typography>
                 <Typography variant="body1" color="initial" fontSize={16}>
                   (owner)
@@ -1669,11 +1673,12 @@ const AuctionDetail1 = () => {
                   fontSize={18}
                   sx={{ my: "10px" }}
                 >
-                  ({property.realEstateID?.ownerID?.listRatingByUser.length}{" "}
-                  rates)
+                  ({ratingDetail?.listRatingByUser.length} rates)
                 </Typography>
 
-                {!user ? (
+                {user?._id === ratingDetail?._id ? (
+                  ""
+                ) : !user ? (
                   <Alert
                     severity="warning"
                     sx={{
@@ -1682,7 +1687,20 @@ const AuctionDetail1 = () => {
                       alignItems: "flex-end",
                     }}
                   >
-                    Please login to rate
+                    Please Login To Rate
+                  </Alert>
+                ) : user &&
+                  !joinList.includes(user?._id) &&
+                  user?._id !== ratingDetail?._id ? (
+                  <Alert
+                    severity="warning"
+                    sx={{
+                      width: "100%",
+                      justifyContent: "center",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    Please Join Auction To Rate
                   </Alert>
                 ) : (
                   <Button
@@ -1704,7 +1722,8 @@ const AuctionDetail1 = () => {
               <RatingModal
                 openRating={openRating}
                 handleCloseRating={handleCloseRating}
-                ownerID={property?.realEstateID?.ownerID?._id}
+                ownerID={ratingDetail?._id}
+                setRatingDetail={setRatingDetail}
               />
             </div>
           </Grid>

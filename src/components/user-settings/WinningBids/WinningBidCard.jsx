@@ -182,7 +182,7 @@ const WinningBidCard = ({
           const dataPost = {
             auctionID: propID,
             total: currentBid,
-            payment: "VNPay",
+            payment: "E-wallet",
             type: "Pay Winning Auction",
           };
           setCheckPay(true);

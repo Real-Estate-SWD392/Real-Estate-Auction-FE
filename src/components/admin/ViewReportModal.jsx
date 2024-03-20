@@ -139,7 +139,7 @@ const ViewReportModal = ({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {`${reason.reporterId.firstName} ${reason.reporterId.firstName}`}
+                        {`${reason.reporterId.firstName} ${reason.reporterId.lastName}`}
                       </TableCell>
                       <TableCell align="center" sx={{ pr: "20px" }}>
                         {

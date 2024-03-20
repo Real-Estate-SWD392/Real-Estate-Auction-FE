@@ -3,9 +3,7 @@ import "./Wallet.scss";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
 
-
 const Wallet = (props) => {
-  
   // const { wallet } = props;
   console.log("Walllll", props);
   const navigate = useNavigate();
@@ -43,7 +41,9 @@ const Wallet = (props) => {
       <h1>E-wallet</h1>
       <div className="balance-field">
         <p>Your balance</p>
-        <p className="balance-number">{formattedValue(props.wallet?.balance)}</p>
+        <p className="balance-number">
+          {formattedValue(props.wallet?.balance)}
+        </p>
       </div>
 
       <div>
@@ -56,13 +56,16 @@ const Wallet = (props) => {
         >
           <p>Add Balance</p>
         </Button>
-        <Button className="payment" onClick={() => navigate("/my-account/payment-history")}>
-          <p >Payment History</p>
+
+        <Button
+          className="payment"
+          onClick={() => navigate("/my-account/payment-history")}
+        >
+          <p>Payment History</p>
         </Button>
       </div>
     </div>
   );
 };
-      
 
 export default Wallet;

@@ -40,7 +40,7 @@ export const statusColor = [
     amount: 2,
   },
   {
-    name: "WAIT FOR APPROVAL",
+    name: "REQUESTING",
     color: "yellow",
     amount: 2,
   },

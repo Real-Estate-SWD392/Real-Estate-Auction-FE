@@ -839,6 +839,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                 backgroundColor: "white",
                 padding: "20px",
                 width: "450px",
+                marginBottom: "250px",
               }}
             >
               <div
@@ -871,8 +872,9 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DateTimePicker
                       label="Basic date time picker"
-                      value={calenderValue}
-                      onChange={(newValue) => setCalenderValue(newValue)}
+                      value={dayjs(calenderValue)} // Use default value if calenderValue is null
+                      onChange={(newValue) => setCalenderValue(dayjs(newValue))}
+                      minDateTime={dayjs(Date.now())}
                     />
                   </LocalizationProvider>
                 </div>

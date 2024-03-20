@@ -124,6 +124,7 @@ const UpdateProperty = () => {
 
         formik.setValues({
           propID: res.propID,
+          ownerID: res.ownerID,
           street: res.street,
           city: res.city,
           district: res.district,
@@ -135,6 +136,7 @@ const UpdateProperty = () => {
           bathRoom: res.bathRoom,
           description: res.description,
           pdf: res.pdf,
+          status: res.status,
         });
 
         const getProvince = `${provinceURL}/api/province`;
@@ -459,11 +461,17 @@ const UpdateProperty = () => {
 
       if (pdf.length > 0) pdfUrl = await uploadPDFsFile();
 
-      await updateRealEstate(id, { property, image: imgUrl, pdf: pdfUrl });
+      await updateRealEstate(id, {
+        property: formik.values,
+        image: imgUrl,
+        pdf: pdfUrl,
+      });
     } catch (error) {
       console.log(error);
     }
   };
+
+  console.log(formik.values);
 
   return (
     <form onSubmit={formik.handleSubmit}>
