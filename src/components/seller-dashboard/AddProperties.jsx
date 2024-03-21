@@ -279,11 +279,11 @@ const AddProperties = () => {
   };
 
   const handleDeleteImg = (index, form) => {
-    // setImage((prev) => {
-    //   const updatedList = [...prev];
-    //   updatedList.splice(index, 1);
-    //   return updatedList;
-    // });
+    setImage((prev) => {
+      const updatedList = [...prev];
+      updatedList.splice(index, 1);
+      return updatedList;
+    });
     const updatedImages = [...formik.values.image];
     updatedImages.splice(index, 1);
     form.setFieldValue("image", updatedImages);
@@ -309,11 +309,11 @@ const AddProperties = () => {
   };
 
   const handleDeleteDocument = (index, form) => {
-    // setPdf((prev) => {
-    //   const updatedDocs = [...prev];
-    //   updatedDocs.splice(index, 1);
-    //   return updatedDocs;
-    // });
+    setPdf((prev) => {
+      const updatedDocs = [...prev];
+      updatedDocs.splice(index, 1);
+      return updatedDocs;
+    });
     const updatedDocument = [...formik.values.pdf];
     updatedDocument.splice(index, 1);
     form.setFieldValue("pdf", updatedDocument);

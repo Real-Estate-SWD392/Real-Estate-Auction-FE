@@ -66,6 +66,12 @@ export const statusColor = [
     color: "white",
     amount: 2,
   },
+
+  {
+    name: "End",
+    color: "black",
+    amount: 2,
+  },
 ];
 
 const MyListings = () => {
@@ -159,7 +165,7 @@ const MyListings = () => {
             {statusColor.map((status, index) => (
               <Button
                 style={buttonStyles}
-                sx={{ mr: "12px" }}
+                sx={{ mr: "12px", mt: "10px" }}
                 onClick={() => handelFilter(status.name)}
               >
                 <Ball color={status.color} />

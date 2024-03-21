@@ -6,8 +6,8 @@ export const validationProperty = Yup.object().shape({
   district: Yup.string().required("Please select a district"),
   ward: Yup.string().required("Please select a ward"),
   image: Yup.array()
-    .min(1, "At least one image is required")
-    .max(5, "You can only add 5 images")
+    // .min(1, "At least one image is required")
+    // .max(5, "You can only add 5 images")
     .required("Please upload at least one image"),
   type: Yup.string().required("Please select a type"),
   size: Yup.number()
@@ -21,6 +21,6 @@ export const validationProperty = Yup.object().shape({
     .required("Bathroom is required"),
   description: Yup.string().required("This field is required"),
   pdf: Yup.array()
-    .min(1, "Please upload at least one PDF file")
+    // .min(1, "Please upload at least one PDF file")
     .required("Please upload at least one PDF file"),
 });

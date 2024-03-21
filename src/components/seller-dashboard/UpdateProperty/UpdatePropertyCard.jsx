@@ -238,7 +238,7 @@ const UpdatePropertyCard = ({
                 setIsOpenUpdate(true);
                 setSelectedTabIndex(null);
               }}
-              disabled={status === "Sold" || status === "Not Start"}
+              disabled={status !== "Available" && status !== "End"}
             >
               Update Property
             </Button>

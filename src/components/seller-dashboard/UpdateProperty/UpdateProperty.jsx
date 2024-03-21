@@ -107,12 +107,36 @@ const UpdateProperty = () => {
 
   const { id } = useParams();
 
-  const [isLoading, setIsloading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [location, setLocation] = useState({
     provinces: [],
     districts: [],
     wards: [],
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      propID: "",
+      ownerID: user._id,
+      street: "",
+      city: "",
+      district: "",
+      ward: "",
+      image: [],
+      type: "",
+      size: "",
+      bedRoom: "",
+      bathRoom: "",
+      description: "",
+      pdf: [],
+    },
+
+    validationSchema: validationProperty,
+    onSubmit: (values) => {
+      console.log("Form Data", values);
+      handleUpdateProperty();
+    },
   });
 
   useEffect(() => {
@@ -209,30 +233,6 @@ const UpdateProperty = () => {
 
     fetchData();
   }, []);
-
-  const formik = useFormik({
-    initialValues: {
-      propID: "",
-      ownerID: user._id,
-      street: "",
-      city: "",
-      district: "",
-      ward: "",
-      image: [],
-      type: "",
-      size: "",
-      bedRoom: "",
-      bathRoom: "",
-      description: "",
-      pdf: [],
-    },
-
-    validationSchema: validationProperty,
-    onSubmit: (values) => {
-      console.log("Form Data", values);
-      handleUpdateProperty();
-    },
-  });
 
   const handleSelectLocation = async (fieldName, selectedValue) => {
     setProperty((prevProp) => ({
@@ -357,12 +357,10 @@ const UpdateProperty = () => {
   };
 
   const handleDeleteImg = (index) => {
-    if (property.image.length > 0) {
-      setProperty((prev) => {
-        const updatedList = [...prev.image];
-        updatedList.splice(index, 1);
-        return { ...prev, image: updatedList };
-      });
+    if (formik.values.image.length > 0) {
+      const updatedImages = [...formik.values.image];
+      updatedImages.splice(index, 1);
+      formik.setFieldValue("image", updatedImages);
     } else {
       setImage((prev) => {
         const updatedList = [...prev];
@@ -373,6 +371,7 @@ const UpdateProperty = () => {
   };
 
   const handleDocumentChange = (event) => {
+    console.log("abcd");
     const files = event.target.files;
 
     setProperty((prevProp) => ({
@@ -392,11 +391,17 @@ const UpdateProperty = () => {
   };
 
   const handleDeleteDocument = (index) => {
-    setPdf((prev) => {
-      const updatedDocs = [...prev];
+    if (formik.values.pdf.length > 0) {
+      const updatedDocs = [...formik.values.pdf];
       updatedDocs.splice(index, 1);
-      return updatedDocs;
-    });
+      formik.setFieldValue("pdf", updatedDocs);
+    } else {
+      setPdf((prev) => {
+        const updatedDocs = [...prev];
+        updatedDocs.splice(index, 1);
+        return updatedDocs;
+      });
+    }
   };
 
   const handleSelectChange = (event) => {
@@ -439,6 +444,7 @@ const UpdateProperty = () => {
   };
 
   const uploadPDFsFile = async () => {
+    console.log("Uplaod PDF");
     try {
       const formData = new FormData();
       for (const single_file of property.pdf) {
@@ -454,6 +460,7 @@ const UpdateProperty = () => {
   };
 
   const handleUpdateProperty = async () => {
+    console.log("bcddsf");
     try {
       let imgUrl = "";
       let pdfUrl = "";
@@ -472,6 +479,7 @@ const UpdateProperty = () => {
   };
 
   console.log(formik.values);
+  console.log(pdf);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -505,7 +513,7 @@ const UpdateProperty = () => {
         </div>
         <CustomDivider />
         {isLoading ? (
-          <Loading setIsLoading={setIsloading} />
+          <Loading setIsLoading={setIsLoading} />
         ) : (
           <div
             className="contact-inf"
@@ -973,9 +981,9 @@ const UpdateProperty = () => {
                     style: inputStyle,
                     endAdornment: (
                       <InputAdornment>
-                        {property.pdf.length > 0 ? (
+                        {formik.values.pdf.length > 0 ? (
                           <Chip
-                            label={`View files (${property.pdf.length})`}
+                            label={`View files (${formik.values.pdf.length})`}
                             sx={{ "& .MuiChip-label": {}, marginRight: "20px" }}
                             onClick={() => handleOpenDoc()}
                           />
@@ -1062,7 +1070,7 @@ const UpdateProperty = () => {
               }}
             >
               {image.length === 0
-                ? property.image.map((image, index) => (
+                ? formik.values.image.map((image, index) => (
                     <div key={index} style={{ position: "relative" }}>
                       <img
                         src={image}
@@ -1122,8 +1130,8 @@ const UpdateProperty = () => {
           aria-describedby="modal-modal-description"
         >
           <Box sx={pdftyle}>
-            {property.pdf.length > 0
-              ? property.pdf.map((document, index) => (
+            {formik.values.pdf.length > 0
+              ? formik.values.pdf.map((document, index) => (
                   <div
                     key={index}
                     style={{

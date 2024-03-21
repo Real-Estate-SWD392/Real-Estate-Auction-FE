@@ -130,6 +130,8 @@ const MyListingCard = ({
     realEstateID: propID,
   });
 
+  const [openDetail, setOpenDetail] = useState(false);
+
   const {
     createAuction,
     auctionList,
@@ -152,6 +154,7 @@ const MyListingCard = ({
       priceStep: 1,
       buyNowPrice: 1,
       realEstateID: propID,
+      status: "Requesting",
     },
 
     validationSchema: validationCreateAuction,
@@ -222,7 +225,20 @@ const MyListingCard = ({
     try {
       const checkExistAuction = await getAuctionByRealEstateID(propID);
 
+      const isDurationValid =
+        parseInt(formik.values.hour) * 60 +
+          parseInt(formik.values.day) * 1440 +
+          parseInt(formik.values.minute) +
+          parseInt(formik.values.second) / 60 >=
+        3;
+
+      console.log(isDurationValid);
+
       if (checkExistAuction?.success) {
+        if (!isDurationValid) {
+          return;
+        }
+
         const res = await updateAuction(
           checkExistAuction.response._id,
           formik.values
@@ -241,6 +257,10 @@ const MyListingCard = ({
 
         handleClose();
       } else {
+        if (!isDurationValid) {
+          return;
+        }
+
         const res = await createAuction(formik.values);
         console.log(res);
 
@@ -282,6 +302,8 @@ const MyListingCard = ({
   useEffect(() => {
     const fetchData = async () => {
       const res = await getAuctionByRealEstateID(propID);
+
+      console.log(propID);
       console.log(res);
       if (res?.success) {
         setAuction(res.response);
@@ -307,22 +329,7 @@ const MyListingCard = ({
               filter: "brightness(0.9)",
             }}
           />
-          <IconButton
-            sx={{
-              position: "absolute",
-              zIndex: 3,
-              top: 8,
-              right: 8,
-              backgroundColor: "#FF0854",
-              "&:hover": {
-                backgroundColor: "#FF0854",
-              },
-            }}
-          >
-            <DeleteForeverIcon
-              sx={{ color: "white", width: "20px", height: "20px" }}
-            />
-          </IconButton>
+
           <Box
             sx={{
               display: "flex",
@@ -458,23 +465,39 @@ const MyListingCard = ({
                 Auction Sold
               </Button>
             ) : status === "Pending" ? (
-              <Button
-                variant="contained"
-                sx={{
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  background: "#118BF4",
-                  padding: "12px",
-                  fontWeight: "600",
-                  width: "95%",
-                  "&:hover": {
-                    background: "#118BF4",
-                  },
-                }}
-                disabled={true}
-              >
-                Wait For Payment
-              </Button>
+              <Grid container justifyContent="space-around">
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: "8px",
+                      background: "#118BF4",
+                      padding: "12px",
+                      fontWeight: "600",
+                      "&:hover": {
+                        background: "#118BF4",
+                      },
+                    }}
+                    disabled={true}
+                  >
+                    Wait For Payment
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: "8px",
+                      padding: "12px 0",
+                      fontWeight: "600",
+                    }}
+                    onClick={() => setOpenDetail(true)}
+                  >
+                    Winner Detail
+                  </Button>
+                </Grid>
+              </Grid>
             ) : (
               <Button
                 variant="contained"
@@ -492,7 +515,8 @@ const MyListingCard = ({
                 onClick={() => {
                   switch (status) {
                     case "Available":
-                    case "Rejected": {
+                    case "Rejected":
+                    case "End": {
                       handleOpen();
                       break;
                     }
@@ -522,10 +546,11 @@ const MyListingCard = ({
                   : status === "In Auction"
                   ? "View Auction"
                   : status === "Not Start"
-                  ? `Start At: ${moment(auction.startDate).format(
-                      "HH:mm, DD/MM/YYYY"
-                    )}`
-                  : "Open Auction"}
+                  ? `Start At: ${moment(auction.startDate)
+                      .subtract(7, "hours")
+                      .format("HH:mm, DD/MM/YYYY")}`
+                  : // auction.startDate
+                    "Open Auction"}
               </Button>
             )}
           </Box>
@@ -768,6 +793,17 @@ const MyListingCard = ({
               />
             </div>
             <div className="error-info" style={{ float: "left" }}>
+              {parseInt(formik.values.hour) * 60 +
+                parseInt(formik.values.day) * 1440 +
+                parseInt(formik.values.minute) +
+                parseInt(formik.values.second) / 60 <
+              3 ? (
+                <FormHelperText error>
+                  Auction Duration Must At Least 3 Minutes
+                </FormHelperText>
+              ) : (
+                ""
+              )}
               {formik.touched.day && formik.errors.day && (
                 <FormHelperText error>{formik.errors.day}</FormHelperText>
               )}
@@ -813,6 +849,52 @@ const MyListingCard = ({
             >
               Set Auction
             </Button>
+          </div>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={openDetail}
+        onClose={() => setOpenDetail(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <div
+            className="close-btn"
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "-10px",
+            }}
+          >
+            <IconButton onClick={() => setOpenDetail(false)}>
+              <Close />
+            </IconButton>
+          </div>
+          <div
+            className="modal-content"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "column",
+              marginTop: "-20px",
+            }}
+          >
+            <h2 style={{ textAlign: "center" }}>Winner Detail</h2>
+            <Typography variant="body1" fontSize={14} sx={{ mt: "8px" }}>
+              Name:{" "}
+              {`${auction?.winner?.firstName} ${auction?.winner?.lastName} `}
+            </Typography>
+            <Typography variant="body1" fontSize={14} sx={{ mt: "8px" }}>
+              Email: {auction?.winner?.email}
+            </Typography>
+            <Typography variant="body1" fontSize={14} sx={{ mt: "8px" }}>
+              Phone Number: {auction?.winner?.phoneNumber}
+            </Typography>
+            <Typography variant="body1" fontSize={14} sx={{ mt: "8px" }}>
+              Amount To Pay: {auction?.currentPrice}
+            </Typography>
           </div>
         </Box>
       </Modal>

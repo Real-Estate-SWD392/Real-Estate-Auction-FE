@@ -40,16 +40,16 @@ const MyBids = () => {
         res?.response?.forEach((bid) => {
           console.log(bid);
           // Check if the auctionID already exists in the map
-          if (highestPriceBidsMap.has(bid.auctionID._id)) {
+          if (highestPriceBidsMap.has(bid?.auctionID?._id)) {
             // If it does, compare the price with the existing bid
-            const existingBid = highestPriceBidsMap.get(bid.auctionID._id);
-            if (bid.price > existingBid.price) {
+            const existingBid = highestPriceBidsMap.get(bid?.auctionID?._id);
+            if (bid?.price > existingBid?.price) {
               // If the new bid has a higher price, update the map
-              highestPriceBidsMap.set(bid.auctionID._id, { ...bid });
+              highestPriceBidsMap.set(bid?.auctionID?._id, { ...bid });
             }
           } else {
             // If the auctionID does not exist in the map, add it
-            highestPriceBidsMap.set(bid.auctionID._id, { ...bid });
+            highestPriceBidsMap.set(bid?.auctionID?._id, { ...bid });
           }
         });
 

@@ -44,6 +44,11 @@ export const statusColor = [
     color: "yellow",
     amount: 2,
   },
+  {
+    name: "END",
+    color: "black",
+    amount: 2,
+  },
 ];
 
 const UpdatePropertyList = ({ setIsOpenUpdate, setSelectedTabIndex }) => {

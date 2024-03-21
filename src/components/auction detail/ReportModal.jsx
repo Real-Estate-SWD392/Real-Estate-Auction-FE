@@ -194,7 +194,7 @@ const ReportModal = ({
             >
               This Auction Is End, You Cannot Report
             </Alert>
-          ) : user && auctionStatus === "In Auction" ? (
+          ) : !user && auctionStatus === "In Auction" ? (
             <Alert
               severity="warning"
               sx={{
@@ -205,6 +205,18 @@ const ReportModal = ({
               }}
             >
               Please Login To Report This Auction
+            </Alert>
+          ) : user._id === ownerID ? (
+            <Alert
+              severity="warning"
+              sx={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              You Are Owner Of This Auction
             </Alert>
           ) : (
             <>

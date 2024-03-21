@@ -713,7 +713,7 @@ const AuctionManagement = ({ all, active, pending, rejected, ended }) => {
                     {row.name}
                   </TableCell>
                   <TableCell align="center">
-                    {moment(row.createdAt).format("DD-MM-YYYY")}
+                    {moment(row.updatedAt).format("DD-MM-YYYY")}
                   </TableCell>
                   <TableCell align="center">
                     <CurrencyFormatter amount={row.startPrice} />
